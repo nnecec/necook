@@ -1,3 +1,9 @@
+> reference 
+
+> [《JavaScript 闯关记》之数组](http://gold.xitu.io/post/581cb1d28ac247004fe90886)
+
+- [ES6](#es6)
+
 ## 创建
 
 - 数组字面量：var arr= [1,2,3]
@@ -113,7 +119,7 @@ values.sort(compare);
 
 ### 位置方法
 
-`indexOf()`,`lastIndexOf()`
+`arr.indexOf('test')`,`lastIndexOf()`
 
 ### 迭代方法
 
@@ -137,3 +143,6 @@ var sum = values.reduce(function(prev, cur, index, array){
 });
 console.log(sum); // 15
 ```
+
+<h1 id="es6">ES6</h1>
+
