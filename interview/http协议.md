@@ -1,6 +1,4 @@
 # HTTP
-之前了解的不多，现在自己学习总结。
-
 ## HTTP定义／简介
 HTTP协议是Hyper Text Transfer Protocol（超文本传输协议）的缩写，是用于从万维网服务器传输超文本到本地浏览器的传送协议。
 HTTP基于TCP/IP通信协议来传递数据，是一个属于应用层的面向对象的协议。协议工作于客户端-服务端架构（C/S）之上。浏览器作为HTTP客户端通过URL向HTTP服务端即WEB服务器发送所有请求，服务器根据接收到的请求后，向客户端发送响应信息。
@@ -21,7 +19,7 @@ HTTP使用统一资源标识符（Uniform Resource Identifiers, URI）来传输�
 
 ## 请求消息 Request
 一个HTTP请求格式由：请求行（request line）、请求头部（header）、空行和请求数据四个部分组成。
-http://upload-images.jianshu.io/upload\_images/2964446-fdfb1a8fce8de946.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240\_
+![](http://upload-images.jianshu.io/upload_images/2964446-fdfb1a8fce8de946.png)
 - Get请求例子
   GET /562f25980001b1b106000338.jpg HTTP/1.1
   Host    img.mukewang.com
@@ -61,6 +59,19 @@ http://upload-images.jianshu.io/upload\_images/2964446-fdfb1a8fce8de946.png?imag
 2. 消息报头：用来说明客户端要使用的一些附加信息。
 3. 空行：消息报头后面的空行是必须的。
 4. 响应正文：服务器返回给客户端的文本信息。
+
+常见的状态码有如下几种：
+
+- `200 OK` 客户端请求成功
+- `301 Moved Permanently` 请求永久重定向
+- `302 Moved Temporarily` 请求临时重定向
+- `304 Not Modified` 文件未修改，可以直接使用缓存的文件。
+- `400 Bad Request` 由于客户端请求有语法错误，不能被服务器所理解。
+- `401 Unauthorized` 请求未经授权。这个状态代码必须和WWW-Authenticate报头域一起使用
+- `403 Forbidden` 服务器收到请求，但是拒绝提供服务。服务器通常会在响应正文中给出不提供服务的原因
+- `404 Not Found` 请求的资源不存在，例如，输入了错误的URL
+- `500 Internal Server Error` 服务器发生不可预期的错误，导致无法完成客户端的请求。
+- `503 Service Unavailable` 服务器当前不能够处理客户端的请求，在一段时间之后，服务器可能会恢复正常。
 
 ## HTTP工作原理
 1. 客户端到Web服务器建立一个TCP套接字连接。
