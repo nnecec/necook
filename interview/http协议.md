@@ -1,8 +1,51 @@
 # HTTP
 ## HTTP定义／简介
 HTTP协议是Hyper Text Transfer Protocol（超文本传输协议）的缩写，是用于从万维网服务器传输超文本到本地浏览器的传送协议。
-HTTP基于TCP/IP通信协议来传递数据，是一个属于应用层的面向对象的协议。协议工作于客户端-服务端架构（C/S）之上。浏览器作为HTTP客户端通过URL向HTTP服务端即WEB服务器发送所有请求，服务器根据接收到的请求后，向客户端发送响应信息。
+
+HTTP协议是构建在TCP/IP协议之上的，是TCP/IP协议的一个子集，是一个属于应用层的面向对象的协议。协议工作于客户端-服务端架构（C/S）之上。浏览器作为HTTP客户端通过URL向HTTP服务端即WEB服务器发送所有请求，服务器根据接收到的请求后，向客户端发送响应信息。
 HTTP是一个简单的协议。客户进程建立一条同服务器进程的TCP连接，然后发出请求并读取服务器进程的响应。服务器进程关闭连接表示本次响应结束。服务器进程返回的文件通 常含有指向其他服务器上文件的指针 (超文本链接 )。用户显然可以很轻松地沿着这些链接从一个服务器到下一个服务器。
+
+## TCP/IP协议
+
+1. 应用层
+
+   应用层一般是我们编写的应用程序，其决定了向用户提供的应用服务。应用层可以通过系统调用与传输层进行通信。处于应用层的协议非常多，比如：FTP（File Transfer Protocol，文件传输协议）、DNS（Domain Name System，域名系统）和我们本章讨论的HTTP（HyperText Transfer Protocol，超文本传输协议）等。
+
+2. 传输层
+   传输层通过系统调用向应用层提供处于网络连接中的两台计算机之间的数据传输功能。
+   在传输层有两个性质不同的协议：TCP（Transmission Control Protocol，传输控制协议）和UDP（User Data Protocol，用户数据报协议）。
+
+3. 网络层
+   网络层用来处理在网络上流动的数据包，数据包是网络传输的最小数据单位。该层规定了通过怎样的路径（传输路线）到达对方计算机，并把数据包传输给对方。
+
+4. 链路层
+   链路层用来处理连接网络的硬件部分，包括控制操作系统、硬件设备驱动、NIC（Network Interface Card，网络适配器）以及光纤等物理可见部分。硬件上的范畴均在链路层的作用范围之内。
+
+   ### TCP三次握手
+
+   从上面的介绍可知，传输层协议主要有两个：TCP协议和UDP协议。TCP协议相对于UDP协议的特点是：TCP协议提供面向连接、字节流和可靠的传输。
+
+   使用TCP协议进行通信的双方必须先建立连接，然后才能开始传输数据。TCP连接是全双工的，也就是说双方的数据读写可以通过一个连接进行。为了确保连接双方可靠性，在双方建立连接时，TCP协议采用了三次握手（Three-way handshaking）策略。
+
+   TCP协议三次握手的描述如下：
+
+   **第一次握手**：客户端发送带有SYN标志的连接请求报文段，然后进入SYN_SEND状态，等待服务端的确认。
+
+   **第二次握手**：服务端接收到客户端的SYN报文段后，需要发送ACK信息对这个SYN报文段进行确认。同时，还要发送自己的SYN请求信息。服务端会将上述的信息放到一个报文段（SYN+ACK报文段）中，一并发送给客户端，此时服务端将会进入SYN_RECV状态。
+
+   **第三次握手**：客户端接收到服务端的SYN+ACK报文段后，会想服务端发送ACK确认报文段，这个报文段发送完毕后，客户端和服务端都进入ESTABLISHED状态，完成TCP三次握手。
+
+   当三次握手完成后，TCP协议会为连接双方维持连接状态。为了保证数据传输成功，接收端在接收到数据包后必须发送ACK报文作为确认。如果在指定的时间内（这个时间称为重新发送超时时间），发送端没有接收到接收端的ACK报文，那么就会重发超时的数据。
+
+## DNS服务
+
+通常我们访问一个网站，使用的是主机名或者域名来进行访问的。因为相对于IP地址（一组纯数字），域名更容易让人记住。但TCP/IP协议使用的是IP地址进行访问的，所以必须有个机制或服务把域名转换成IP地址。DNS服务就是用来解决这个问题的，它提供域名到IP地址之间的解析服务。
+
+DNS服务是通过DNS协议进行通信的，而DNS协议跟HTTP协议一样也是应用层协议。由于我们的重点是HTTP协议，所以这里不打算对DNS协议进行详细的分析，我们只需要知道可以通过DNS服务把域名解析成IP地址即可。
+
+## HTTP与TCP/IP、DNS的关系
+
+当客户端访问Web站点时，首先会通过DNS服务查询到域名的IP地址。然后浏览器生成HTTP请求，并通过TCP/IP协议发送给Web服务器。Web服务器接收到请求后会根据请求生成响应内容，并通过TCP/IP协议返回给客户端。
 
 ## HTTP主要特点
 1. 简单快速：客户向服务器请求服务时，只需传送请求方法和路径。请求方法常用的有GET、HEAD、POST。
@@ -21,27 +64,39 @@ HTTP使用统一资源标识符（Uniform Resource Identifiers, URI）来传输�
 一个HTTP请求格式由：请求行（request line）、请求头部（header）、空行和请求数据四个部分组成。
 ![](http://upload-images.jianshu.io/upload_images/2964446-fdfb1a8fce8de946.png)
 - Get请求例子
+
+  ```
   GET /562f25980001b1b106000338.jpg HTTP/1.1
   Host    img.mukewang.com
   User-Agent    Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36
-  Accept    image/webp,image/*,*/\*;q=0.8
+  Accept    image/webp,image/,/*;q=0.8
   Referer    http://www.imooc.com/
   Accept-Encoding    gzip, deflate, sdch
   Accept-Language    zh-CN,zh;q=0.8
+  ```
 
 1. 请求行：（第一行）用来说明请求类型，要访问的资源以及所使用的HTTP版本。
 2. 请求头部：（第二至七行）紧接着请求行（即第一行）之后的部分，用来说明服务器要使用的附加信息。HOST将指出请求的目的地。User-Agent服务器端和客户端脚本都能访问它，它是浏览器类型检测逻辑的重要基础。该信息由你的浏览器来定义，并且在每个请求中自动发送。
 3. 空行：（第八行）请求头部后面的空行是必须的。
 4. 请求数据：也叫主体，可以添加任意的其他数据。
-   *POST请求例子*
-   POST / HTTP1.1
-   Host:www.wrox.com
-   User-Agent:Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022)
-   Content-Type:application/x-www-form-urlencoded
-   Content-Length:40
-   Connection: Keep-Alive
 
-   name=Professional%20Ajax&publisher=Wiley
+- POST请求例子
+
+  ```
+  POST / HTTP1.1
+  Host:www.wrox.com
+  User-Agent:Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022)
+  Content-Type:application/x-www-form-urlencoded
+  Content-Length:40
+  Connection: Keep-Alive
+
+  name=Professional%20Ajax&publisher=Wiley
+  ```
+
+​	第一部分：请求行，第一行明了是post请求，以及http1.1版本。
+​	第二部分：请求头部，第二行至第六行。
+​	第三部分：空行，第七行的空行。
+​	第四部分：请求数据，第八行。
 
 ## 响应消息 Response
 由四个部分组成，分别是：状态行、消息报头、空行和响应正文。
@@ -74,6 +129,8 @@ HTTP使用统一资源标识符（Uniform Resource Identifiers, URI）来传输�
 - `503 Service Unavailable` 服务器当前不能够处理客户端的请求，在一段时间之后，服务器可能会恢复正常。
 
 ## HTTP工作原理
+ HTTP 请求/响应的步骤：
+
 1. 客户端到Web服务器建立一个TCP套接字连接。
 2. 发送HTTP请求
 3. 服务器接受请求并返回HTTP响应
