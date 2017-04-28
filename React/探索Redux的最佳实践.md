@@ -28,7 +28,7 @@ Redux是前端应用的状态容器，提供可预测的状态管理，其基本
 
 (state, action) => newState
 
-![WechatIMG199](/Users/nnecec/git/necook/React/img/WechatIMG199.jpeg)
+![WechatIMG199](./img/WechatIMG199.jpeg)
 
 ### 2.2 Redux异步方案选型
 
@@ -88,7 +88,7 @@ componentDidMount(){
 
 当使用中间件完成异步请求时，action在应用中流程如下所示
 
-![WechatIMG208](/Users/nnecec/git/necook/React/img/WechatIMG208.jpeg)
+![WechatIMG208](./img/WechatIMG208.jpeg)
 
 #### 2.2.3 Redux Promise Middleware
 
