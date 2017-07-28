@@ -35,3 +35,46 @@
 ## redux
 
 redux将数据保存在`store`中，不同的`state`对应不同的数据。`action`是用户抛出的变动通知，`dispatch`是抛出`action`并改变`store`的唯一方式。处理`state`的方法在`reducer`中定义并在`store`接收到`action`之后作出改动。
+
+官方的使用说明：
+
+```javascript
+import { createStore } from 'redux'
+
+function counter(state = 0, action) {
+  switch (action.type) {
+  case 'INCREMENT':
+    return state + 1
+  case 'DECREMENT':
+    return state - 1
+  default:
+    return state
+  }
+}
+// 1. 通过定义的 reducer 创建 store
+// 参数为 state 以及 将要接受的 action
+let store = createStore(counter)
+
+// 2. 设置订阅函数
+store.subscribe(() =>
+  console.log(store.getState())
+)
+
+// 3. dispatch action 并调用 subscribe 函数反映出相对应的 state
+store.dispatch({ type: 'INCREMENT' })
+// 1
+store.dispatch({ type: 'INCREMENT' })
+// 2
+store.dispatch({ type: 'DECREMENT' })
+// 1
+```
+
+执行`createStore()`时，首先`dispatch`了一个初始`action`。
+
+执行`dispatch`时会执行传入的`reducer`得到初始`state`树，并且目前还没有执行`subscribe`，`store`目前还没有`listener`。
+
+执行`subscribe()`传入`listener`函数，并加入到`nextListeners`数组中。
+
+当`dispatch()`的时候，`dispatch`会接受一个`action`参数，执行`reducer()`并改变当前`state`，并依次执行`nextListeners`中的`listener()`，最后返回`action`。
+
+至此完成了最基本的redux。
