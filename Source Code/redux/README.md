@@ -18,15 +18,15 @@
 
 ## compose.js
 
-组合多个函数的方法
+组合多个函数的方法。
 
 ## combineReducers.js
 
-将多个`reducer`组合为一个`reducer`
+将多个`reducer`组合为一个`reducer`。
 
 ## bindActionCreators.js
 
-用`dispatch`封装`actionCreator`，可以让Redux相对组件透明，降低耦合度
+用`dispatch`封装`actionCreator`，可以直接调用。应用场景是需要把`actionCreator`往下传到一个组件上，但不想让这个组件觉察到redux的存在，且不希望把`store`或`dispatch`传给它。
 
 ## applyMiddleware.js
 
