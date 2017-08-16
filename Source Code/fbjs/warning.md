@@ -1,5 +1,7 @@
 # warning
 
+在`condition`为`false`的情况下打印警告信息。
+
 ```javascript
 
 var warning = emptyFunction;
@@ -45,6 +47,8 @@ if (process.env.NODE_ENV !== 'production') {
     };
   })();
 }
+
+module.exports = warning;
 ```
 
 在非生产环境下：
@@ -52,5 +56,3 @@ if (process.env.NODE_ENV !== 'production') {
 printWarning: 将传入的参数从第二个开始拼装到args中，并逐个替换format中的%s，然后打印或抛出错误。
 
 waring: 当condition为非真时，将第二个之后的参数拼装到args中，并接到format之后，调用printWarning。
-
-export warning

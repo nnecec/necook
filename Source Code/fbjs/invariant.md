@@ -1,5 +1,7 @@
 # invariant
 
+在`condition`为`false`的情况下抛出错误信息。
+
 ```javascript
 var validateFormat = function validateFormat(format) {};
 
@@ -35,6 +37,8 @@ function invariant(condition, format, a, b, c, d, e, f) {
     throw error;
   }
 }
+
+module.exports = invariant;
 ```
 
 1. 验证是否有format
