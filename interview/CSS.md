@@ -1,4 +1,4 @@
-# CSS3新特性
+# CSS
 - @font-face
 
 - Word-wrap Text-overflow
@@ -38,4 +38,6 @@ Text-stroke-width: 文字边界宽度
 多背景图片支持
 
 - CSS3 的 Transitions, Transforms 和 Animation
+- box-sizing: border-box标准模式，content-box怪异模式
+
 
