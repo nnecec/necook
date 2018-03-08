@@ -12,7 +12,7 @@
 新应用程序接口（API），除了原先的DOM接口，HTML5增加了更多样化的API:
 
 - HTML Geolocation
-- HTML Drag and Drop
+- HTML Drag and D rop
 - HTML Local Storage
 - HTML Application Cache
 - HTML Web Workers
