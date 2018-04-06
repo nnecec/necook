@@ -1,0 +1,40 @@
+ul {
+  list-style: none;
+}
+
+li {
+  cursor: pointer;
+  user-select: none;
+}
+
+span {
+  display: inline-block;
+  width: 100%;
+}
+
+i {
+  display: inline-block;
+  margin: 0 10px 0 -20px;
+}
+
+.folder>ul {
+  overflow: hidden;
+  height: 0;
+}
+
+.folder.open>ul {
+  height: auto;
+}
+
+.folder.open>i {
+  transform: rotate(90deg)
+}
+
+.selected {
+  background-color: #eee;
+}
+
+.searched {
+  font-weight: 700;
+  background-color: #fee;
+}
