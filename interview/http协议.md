@@ -29,11 +29,9 @@ HTTP是一个简单的协议。客户进程建立一条同服务器进程的TCP�
 
    TCP协议三次握手的描述如下：
 
-   **第一次握手**：客户端发送带有SYN标志的连接请求报文段，然后进入SYN_SEND状态，等待服务端的确认。
-
-   **第二次握手**：服务端接收到客户端的SYN报文段后，需要发送ACK信息对这个SYN报文段进行确认。同时，还要发送自己的SYN请求信息。服务端会将上述的信息放到一个报文段（SYN+ACK报文段）中，一并发送给客户端，此时服务端将会进入SYN_RECV状态。
-
-   **第三次握手**：客户端接收到服务端的SYN+ACK报文段后，会想服务端发送ACK确认报文段，这个报文段发送完毕后，客户端和服务端都进入ESTABLISHED状态，完成TCP三次握手。
+   - **第一次握手**：客户端发送带有SYN标志的连接请求报文段，然后进入SYN_SEND状态，等待服务端的确认。
+   - **第二次握手**：服务端接收到客户端的SYN报文段后，需要发送ACK信息对这个SYN报文段进行确认。同时，还要发送自己的SYN请求信息。服务端会将上述的信息放到一个报文段（SYN+ACK报文段）中，一并发送给客户端，此时服务端将会进入SYN_RECV状态。
+   - **第三次握手**：客户端接收到服务端的SYN+ACK报文段后，会想服务端发送ACK确认报文段，这个报文段发送完毕后，客户端和服务端都进入ESTABLISHED状态，完成TCP三次握手。
 
    当三次握手完成后，TCP协议会为连接双方维持连接状态。为了保证数据传输成功，接收端在接收到数据包后必须发送ACK报文作为确认。如果在指定的时间内（这个时间称为重新发送超时时间），发送端没有接收到接收端的ACK报文，那么就会重发超时的数据。
 
@@ -93,10 +91,10 @@ HTTP使用统一资源标识符（Uniform Resource Identifiers, URI）来传输�
   name=Professional%20Ajax&publisher=Wiley
   ```
 
-​	第一部分：请求行，第一行明了是post请求，以及http1.1版本。
-​	第二部分：请求头部，第二行至第六行。
-​	第三部分：空行，第七行的空行。
-​	第四部分：请求数据，第八行。
+		第一部分：请求行，第一行明了是post请求，以及http1.1版本。
+		第二部分：请求头部，第二行至第六行。
+		第三部分：空行，第七行的空行。
+		第四部分：请求数据，第八行。
 
 ## 响应消息 Response
 由四个部分组成，分别是：状态行、消息报头、空行和响应正文。
@@ -244,6 +242,6 @@ HTTP使用统一资源标识符（Uniform Resource Identifiers, URI）来传输�
 3. [ 浏览器缓存浅析 ][3]
 4. [透过浏览器看HTTP缓存][4]
 [1]:http://www.jianshu.com/p/80e25cb1d81a "关于HTTP协议，一篇就够了"
-[2]:http://mp.weixin.qq.com/s?__biz=MzI3NzIzMzg3Mw==&amp;mid=100000054&amp;idx=1&amp;sn=71f6c214f3833d9ca20b9f7dcd9d33e4#rd "99%的人都理解错了HTTP中GET与POST的区别"
+[2]:http://mp.weixin.qq.com/s?__biz=MzI3NzIzMzg3Mw==&amp;amp;mid=100000054&amp;amp;idx=1&amp;amp;sn=71f6c214f3833d9ca20b9f7dcd9d33e4#rd "99%的人都理解错了HTTP中GET与POST的区别"
 [3]:https://github.com/zhengweikeng/blog/issues/5 "浏览器缓存浅析"
 [4]:http://www.admin10000.com/document/6299.html "透过浏览器看HTTP缓存"
