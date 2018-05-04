@@ -245,3 +245,160 @@ grid- 前缀与 grid-row-gap 类似，会在将来被删除。
 
 ### justify-items
 
+沿 row 轴对齐，(与 column 轴排列的 align-items 相反)。此值适用于容器内的所有 grid 项。
+
+*Values:*
+
+start - 从单元格的起始边缘排列
+end - 从单元格的结束边缘排列
+center - 在单元格内居中
+stretch - 充满单元格
+
+```css
+.container {
+  justify-items: start;
+}
+```
+
+![grid-justify-items-start](./images/grid-justify-items-start.png)
+
+```css
+.container {
+  justify-items: end;
+}
+```
+
+![grid-justify-items-end](./images/grid-justify-items-end.png)
+
+```css
+.container {
+  justify-items: center;
+}
+```
+
+![grid-justify-items-center](./images/grid-justify-items-center.png)
+
+```css
+.container {
+  justify-items: stretch;
+}
+```
+
+![grid-justify-items-stretch](./images/grid-justify-items-stretch.png)
+
+### align-items
+
+沿 column 轴对齐，(与 row 轴排列的 justify-items 相反)。
+
+*Values:*
+
+start - 从单元格的起始边缘排列
+end - 从单元格的结束边缘排列
+center - 在单元格内居中
+stretch - 充满单元格
+
+```css
+.container {
+  align-items: start;
+}
+```
+
+![grid-align-items-start](./images/grid-align-items-start.png)
+
+```css
+.container {
+  align-items: end;
+}
+```
+
+![grid-align-items-end](./images/grid-align-items-end.png)
+
+```css
+.container {
+  align-items: center;
+}
+```
+
+![grid-align-items-center](./images/grid-align-items-center.png)
+
+```css
+.container {
+  align-items: stretch;
+}
+```
+
+![grid-align-items-stretch](./images/grid-align-items-stretch.png)
+
+### justify-content
+
+有时, 网格内容的大小可能小于其网格容器的大小。如果所有的网格项目都以非灵活的单位 (如 px) 大小进行调整, 则可能会发生这种情况。在这种情况下, 您可以在网格容器中设置网格的对齐方式。此属性沿 inline (row) 轴对齐网格 (与block (column) 轴 align-content 相反)。
+
+*Values:*
+
+start - 与 grid 容器的起始边缘对齐
+end - 与 grid 容器的结尾边缘对齐
+center - 在 grid 容器内居中
+stretch - 重新设置宽度使充满 grid 容器
+space-around - 在每个网格项之间间隔相同, 在两端有一半间隔大小
+space-between - 在每个网格项之间间隔相同, 在两端没有空隙
+space-evenly - 在每个网格项之间间隔相同, 在两端与中间间隔相同
+
+```css
+.container {
+  justify-content: start;
+}
+```
+
+![grid-justify-content-start](./images/grid-justify-content-start.png)
+
+```css
+.container {
+  justify-content: end;
+}
+```
+
+![grid-justify-content-end](./images/grid-justify-content-end.png)
+
+```css
+.container {
+  justify-content: center;
+}
+```
+
+![grid-justify-content-center](./images/grid-justify-content-center.png)
+
+```css
+.container {
+  justify-content: stretch;
+}
+```
+
+![grid-justify-content-stretch](./images/grid-justify-content-stretch.png)
+
+```css
+.container {
+  justify-content: space-around;
+}
+```
+
+![grid-justify-content-space-around](./images/grid-justify-content-space-around.png)
+
+```css
+.container {
+  justify-content: space-between;
+}
+```
+
+![grid-justify-content-space-between](./images/grid-justify-content-space-between.png)
+
+```css
+.container {
+  justify-content: space-evenly;
+}
+```
+
+![grid-justify-content-space-evenly](./images/grid-justify-content-space-evenly.png)
+
+### grid-auto-columns grid-auto-rows
+
+指定任何自动生成的网格轨道 (又称为隐式网格轨道) 的大小。如果网格项多于栅格中的单元, 或者网格项放置在显式网格之外, 则会创建隐式曲目。(请参见显式和隐式网格之间的区别)
