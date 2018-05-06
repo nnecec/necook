@@ -401,4 +401,254 @@ space-evenly - 在每个网格项之间间隔相同, 在两端与中间间隔相
 
 ### grid-auto-columns grid-auto-rows
 
-指定任何自动生成的网格轨道 (又称为隐式网格轨道) 的大小。如果网格项多于栅格中的单元, 或者网格项放置在显式网格之外, 则会创建隐式曲目。(请参见显式和隐式网格之间的区别)
+指定任何自动生成的网格轨道 (又称为隐式网格轨道) 的大小。如果网格项多于栅格中的单元, 或者网格项放置在显式网格之外, 则会创建隐式曲目。(请参见[显式和隐式网格之间的区别](https://css-tricks.com/difference-explicit-implicit-grids/))。
+
+*Values:*
+
+- <track-size> - 可以为长度、百分比或fr单位
+
+```css
+.container {
+  grid-auto-columns: <track-size> ...;
+  grid-auto-rows: <track-size> ...;
+}
+```
+
+要说明隐式网格轨道是如何创建的, 请参考以下内容:
+
+```css
+.container {
+  grid-template-columns: 60px 60px;
+  grid-template-rows: 90px 90px
+}
+```
+
+![grid-auto](./images/grid-auto.png)
+
+这将创建一个 2 x 2 网格。
+
+但是现在, 假设您使用`grid-column`和`grid-row`来定位 grid 项目, 如下:
+
+```css
+.item-a {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+}
+.item-b {
+  grid-column: 5 / 6;
+  grid-row: 2 / 3;
+}
+```
+
+![implicit-tracks](./images/implicit-tracks.png)
+
+我们告诉 .item-b 从列5开始, 在列6行结束, 但我们从来没有定义列行5或6。因为我们引用了不存在的行, 所以创建了0宽度的隐式轨道来填充空白。我们可以使用`grid-auto-columns`和`grid-auto-rows`来指定这些隐式轨道的宽度:
+
+```css
+.container {
+  grid-auto-columns: 60px;
+}
+```
+
+![implicit-tracks-with-widths](./images/implicit-tracks-with-widths.png)
+
+### grid-auto-flow
+
+如果 grid items 没有显式地放置在网格上, 自动放置算法自动放置项目。此属性用来控制自动放置算法的工作方式。
+
+*Values:*
+
+- row - 告诉自动放置算法依次填充每一行, 根据需要添加新行 (默认)
+- column - 告诉自动放置算法依次填充每一列, 根据需要添加新列
+- dense - 告诉自动放置算法, 如果稍后出现较小的项目, 则尝试在网格早期填充孔。
+
+请注意, dense 只会更改项目的视觉顺序, 并可能导致它们出现不有序, 这对不利于可访问性。
+
+*Example:*
+
+```html
+<section class="container">
+  <div class="item-a">item-a</div>
+  <div class="item-b">item-b</div>
+  <div class="item-c">item-c</div>
+  <div class="item-d">item-d</div>
+  <div class="item-e">item-e</div>
+</section>
+```
+
+```css
+.container {
+  display: grid;
+  grid-template-columns: 60px 60px 60px 60px 60px;
+  grid-template-rows: 30px 30px;
+  grid-auto-flow: row;
+}
+```
+
+将项目放置在网格上时, 只指定其中两个的点:
+
+```css
+.item-a {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+.item-e {
+  grid-column: 5;
+  grid-row: 1 / 3;
+}
+```
+
+因为我们设置了`grid-auto-flow`为`row`, 我们的网格将像这样。请注意, 我们没有放置的三个项目 (item-b、item-c 和item-d) 在可用行中流动:
+
+![grid-auto-flow-row](./images/grid-auto-flow-row.png)
+
+如果我们设置`grid-auto-flow`为`column`：
+
+```css
+.container {
+  display: grid;
+  grid-template-columns: 60px 60px 60px 60px 60px;
+  grid-template-rows: 30px 30px;
+  grid-auto-flow: column;
+}
+```
+
+![grid-auto-flow-column](./images/grid-auto-flow-column.png)
+
+
+## 子项目
+
+### grid-column-start grid-column-end grid-row-start grid-row-end
+
+通过引用特定的网格线来确定网格项内栅格项的位置。`grid-column-start`/`grid-row-start`是项目的开端, `grid-column-end`/`grid-row-end`是项目的结尾。
+
+*Values:*
+
+- <line> - 可以是一个数字指代网格线编号, 或一个名称指代网格线名称
+- span <number> - 该项将跨越提供的网格轨道数
+- span <name> - 该项目将跨越, 直到它遇到提供的名称的下一行
+- auto - 指示自动放置、自动跨度或一个默认范围
+
+```css
+.item {
+  grid-column-start: <number> | <name> | span <number> | span <name> | auto
+  grid-column-end: <number> | <name> | span <number> | span <name> | auto
+  grid-row-start: <number> | <name> | span <number> | span <name> | auto
+  grid-row-end: <number> | <name> | span <number> | span <name> | auto
+}
+```
+
+*Example:*
+
+```css
+.item-a {
+  grid-column-start: 2;
+  grid-column-end: five;
+  grid-row-start: row1-start
+  grid-row-end: 3
+}
+```
+
+![grid-start-end-a](./images/grid-start-end-a.png)
+
+```css
+.item-b {
+  grid-column-start: 1;
+  grid-column-end: span col4-start;
+  grid-row-start: 2
+  grid-row-end: span 2
+}
+```
+
+![grid-start-end-b](./images/grid-start-end-b.png)
+
+如果未声明`grid-column-end`/`grid-row-end`, 则默认情况下该项将跨越1个轨道。
+
+项目可以互相重叠。可以使用`z-index`来控制它们的堆叠顺序。
+
+### grid-column grid-row
+
+grid-column-start + grid-column-end 和 grid-row-start + grid-row-end 的简写。
+
+*Values:*
+
+- <start-line> / <end-line> - 每一个都接受与非简写版本相同的值, 包括跨度
+
+*Example:*
+
+```css
+.item-c {
+  grid-column: 3 / span 2;
+  grid-row: third-line / 4;
+}
+```
+
+![grid-start-end-c](./images/grid-start-end-c.png)
+
+如果未声明end line, 则默认情况下该项将跨越1轨道。
+
+### grid-area
+
+提供一个名称, 以便可以通过使用`grid-template-areas`创建的模板引用该项。或者, 此属性可用作`grid-row-start` + `grid-column-start` + `grid-row-end` + `grid-column-end`。
+
+*Values:*
+
+- <name> - 选择的名称
+- <row-start> / <column-start> / <row-end> / <column-end> - 已编号或已命名的线
+
+```css
+.item {
+  grid-area: <name> | <row-start> / <column-start> / <row-end> / <column-end>;
+}
+```
+
+*Example:*
+
+指定名称的方法
+
+```css
+.item-d {
+  grid-area: header
+}
+```
+
+对应简写 `grid-row-start` + `grid-column-start` + `grid-row-end` + `grid-column-end`:
+
+```css
+.item-d {
+  grid-area: 1 / col4-start / last-line / 6
+}
+```
+
+![grid-start-end-d](./images/grid-start-end-d.png)
+
+### justify-self 
+
+沿内联 (row) 轴对齐单元格中的网格项 (与沿块 (column) 轴对齐相反)。此值适用于单个单元格内的网格项。
+
+*Values:*
+
+- start - 与其容器的起始边缘对齐
+- end - 与其容器的起始边缘对齐
+- center - 在容器内居中
+- stretch - 充满容器 (默认值)
+
+### align-self 
+
+沿 column 轴对齐单元格中的网格项 (与沿 row 轴对齐相反)。此值适用于单个单元格内的网格项。
+
+*Values:*
+
+- start - 与其容器的起始边缘对齐
+- end - 与其容器的起始边缘对齐
+- center - 在容器内居中
+- stretch - 充满容器 (默认值)
+
+### place-self
+
+`place-self`是`align-self`和`justify-self`的简写。
+
+*Values:*
+
+- auto - 默认布局方式
+- <align-self> / <justify-self> - 同时设置`align-self`和`justify-self`。如果只设置一个值，则将该值同时赋予两个属性。
