@@ -6,12 +6,12 @@
 
 ### display
 
-将 element 设置为 grid 容器，并且为它的内容建立起 grid 格式上下文
+将元素设置为 grid container，并建立起 grid 格式上下文。
 
 *Values:*
 
-- grid - 生成 block-level grid
-- inline-grid - 生成 inline-level grid
+- grid - 生成 block-level grid（撑满宽度）
+- inline-grid - 生成 inline-level grid（撑满高度）
 
 ```css
 .container {
@@ -19,15 +19,14 @@
 }
 ```
 
-### grid-template-columns  grid-template-rows
+### grid-template-columns / grid-template-rows
 
-定义 grid 的列与行的空间的一组值。这个值代表网格大小,它们之间的空间代表了网格线。
+定义 grid 的列与行的空间的一组值。这个值代表网格大小,它们之间的空间代表了grid line。
 
 *Values:*
 
-- <track-size> - 可以是长度、百分比或网格中的空闲空间的一部分(使用fr单位)
-- <line-name> - 网格线的名称
-
+- \<track-size> - 可以是长度、百分比或网格中的空闲空间的一部分(使用fr单位)
+- \<line-name> - 网格线的名称
 
 ```css
 .container {
