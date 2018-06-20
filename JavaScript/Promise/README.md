@@ -2,6 +2,8 @@
 
 ## promise中第二个参数的 reject 中执行的方法和 promise.catch()都是失败执行的，分别这么写有什么区别，什么情况下会两个都同时用到？
 
+catch 是 .then(null,fn) 的语法糖，其本质依然等于 .then。
+
 Promise 中抛出的 reject 在两者都存在的情况下，会在遇到第一个拦截错误的方法被拦截且不会再往下进行。所以如果在如下这种情况：
 
 ```javascript

@@ -127,9 +127,10 @@ HTTP使用统一资源标识符（Uniform Resource Identifiers, URI）来传输�
 - `503 Service Unavailable` 服务器当前不能够处理客户端的请求，在一段时间之后，服务器可能会恢复正常。
 
 ## HTTP工作原理
- HTTP 请求/响应的步骤：
 
-1. 客户端到Web服务器建立一个TCP套接字连接。
+HTTP 请求/响应的步骤：
+
+1. 客户端到 Web 服务器建立一个 TCP 套接字连接。
 2. 发送HTTP请求
 3. 服务器接受请求并返回HTTP响应
 4. 释放连接TCP连接:若connection 模式为close，则服务器主动关闭TCP连接，客户端被动关闭连接，释放TCP连接；若connection 模式为keepalive，则该连接会保持一段时间，在该时间内可以继续接收请求;
@@ -140,7 +141,8 @@ HTTP使用统一资源标识符（Uniform Resource Identifiers, URI）来传输�
 8. 浏览器发出读取文件(URL 中域名后面部分对应的文件)的HTTP 请求，该请求报文作为TCP三次握手的第三个报文的数据发送给服务器;
 9. 服务器对浏览器请求作出响应，并把对应的 html 文本发送给浏览器;
 10. 释放 TCP连接;
-11. 浏览器将该 html 文本并显示内容; 　　
+11. 浏览器将该 html 文本并显示内容;
+　　
 首先让我们从一个问题入手，当我们在浏览器中输入 [http://www.baidu.com/**](http://link.zhihu.com/?target=http%3A//www.baidu.com/) 访问百度的时候浏览器做了哪些事情。(这里以 Chrome 浏览器为例)
 
 1. 首先 Chrome 搜索自身的 DNS 缓存。(如果 DNS 缓存中找到百度的 IP 地址，就跳过了接下来查找 IP 地址步骤，直接访问该 IP 地址。)
