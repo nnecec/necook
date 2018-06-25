@@ -1,14 +1,15 @@
 # HTTP
-## HTTP定义／简介
-HTTP协议是Hyper Text Transfer Protocol（超文本传输协议）的缩写，是用于从万维网服务器传输超文本到本地浏览器的传送协议。
 
-HTTP协议是构建在TCP/IP协议之上的，是TCP/IP协议的一个子集，是一个属于应用层的面向对象的协议。协议工作于客户端-服务端架构（C/S）之上。浏览器作为HTTP客户端通过URL向HTTP服务端即WEB服务器发送所有请求，服务器根据接收到的请求后，向客户端发送响应信息。
+## HTTP定义／简介
+
+HTTP协议是 Hyper Text Transfer Protocol（超文本传输协议）的缩写，是用于从万维网服务器传输超文本到本地浏览器的传送协议。
+
+HTTP协议是构建在 TCP/IP 协议之上的，是TCP/IP协议的一个子集，是一个属于应用层的面向对象的协议。协议工作于客户端-服务端架构（C/S）之上。浏览器作为 HTTP 客户端通过URL向 HTTP 服务端即WEB服务器发送所有请求，服务器根据接收到的请求后，向客户端发送响应信息。
 HTTP是一个简单的协议。客户进程建立一条同服务器进程的TCP连接，然后发出请求并读取服务器进程的响应。服务器进程关闭连接表示本次响应结束。服务器进程返回的文件通 常含有指向其他服务器上文件的指针 (超文本链接 )。用户显然可以很轻松地沿着这些链接从一个服务器到下一个服务器。
 
 ## TCP/IP协议
 
 1. 应用层
-
    应用层一般是我们编写的应用程序，其决定了向用户提供的应用服务。应用层可以通过系统调用与传输层进行通信。处于应用层的协议非常多，比如：FTP（File Transfer Protocol，文件传输协议）、DNS（Domain Name System，域名系统）和我们本章讨论的HTTP（HyperText Transfer Protocol，超文本传输协议）等。
 
 2. 传输层
@@ -21,25 +22,27 @@ HTTP是一个简单的协议。客户进程建立一条同服务器进程的TCP�
 4. 链路层
    链路层用来处理连接网络的硬件部分，包括控制操作系统、硬件设备驱动、NIC（Network Interface Card，网络适配器）以及光纤等物理可见部分。硬件上的范畴均在链路层的作用范围之内。
 
-   ### TCP三次握手
+### TCP三次握手
 
-   从上面的介绍可知，传输层协议主要有两个：TCP协议和UDP协议。TCP协议相对于UDP协议的特点是：TCP协议提供面向连接、字节流和可靠的传输。
+从上面的介绍可知，传输层协议主要有两个：TCP协议和UDP协议。TCP协议相对于UDP协议的特点是：TCP协议提供面向连接、字节流和可靠的传输。
 
-   使用TCP协议进行通信的双方必须先建立连接，然后才能开始传输数据。TCP连接是全双工的，也就是说双方的数据读写可以通过一个连接进行。为了确保连接双方可靠性，在双方建立连接时，TCP协议采用了三次握手（Three-way handshaking）策略。
+UDP 是无连接的，即发送数据之前不需要建立连接。UDP 尽最大努力交付, UDP 支持一对一，一对多，多对一和多对多的交互通信。
 
-   TCP协议三次握手的描述如下：
+使用TCP协议进行通信的双方必须先建立连接，然后才能开始传输数据。TCP连接是全双工的，也就是说双方的数据读写可以通过一个连接进行。为了确保连接双方可靠性，在双方建立连接时，TCP协议采用了三次握手（Three-way handshaking）策略。
 
-   - **第一次握手**：客户端发送带有SYN标志的连接请求报文段，然后进入SYN_SEND状态，等待服务端的确认。
-   - **第二次握手**：服务端接收到客户端的SYN报文段后，需要发送ACK信息对这个SYN报文段进行确认。同时，还要发送自己的SYN请求信息。服务端会将上述的信息放到一个报文段（SYN+ACK报文段）中，一并发送给客户端，此时服务端将会进入SYN_RECV状态。
-   - **第三次握手**：客户端接收到服务端的SYN+ACK报文段后，会想服务端发送ACK确认报文段，这个报文段发送完毕后，客户端和服务端都进入ESTABLISHED状态，完成TCP三次握手。
+TCP协议三次握手的描述如下：
 
-   当三次握手完成后，TCP协议会为连接双方维持连接状态。为了保证数据传输成功，接收端在接收到数据包后必须发送ACK报文作为确认。如果在指定的时间内（这个时间称为重新发送超时时间），发送端没有接收到接收端的ACK报文，那么就会重发超时的数据。
+- **第一次握手**：客户端发送带有SYN标志的连接请求报文段，然后进入SYN_SEND状态，等待服务端的确认。
+- **第二次握手**：服务端接收到客户端的SYN报文段后，需要发送ACK信息对这个SYN报文段进行确认。同时，还要发送自己的SYN请求信息。服务端会将上述的信息放到一个报文段（SYN+ACK报文段）中，一并发送给客户端，此时服务端将会进入SYN_RECV状态。
+- **第三次握手**：客户端接收到服务端的SYN+ACK报文段后，会想服务端发送ACK确认报文段，这个报文段发送完毕后，客户端和服务端都进入ESTABLISHED状态，完成TCP三次握手。
+
+当三次握手完成后，TCP协议会为连接双方维持连接状态。为了保证数据传输成功，接收端在接收到数据包后必须发送ACK报文作为确认。如果在指定的时间内（这个时间称为重新发送超时时间），发送端没有接收到接收端的ACK报文，那么就会重发超时的数据。
 
 ## DNS服务
 
-通常我们访问一个网站，使用的是主机名或者域名来进行访问的。因为相对于IP地址（一组纯数字），域名更容易让人记住。但TCP/IP协议使用的是IP地址进行访问的，所以必须有个机制或服务把域名转换成IP地址。DNS服务就是用来解决这个问题的，它提供域名到IP地址之间的解析服务。
+通常我们访问一个网站，使用的是主机名或者域名来进行访问的。因为相对于IP地址（一组纯数字），域名更容易让人记住。但 TCP/IP 协议使用的是IP地址进行访问的，所以必须有个机制或服务把域名转换成IP地址。DNS服务就是用来解决这个问题的，它提供域名到IP地址之间的解析服务。
 
-DNS服务是通过DNS协议进行通信的，而DNS协议跟HTTP协议一样也是应用层协议。由于我们的重点是HTTP协议，所以这里不打算对DNS协议进行详细的分析，我们只需要知道可以通过DNS服务把域名解析成IP地址即可。
+DNS服务是通过 DNS 协议进行通信的，而 DNS 协议跟 HTTP 协议一样也是应用层协议。由于我们的重点是HTTP协议，所以这里不打算对DNS协议进行详细的分析，我们只需要知道可以通过 DNS 服务把域名解析成IP地址即可。
 
 ## HTTP与TCP/IP、DNS的关系
 
@@ -53,25 +56,30 @@ DNS服务是通过DNS协议进行通信的，而DNS协议跟HTTP协议一样也�
 5. 支持B/S及C/S模式。
 
 ## URI/URL
+
 HTTP使用统一资源标识符（Uniform Resource Identifiers, URI）来传输数据和建立连接。URL（全称是UniformResourceLocator）是一种特殊类型的URI，包含了用于查找某个资源的足够的信息URL, 中文叫统一资源定位符，是互联网上用来标识某一处资源的地址。
-- URI，是uniform resource identifier，统一资源标识符，用来唯一的标识一个资源。URI一般由三部组成：①访问资源的命名机制；②存放资源的主机名；③资源自身的名称，由路径表示，着重强调于资源。
-- URL是uniform resource locator，统一资源定位器，它是一种具体的URI，即URL可以用来标识一个资源，而且还指明了如何locate这个资源。URL一般由三部组成：①协议(或称为服务方式)；②存有该资源的主机IP地址(有时也包括端口号)；③主机资源的具体地址。如目录和文件名等。
+
+- URI是 uniform resource identifier，统一资源标识符，用来唯一的标识一个资源。URI一般由三部组成：①访问资源的命名机制；②存放资源的主机名；③资源自身的名称，由路径表示，着重强调于资源。
+- URL是 uniform resource locator，统一资源定位器，它是一种具体的URI，即URL可以用来标识一个资源，而且还指明了如何locate这个资源。URL一般由三部组成：①协议(或称为服务方式)；②存有该资源的主机IP地址(有时也包括端口号)；③主机资源的具体地址。如目录和文件名等。
 - URN，uniform resource name，统一资源命名，是通过名字来标识资源但不指定如何定位资源。
 
 ## 请求消息 Request
+
 一个HTTP请求格式由：请求行（request line）、请求头部（header）、空行和请求数据四个部分组成。
+
 ![](http://upload-images.jianshu.io/upload_images/2964446-fdfb1a8fce8de946.png)
+
 - Get请求例子
 
-  ```
-  GET /562f25980001b1b106000338.jpg HTTP/1.1
-  Host    img.mukewang.com
-  User-Agent    Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36
-  Accept    image/webp,image/,/*;q=0.8
-  Referer    http://www.imooc.com/
-  Accept-Encoding    gzip, deflate, sdch
-  Accept-Language    zh-CN,zh;q=0.8
-  ```
+```
+GET /562f25980001b1b106000338.jpg HTTP/1.1
+Host    img.mukewang.com
+User-Agent    Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36
+Accept    image/webp,image/,/*;q=0.8
+Referer    http://www.imooc.com/
+Accept-Encoding    gzip, deflate, sdch
+Accept-Language    zh-CN,zh;q=0.8
+```
 
 1. 请求行：（第一行）用来说明请求类型，要访问的资源以及所使用的HTTP版本。
 2. 请求头部：（第二至七行）紧接着请求行（即第一行）之后的部分，用来说明服务器要使用的附加信息。HOST将指出请求的目的地。User-Agent服务器端和客户端脚本都能访问它，它是浏览器类型检测逻辑的重要基础。该信息由你的浏览器来定义，并且在每个请求中自动发送。
@@ -80,51 +88,41 @@ HTTP使用统一资源标识符（Uniform Resource Identifiers, URI）来传输�
 
 - POST请求例子
 
-  ```
-  POST / HTTP1.1
-  Host:www.wrox.com
-  User-Agent:Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022)
-  Content-Type:application/x-www-form-urlencoded
-  Content-Length:40
-  Connection: Keep-Alive
+```
+POST / HTTP1.1
+Host:www.wrox.com
+User-Agent:Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022)
+Content-Type:application/x-www-form-urlencoded
+Content-Length:40
+Connection: Keep-Alive
 
-  name=Professional%20Ajax&publisher=Wiley
-  ```
+name=Professional%20Ajax&publisher=Wiley
+```
 
-		第一部分：请求行，第一行明了是post请求，以及http1.1版本。
-		第二部分：请求头部，第二行至第六行。
-		第三部分：空行，第七行的空行。
-		第四部分：请求数据，第八行。
+1. 第一部分：请求行，第一行明了是post请求，以及http1.1版本。
+2. 第二部分：请求头部，第二行至第六行。
+3. 第三部分：空行，第七行的空行。
+4. 第四部分：请求数据，第八行。
 
 ## 响应消息 Response
+
 由四个部分组成，分别是：状态行、消息报头、空行和响应正文。
-	HTTP/1.1 200 OK
-	Date: Fri, 22 May 2009 06:07:21 GMT
-	Content-Type: text/html; charset=UTF-8
-	
-	<html>
-	      <head></head>
-	      <body>
-	            <!--body goes here-->
-	      </body>
-	</html>
+```
+HTTP/1.1 200 OK
+Date: Fri, 22 May 2009 06:07:21 GMT
+Content-Type: text/html; charset=UTF-8
+
+<html>
+  <head></head>
+  <body>
+    <!--body goes here-->
+  </body>
+</html>
+```
 1. 状态行：由HTTP协议版本号， 状态码， 状态消息 三部分组成。
 2. 消息报头：用来说明客户端要使用的一些附加信息。
 3. 空行：消息报头后面的空行是必须的。
 4. 响应正文：服务器返回给客户端的文本信息。
-
-常见的状态码有如下几种：
-
-- `200 OK` 客户端请求成功
-- `301 Moved Permanently` 请求永久重定向
-- `302 Moved Temporarily` 请求临时重定向
-- `304 Not Modified` 文件未修改，可以直接使用缓存的文件。
-- `400 Bad Request` 由于客户端请求有语法错误，不能被服务器所理解。
-- `401 Unauthorized` 请求未经授权。这个状态代码必须和WWW-Authenticate报头域一起使用
-- `403 Forbidden` 服务器收到请求，但是拒绝提供服务。服务器通常会在响应正文中给出不提供服务的原因
-- `404 Not Found` 请求的资源不存在，例如，输入了错误的URL
-- `500 Internal Server Error` 服务器发生不可预期的错误，导致无法完成客户端的请求。
-- `503 Service Unavailable` 服务器当前不能够处理客户端的请求，在一段时间之后，服务器可能会恢复正常。
 
 ## HTTP工作原理
 
@@ -157,33 +155,23 @@ HTTP 请求/响应的步骤：
 10. 如果浏览器没有后续的请求，那么就会跟服务器端发起 TCP 断开(即四次挥手)。
 
 ## GET和POST的区别
-- GET在浏览器回退时是无害的，而POST会再次提交请求。
 
-- GET产生的URL地址可以被Bookmark，而POST不可以。
-
-- GET请求会被浏览器主动cache，而POST不会，除非手动设置。
-
-- GET请求只能进行url编码，而POST支持多种编码方式。
-
-- GET请求参数会被完整保留在浏览器历史记录里，而POST中的参数不会被保留。
-
-- GET请求在URL中传送的参数是有长度限制的，而POST没有。
-
-- 对参数的数据类型，GET只接受ASCII字符，而POST没有限制。
-
-- GET比POST更不安全，因为参数直接暴露在URL上，所以不能用来传递敏感信息。
-
-- GET参数通过URL传递，POST放在Request body中。
-
-  GET和POST本质上就是TCP链接，并无差别。以上差别是由于HTTP的规定和浏览器/服务器的限制，导致他们在应用过程中体现出一些不同。 
-
-  GET和POST还有一个重大区别，简单的说：GET产生一个TCP数据包；POST产生两个TCP数据包。长的说：对于GET方式的请求，浏览器会把http header和data一并发送出去，服务器响应200（返回数据）；而对于POST，浏览器先发送header，服务器响应100 continue，浏览器再发送data，服务器响应200 ok（返回数据）。
+- GET 在浏览器回退时是无害的，而POST会再次提交请求。
+- GET 产生的 URL 地址可以被 Bookmark，而POST不可以。
+- GET 请求会被浏览器主动 cache，而 POST 不会，除非手动设置。
+- GET 请求只能进行url编码，而POST支持多种编码方式。
+- GET 请求参数会被完整保留在浏览器历史记录里，而POST中的参数不会被保留。
+- GET 请求在URL中传送的参数是有长度限制的，而POST没有。
+- 对参数的数据类型，GET 只接受 ASCII 字符，而POST没有限制。
+- GET 比 POST 更不安全，因为参数直接暴露在URL上，所以不能用来传递敏感信息。
+- GET 参数通过URL传递，POST放在 Request body 中。
+- GET 和 POST 本质上就是TCP链接，并无差别。以上差别是由于HTTP的规定和浏览器/服务器的限制，导致他们在应用过程中体现出一些不同。 
+- GET 和 POST 还有一个重大区别，简单的说：GET产生一个TCP数据包；POST产生两个TCP数据包。长的说：对于GET方式的请求，浏览器会把http header和data一并发送出去，服务器响应200（返回数据）；而对于POST，浏览器先发送header，服务器响应100 continue，浏览器再发送data，服务器响应200 ok（返回数据）。
 
 ## HTTP头信息
+
 - **Content-type**：表示后面的文档属于什么MIME类型。Servlet默认为text/plain，但通常需要显式地指定为text/html。
-
 - **Expires**：这个头部是在HTTP1.0中定义的，它指定了一个绝对的过期日期，如果过期日期已经过了，就说明文档不再新鲜了。但是使用Expires存在服务器端时间和浏览器时间不一致的问题，我们基本上是不会使用这个头部。
-
 - **Cache-Control**：既然我们说Expires是不推荐的用法，那么肯定要有个替代方案。在HTTP1.1中定义了一个文档从第一次生成开始到不再新鲜、无法使用为止的最长使用期，并且以秒为单位。用法如下所示：Cache-Control: max-age=484200。
 
   Cache-Control还有其他定义方式。
@@ -194,19 +182,14 @@ HTTP 请求/响应的步骤：
   4. private：告知浏览器只缓存单个用户的响应，可以指定具体字段，private=username，此时名为username的标头内容，将不会被共享缓存。
 
 - **Last-Modified**：该头部配合cache-control使用，服务器在响应中会带有一个Last-Modified的头部，告诉浏览器该资源的最后修改时间。请求头为If-Modified-Since。
-
   若响应包中Cache-Control:max-age 或 Expires 字段，则会重新设置缓存的过期时间，于是，浏览器又可以不需要向服务器发起请求了。
 
 - **Etag**：该头部和Last-Modified的作用类似。Etag的字段和值是一个特殊值。请求头为If-None-Match。
-
   > Last-Modified和Etag的区别
 
   1. Last-Modified只能精确到秒，有些时候，文件会在1秒内被更改很多次，使用Last-Modified则无法准确的标志文件的更改时间。
-
   2. 有时会定时生成一些文件，但是内容是不变的，或者仅仅修改变动的时间，此时我们并希望浏览器还是使用缓存的资源，Last-Modified则无法满足我们了。
-
   3. Etag又服务器或者开发者生成的一个唯一特殊标志值，可以更加有效的控制缓存。资源变更则更新该值，没有变更则不更新该值，简洁粗暴。
-
      两者是可以通用的，此时我们应该让服务器优先验证Etag，再去验证Last-Modified，只要有一方认为资源没有变动，就会进行304响应。
 
   > Etag/lastModified过程如下：
@@ -216,6 +199,7 @@ HTTP 请求/响应的步骤：
   3. 客户端展现该页面，浏览器则会缓存Last-Modified/ETag的字段和值。Last-Modified为资源修改时间，Etag是一个特殊标记值。
   4. 客户再次请求页面，并将上次请求时服务器返回的Last-Modified/ETag一起传递给服务器。当资源过期时，在对服务器发起的请求头中会带有一个If-Modified-Since/If-None-Match的请求头。
   5. 服务器检查该Last-Modified或ETag，并判断该页面自上次客户端请求之后还未被修改，相同，说明资源没有更改，返回304。不同，说明资源已经更改，返回最新资源，响应码为200，并带有最新的Last-Modified/Etag值。
+
 ## HTTP缓存
 
 缓存行为主要由缓存策略决定，而缓存策略由内容拥有者设置。这些策略主要通过特定的HTTP头部来清晰地表达。
