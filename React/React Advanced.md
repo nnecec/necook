@@ -1,5 +1,11 @@
 # Advanced
 
+## JSX
+
+### 布尔值、Null 和 Undefined 被忽略
+
+false、null、undefined 和 true 都是有效的子代，但它们不会直接被渲染。JavaScript 中的一些 “falsy” 值(比如数字0)，它们依然会被渲染。如 array.length 为0时，它会打印0。要解决这个问题，请确保 && 前面的表达式始终为布尔值。如果你想让类似 false、true、null 或 undefined 出现在输出中，你必须先把它转换成字符串。
+
 ## Reconciliation
 
 有一些解决将一棵树转换为另一棵树的最小操作数算法问题的通用方案。然而，树中元素个数为n，[最先进的算法](http://grfia.dlsi.ua.es/ml/algorithms/references/editsurvey_bille.pdf)的时间复杂度为O(n3) 。

@@ -6,10 +6,10 @@
 
   当组件在客户端被实例化，第一次被创建时，以下方法依次被调用：
 
-  1. getDefaultProps：对于每个组件实例，这个方法只会调用一次，其返回的对象可以用于设置默认的 props(properties的缩写) 值；
-  2. getInitialState：对于组件的每个实例，这个方法的调用有且只有一次，用来初始化每个实例的 state，在这个方法里，可以访问组件的 props。每一个React组件都有自己的 state，其与 props 的区别在于 state只存在组件的内部，props 在所有实例中共享；
+  1. getDefaultProps：对于每个组件实例，这个方法只会调用一次，其返回的对象可以用于设置默认的 props(properties 的缩写) 值；
+  2. getInitialState：对于组件的每个实例，这个方法的调用有且只有一次，用来初始化每个实例的 state，在这个方法里，可以访问组件的 props。每一个 React 组件都有自己的 state，其与 props 的区别在于 state只存在组件的内部，props 在所有实例中共享；
   3. componentWillMount
-  4. render：render方法返回的结果并不是真正的DOM元素，而是一个虚拟的表现，类似于一个DOM tree的结构的对象；
+  4. render：render 方法返回的结果并不是真正的 DOM 元素，而是一个虚拟的表现，类似于一个 DOM tree 的结构的对象；
   5. componentDidMount：可以再该方法中通过 this.getDOMNode() 访问到真实的 DOM(推荐使用 ReactDOM.findDOMNode())。
 
   当组件在服务端被实例化，首次被创建时，以下方法依次被调用：
@@ -32,8 +32,8 @@
 
   此时组件已经渲染好并且用户可以与它进行交互，比如鼠标点击，手指点按，或者其它的一些事件，导致应用状态的改变，你将会看到下面的方法依次被调用
 
-  1. componentWillReceiveProps：组件的 props 属性可以通过父组件来更改，这时，componentWillReceiveProps 将c被调用。
-  2. shouldComponentUpdate：如果你确定组件的 props 或者 state 的改变不需要重新渲染，可以通过在这个方法里通过返回 `false` 来阻止组件的重新渲染，返回 `false 则不会执行 render 以及后面的 componentWillUpdate，componentDidUpdate 方法。
+  1. componentWillReceiveProps：组件的 props 属性可以通过父组件来更改，这时，componentWillReceiveProps 将被调用。
+  2. shouldComponentUpdate：如果你确定组件的 props 或者 state 的改变不需要重新渲染，可以通过在这个方法里通过返回 `false` 来阻止组件的重新渲染，返回 `false` 则不会执行 render 以及后面的 componentWillUpdate，componentDidUpdate 方法。
   3. componentWillUpdate
   4. render
   5. componentDidUpdate
