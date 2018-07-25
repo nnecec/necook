@@ -1,4 +1,5 @@
 import Comparator from '../utils/comparator'
+
 /**
  *二分法查找
  *

@@ -1,4 +1,5 @@
 export default class Comparator {
+  compare: Function
   /**
      * @param {function(a: *, b: *)} [compareFunction]
      */
