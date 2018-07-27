@@ -1,5 +1,10 @@
 /**
- * Complexity
+ * 
+ * 冒泡排序，又被称为下沉排序
+ * 它反复遍历要排序的列表，比较每对相邻项目，如果顺序错误，则交换它们。
+ * 循环列表，直到不需要交换，这表示列表已经排序。
+ * 
+ * 复杂度
  * 
  * Best Average Worst Memory	Stable	Comments
  * n    n2      n2    1       Yes	
