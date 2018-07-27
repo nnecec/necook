@@ -1,3 +1,10 @@
+/**
+ * Complexity
+ * 
+ * Best Average Worst Memory	Stable	Comments
+ * n    n2      n2    1       Yes	
+ * 
+ */
 import Comparator from '../utils/comparator'
 
 /**

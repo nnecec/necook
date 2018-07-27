@@ -14,7 +14,7 @@ export default class Comparator {
    * @param {(string|number)} b
    * @returns {number}
    */
-  static defaultCompareFunction(a, b) {
+  static defaultCompareFunction(a: string | number, b: string | number): number {
     if (a === b) {
       return 0;
     }
