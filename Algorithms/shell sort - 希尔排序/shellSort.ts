@@ -18,7 +18,34 @@ import Comparator from '../utils/comparator'
 function shellSort(originalArray, comparatorCallback?) {
   const comparator = new Comparator(comparatorCallback)
 
-  
+  let gap = Math.floor(originalArray.length / 2)
+
+  while (gap > 0) {
+    // 
+    for (let i = 0; i < (originalArray.length - gap); i += 1) {
+      let current = i;
+      let gapShiftedIndex = i + gap;
+
+      while (current >= 0) {
+        // Call visiting callback.
+
+        // Compare and swap originalArray elements if needed.
+        if (comparator.lessThan(originalArray[gapShiftedIndex], originalArray[current])) {
+          const tmp = originalArray[current];
+          originalArray[current] = originalArray[gapShiftedIndex];
+          originalArray[gapShiftedIndex] = tmp;
+        }
+
+        gapShiftedIndex = current;
+        current -= gap;
+      }
+    }
+
+    // 缩小间距 gap
+    gap = Math.floor(gap / 2);
+  }
+
+  return originalArray
 }
 
-// console.log(mergeSort([15, 8, 5, 12, 10, 1, 16, 9, 11, 7, 20, 3, 2, 6, 17, 18, 4, 13, 14, 19]))
+// console.log(shellSort([15, 8, 5, 12, 10, 1, 16, 9, 11, 7, 20, 3, 2, 6, 17, 18, 4, 13, 14, 19]))
