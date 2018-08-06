@@ -29,13 +29,14 @@ function shellSort(originalArray, comparatorCallback?) {
       while (current >= 0) {
         // Call visiting callback.
 
-        // Compare and swap originalArray elements if needed.
+        // 将第 i 个 与 i+gap 对比并排序
         if (comparator.lessThan(originalArray[gapShiftedIndex], originalArray[current])) {
           const tmp = originalArray[current];
           originalArray[current] = originalArray[gapShiftedIndex];
           originalArray[gapShiftedIndex] = tmp;
         }
 
+        // 如果 子列表还有没比对过的值
         gapShiftedIndex = current;
         current -= gap;
       }
@@ -48,4 +49,4 @@ function shellSort(originalArray, comparatorCallback?) {
   return originalArray
 }
 
-// console.log(shellSort([15, 8, 5, 12, 10, 1, 16, 9, 11, 7, 20, 3, 2, 6, 17, 18, 4, 13, 14, 19]))
+console.log(shellSort([15, 8, 5, 12, 10, 1, 16, 9, 11, 7, 20, 3, 2, 6, 17, 18, 4, 13, 14, 19]))
