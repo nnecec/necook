@@ -103,17 +103,17 @@ Node 的 Event loop 分为6个阶段，它们会按照顺序反复运行
 如果 poll 队列不为空，会遍历回调队列并同步执行，直到队列为空或者系统限制
 如果 poll 队列为空，会有两件事发生
 
-如果有 setImmediate 需要执行，poll 阶段会停止并且进入到 check 阶段执行 setImmediate
-如果没有 setImmediate 需要执行，会等待回调被加入到队列中并立即执行回调
-但当二者在异步i/o callback内部调用时，总是先执行setImmediate，再执行setTimeout
+如果有 `setImmediate` 需要执行，poll 阶段会停止并且进入到 check 阶段执行 `setImmediate`
+如果没有 `setImmediate` 需要执行，会等待回调被加入到队列中并立即执行回调
+但当二者在异步 i/o callback 内部调用时，总是先执行`setImmediate`，再执行 `setTimeout`
 
-**check** 阶段执行 setImmediate
+**check** 阶段执行 `setImmediate`
 
 **close callbacks** 阶段执行 close 事件
 
 并且在 Node 中，有些情况下的定时器执行顺序是随机的
 
-上面介绍的都是 macrotask 的执行情况，microtask 会在以上每个阶段完成后立即执行。Node 中的 process.nextTick 会先于其他 microtask 执行。process.nextTick()不在event loop的任何阶段执行，而是在各个阶段切换的中间执行,即从一个阶段切换到下个阶段前执行。
+上面介绍的都是 macro task 的执行情况，micro task 会在以上每个阶段完成后立即执行。Node 中的 `process.nextTick` 会先于其他 micro task 执行。`process.nextTick()`不在 event loop 的任何阶段执行，而是在各个阶段切换的中间执行,即从一个阶段切换到下个阶段前执行。
 
 ### Example
 
