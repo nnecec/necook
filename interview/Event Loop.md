@@ -4,13 +4,13 @@
 
 JavaScript 是门非阻塞单线程语言，JavaScript 在执行的过程中会产生执行环境，这些执行环境会被顺序的加入到执行栈中。如果遇到异步的代码，会被挂起并加入到 Task（有多种 Task） 队列中。一旦执行栈为空，Event Loop 就会从 Task 队列中拿出需要执行的代码并放入执行栈中执行，所以本质上来说 JavaScript 中的异步还是同步行为。
 
-不同的任务源会被分配到不同的 Task 队列中，任务源可以分为 微任务（microtask） 和 宏任务（macrotask）。在 ES6 规范中，microtask 称为 jobs，macrotask 称为 task。
+不同的任务源会被分配到不同的 Task 队列中，任务源可以分为 微任务（micro task） 和 宏任务（macro task）。在 ES6 规范中，micro task 称为 jobs，macro task 称为 task。
 
-微任务包括 process.nextTick ，promise ，Object.observe ，MutationObserver
+微任务包括 `process.nextTick` ，`promise` ，`Object.observe` ，`MutationObserver`
 
-宏任务包括 script(主程序代码) ， setTimeout ，setInterval ，setImmediate ，I/O ，UI rendering
+宏任务包括 `script`(主程序代码) ， `setTimeout` ，`setInterval` ，`setImmediate` ，I/O ，UI rendering
 
-promise 优先于 setTimeout micro-task 和 macro-task
+`promise` 优先于 `setTimeout`, micro-task 和 macro-task
 
 一次正确的 Event Loop 顺序是：
 
@@ -20,7 +20,7 @@ promise 优先于 setTimeout micro-task 和 macro-task
 4. 必要的话渲染 UI
 5. 然后开始下一轮 Event loop，执行宏任务中的异步代码
 
-由此我们得到的执行顺序应该为：script(主程序代码)—>process.nextTick—>Promises…——>setTimeout——>setInterval——>setImmediate——> I/O——>UI rendering
+由此我们得到的执行顺序应该为：`script` —> `process.nextTick` —> `Promises` —> `setTimeout` —> `setInterval` —> `setImmediate` —> I/O —> UI rendering
 
 如果宏任务中的异步代码有大量的计算并且需要操作 DOM 的话，为了更快的 界面响应，我们可以把操作 DOM 放入微任务中。
 
