@@ -1,8 +1,6 @@
 # Component
 
-`Component: ReactBaseClasses.Component`
-
-## ReactComponent
+## React.Component
 
 ```javascript
 function ReactComponent(props, context, updater) {
@@ -12,19 +10,14 @@ function ReactComponent(props, context, updater) {
   // 初始化 updater 但实际应该从renderer导入
   this.updater = updater || ReactNoopUpdateQueue;
 }
+```
 
+声明了 Component 类
+
+```javascript
 ReactComponent.prototype.isReactComponent = {};
 
 ReactComponent.prototype.setState = function(partialState, callback) {
-// 当 partialState 不是 object 或者 function，以及 partial 不是 null 时，抛出错误
-// setState 第一个参数可以是 function ，值则为 function 返回的值
-  invariant(
-    typeof partialState === 'object' ||
-      typeof partialState === 'function' ||
-      partialState == null,
-    'setState(...): takes an object of state variables to update or a ' +
-      'function which returns an object of state variables.',
-  );
   this.updater.enqueueSetState(this, partialState, callback, 'setState'); // 检查通过后调用 enqueueSetState
 };
 
@@ -32,6 +25,8 @@ ReactComponent.prototype.forceUpdate = function(callback) {
   this.updater.enqueueForceUpdate(this, callback, 'forceUpdate');
 };
 ```
+
+在声明 Component 类之后，在 prototype 上添加了 `setState` 和 `forceUpdate` 方法。
 
 ## ReactNoopUpdateQueue
 

@@ -1,36 +1,6 @@
-# react
+# React
 
-入口文件为`src/isomorphic/ReactEntry.js`。
-
-可以看到`React`的定义。
-
-```javascript
-var React = {
-  Children: {
-    map: ReactChildren.map,
-    forEach: ReactChildren.forEach,
-    count: ReactChildren.count,
-    toArray: ReactChildren.toArray,
-    only: onlyChild,
-  },
-
-  Component: ReactBaseClasses.Component,
-  PureComponent: ReactBaseClasses.PureComponent,
-  unstable_AsyncComponent: ReactBaseClasses.AsyncComponent,
-
-  createElement: createElement,
-  cloneElement: cloneElement,
-  isValidElement: ReactElement.isValidElement,
-
-  createFactory: createFactory,
-
-  version: ReactVersion,
-
-  __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED: {
-    ReactCurrentOwner: require('ReactCurrentOwner'),
-  },
-};
-```
+1. Component 声明 React.Component 基础类
 
 - ReactChildren: ReactChildren 提供了处理 this.props.children 的工具集.
 
