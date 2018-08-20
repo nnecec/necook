@@ -1,6 +1,8 @@
 # Component
 
-## React.Component
+> ReactBaseClasses.js
+
+## Component
 
 ```javascript
 function ReactComponent(props, context, updater) {
@@ -28,55 +30,22 @@ ReactComponent.prototype.forceUpdate = function(callback) {
 
 在声明 Component 类之后，在 prototype 上添加了 `setState` 和 `forceUpdate` 方法。
 
+## PureComponent
+
 ## ReactNoopUpdateQueue
 
-`updater`的初始值。
+`updater`的默认值，。
 
 ```javascript
 var ReactNoopUpdateQueue = {
-	// 判断 React Component 是否已经 mounted
-  isMounted: function(publicInstance) {
-    return false;
-  },
-	// forceUpdate 的等待队列
-  enqueueForceUpdate: function(publicInstance, callback, callerName) {
-    warnNoop(publicInstance, 'forceUpdate');
-  },
-	// replaceState 的等待队列
-  enqueueReplaceState: function(
-    publicInstance,
-    completeState,
-    callback,
-    callerName,
-  ) {
-    warnNoop(publicInstance, 'replaceState');
-  },
-	// setState 的等待队列
-  enqueueSetState: function(
-    publicInstance, // this 的指向
-    partialState, // next state
-    callback, // setState 的 callback
-    callerName,
-  ) {
-    warnNoop(publicInstance, 'setState');
-  },
+  // 判断 React Component 是否已经 mounted
+  isMounted,
+  // forceUpdate 的队列
+  enqueueForceUpdate,
+  // replaceState 的队列
+  enqueueReplaceState,
+	// setState 的队列
+  enqueueSetState,
 };
-
-function warnNoop(publicInstance, callerName) {
-  if (__DEV__) {
-    var constructor = publicInstance.constructor;
-    warning(
-      false,
-      '%s(...): Can only update a mounted or mounting component. ' +
-        'This usually means you called %s() on an unmounted component. ' +
-        'This is a no-op.\n\nPlease check the code for the %s component.',
-      callerName,
-      callerName,
-      (constructor && (constructor.displayName || constructor.name)) ||
-        'ReactClass',
-    );
-  }
-}
-
 module.exports = ReactNoopUpdateQueue;
 ```
