@@ -24,8 +24,10 @@ const ReactDOM = {
 
 ## legacyRenderSubtreeIntoContainer
 
-```javascript
+通过`legacyCreateRootFromDOMContainer`方法，创建`ReactRoot`实例，`ReactRoot`实例主要调用`ReactFiberReconciler`的`createContainer`方法。最后返回了`FiberNode`的`root`实例。
 
+```javascript
+// 渲染 subtree 到容器里
 function legacyRenderSubtreeIntoContainer(
   parentComponent, // 当前组件的父组件，第一次渲染时为 null
   children, // 要插入 DOM 中的组件
@@ -35,7 +37,7 @@ function legacyRenderSubtreeIntoContainer(
 ) {
   let root = (container._reactRootContainer);
     if (!root) { // 如果没有传入 root 元素
-    // 初次构建 返回 ReactRoot
+    // 初次构建 返回 ReactRoot 
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
       forceHydrate,
@@ -82,19 +84,70 @@ function legacyRenderSubtreeIntoContainer(
 ```
 
 ```javascript
-ReactRoot.prototype.legacy_renderSubtreeIntoContainer = function(
-  parentComponent,
-  children,
-  callback,
-){
-  const root = this._internalRoot;
-  const work = new ReactWork();
-  callback = callback === undefined ? null : callback;
+export function createContainer(
+  containerInfo,
+  isAsync,
+  hydrate,
+) {
+  return createFiberRoot(containerInfo, isAsync, hydrate);
+}
+export function createFiberRoot(
+  containerInfo,
+  isAsync,
+  hydrate,
+) {
+  // Cyclic construction. This cheats the type system right now because
+  // stateNode is any.
+  const uninitializedFiber = createHostRootFiber(isAsync);
+  const root = {
+    current: uninitializedFiber,
+    containerInfo: containerInfo,
+    pendingChildren: null,
 
-  if (callback !== null) {
-    work.then(callback);
+    earliestPendingTime: NoWork,
+    latestPendingTime: NoWork,
+    earliestSuspendedTime: NoWork,
+    latestSuspendedTime: NoWork,
+    latestPingedTime: NoWork,
+
+    didError: false,
+
+    pendingCommitExpirationTime: NoWork,
+    finishedWork: null,
+    timeoutHandle: noTimeout,
+    context: null,
+    pendingContext: null,
+    hydrate,
+    nextExpirationTimeToWorkOn: NoWork,
+    expirationTime: NoWork,
+    firstBatch: null,
+    nextScheduledRoot: null,
+  };
+  uninitializedFiber.stateNode = root;
+  return root;
+}
+
+export function createHostRootFiber(isAsync: boolean): Fiber {
+  let mode = isAsync ? AsyncMode | StrictMode : NoContext;
+
+  if (enableProfilerTimer && isDevToolsPresent) {
+    // Always collect profile timings when DevTools are present.
+    // This enables DevTools to start capturing timing at any point–
+    // Without some nodes in the tree having empty base times.
+    mode |= ProfileMode;
   }
-  DOMRenderer.updateContainer(children, root, parentComponent, work._onCommit);
-  return work;
+
+  return createFiber(HostRoot, null, null, mode);
+}
+
+const createFiber = function(
+  tag: TypeOfWork,
+  pendingProps: mixed,
+  key: null | string,
+  mode: TypeOfMode,
+): Fiber {
+  // $FlowFixMe: the shapes are exact here but Flow doesn't like constructors
+  return new FiberNode(tag, pendingProps, key, mode);
 };
+
 ```
