@@ -34,7 +34,7 @@ function legacyRenderSubtreeIntoContainer(
   callback, // 完成后的回调函数
 ) {
   let root = (container._reactRootContainer);
-    if (!root) { // 如果传入了 root 元素
+    if (!root) { // 如果没有传入 root 元素
     // 初次构建 返回 ReactRoot
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
@@ -59,7 +59,7 @@ function legacyRenderSubtreeIntoContainer(
         root.render(children, callback);
       }
     });
-  } else { // 没有传入 root 元素
+  } else { // 如果传入 root 元素
     if (typeof callback === 'function') {
       const originalCallback = callback;
       callback = function() {
