@@ -24,7 +24,7 @@ const ReactDOM = {
 
 ## legacyRenderSubtreeIntoContainer
 
-通过`legacyCreateRootFromDOMContainer`方法，创建`ReactRoot`实例，`ReactRoot`实例主要调用`ReactFiberReconciler`的`createContainer`方法。最后返回了`FiberNode`的`root`实例。调用组件`render`方法时，会将变更加入到 fiber enqueue 中。然后调用`scheduleWork`方法，
+通过`legacyCreateRootFromDOMContainer`方法，创建`ReactRoot`实例，`ReactRoot`实例主要调用`ReactFiberReconciler`的`createContainer`方法。最后返回了`FiberNode`的`root`实例。调用组件`render`方法时，会将变更加入到 fiber enqueue 中。然后调用`scheduleWork`方法，应该是调度渲染工作的算法。
 
 ```javascript
 // 渲染 subtree 到容器里
