@@ -39,11 +39,11 @@ props 和 state 的变化都会导致组件更新，重新渲染时调用下列
 
 ### constructor(props)
 
-在React component mounted 之前被调用，不要在这里调用有副作用的或订阅的方法，这些放到`componentDidMount()`里去做。如果不用初始化 state 或者 不用 bind 方法，也可以不实现 constructor。
+在 React.Component mounted 之前被调用，不要在这里调用有副作用的或订阅的方法，这些放到`componentDidMount()`里去做。如果不用初始化 state 或者 不用 bind 方法，也可以不实现 constructor。
 
 如果在这里为 state 传入 props 的值，当 props 更新时，state 并不会一同更新。如果需要将 state 与 props 的更新一致，可以在 `getDerivedStateFromProps()`中实现。
 
-**不可以调用setState**
+**不可以调用 setState**
 
 ### static getDerivedStateFromProps(nextProps,prevState)
 
@@ -53,7 +53,7 @@ props 和 state 的变化都会导致组件更新，重新渲染时调用下列
 
 ### componentDidMount()
 
-在 component 被实例化之后调用。可以在这个方法里请求远程数据，订阅方法，不要忘记在`componentWillUnmount()`取消订阅。
+在 component 被实例化之后调用。可以在这个方法里请求远程数据、订阅方法，不要忘记在`componentWillUnmount()`取消订阅。
 
 在方法里调用`setState()`会出发一次额外的渲染，但是发生在浏览器更新屏幕之前。所以即使在这里`render()`被调用两次，用户也不会感知这些。需要注意的是，这样做可能会导致一些性能问题。
 
@@ -71,7 +71,7 @@ props 和 state 的变化都会导致组件更新，重新渲染时调用下列
 
 ### getSnapshotBeforeUpdate(prevProps, prevState)
 
-在大量即时的渲染被提交到如DOM时被调用。使组件具有获取很多即时的值如滚动位置的能力。
+在最近一次的渲染输出被提交之前调用。使组件具有获取很多即时的值如滚动位置的能力。此生命周期返回的任何值将作为参数传递给componentDidUpdate()。
 
 ### componentDidUpdate(prevProps, prevState, snapshot)
 
@@ -82,6 +82,8 @@ props 和 state 的变化都会导致组件更新，重新渲染时调用下列
 如果在组件中执行了`getSnapshotBeforeUpdate()`，将会在第三个参数传入返回值`snapshot`，否则将会传入`undefined`。
 
 **可以调用setState**
+
+注意`setState()`应包含在条件语句中，否则可能导致无限循环。
 
 ### componentWillUnmount()
 

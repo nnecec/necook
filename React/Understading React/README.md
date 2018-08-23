@@ -1,3 +1,3 @@
 # Understanding React
 
-> version: 16.2+
+> version: 16.4+
