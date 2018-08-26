@@ -1,0 +1,9 @@
+var PENDING = 0;
+var FULFILLED = 1;
+var REJECTED = 2;
+
+module.exports = {
+  PENDING: PENDING,
+  FULFILLED: FULFILLED,
+  REJECTED: REJECTED,
+}
