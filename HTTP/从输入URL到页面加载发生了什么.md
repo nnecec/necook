@@ -70,7 +70,7 @@ HTTP 报文是包裹在 TCP 报文中发送的，服务器端收到 TCP 报文�
 
 #### HTTPS过程
 
-HTTPS 在传输数据之前需要客户端与服务器进行一个握手(TLS/SSL握手)，在握手过程中将确立双方加密传输数据的密码信息。TLS/SSL 使用了非对称加密，对称加密以及hash等。具体过程请参考经典的阮一峰先生的博客[TLS/SSL握手过程](http://www.ruanyifeng.com/blog/2014/09/illustration-ssl.html)。
+HTTPS 在传输数据之前需要客户端与服务器进行一个握手(TLS/SSL握手)，在握手过程中将确立双方加密传输数据的密码信息。TLS/SSL 使用了非对称加密，对称加密以及hash等。具体过程请参考经典的阮一峰的博客[TLS/SSL握手过程](http://www.ruanyifeng.com/blog/2014/09/illustration-ssl.html)。
 HTTPS 相比于 HTTP，虽然提供了安全保证，但是势必会带来一些时间上的损耗，如握手和加密等过程，是否使用HTTPS需要根据具体情况在安全和性能方面做出权衡。
 
 ### HTTP请求
@@ -84,7 +84,6 @@ HTTPS 相比于 HTTP，虽然提供了安全保证，但是势必会带来一些
 
 ```
 eg: GET index.html HTTP/1.1
-
 ```
 
 常用的方法有: GET, POST, PUT, DELETE, OPTIONS, HEAD。
