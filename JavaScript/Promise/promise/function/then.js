@@ -1,3 +1,5 @@
+var utils = require('../utils')
+
 function then(onFulfilled, onRejected) {
 
 }
