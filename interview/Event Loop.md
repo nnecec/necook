@@ -70,6 +70,12 @@ setTimeout
 
 Node 的 Event loop 分为6个阶段，它们会按照顺序反复运行
 
+这里的每一个阶段都对应着一个事件队列
+
+- 每当event loop执行到某个阶段时，都会执行对应的事件队列中的事件，依次执行
+- 当该队列执行完毕或者执行数量超过上限，event loop就会执行下一个阶段
+- 每当event loop切换一个执行队列时，就会去清空microtasks queues，然后再切换到下个队列去执行，如此反复
+
 ```
    ┌──────────────────────┐
 ┌─>│        timers        │
@@ -107,6 +113,7 @@ Node 的 Event loop 分为6个阶段，它们会按照顺序反复运行
 并且当 poll 中没有定时器的情况下，会发现以下两件事情
 
 如果 poll 队列不为空，会遍历回调队列并同步执行，直到队列为空或者系统限制
+
 如果 poll 队列为空，会有两件事发生
 
 如果有 `setImmediate` 需要执行，poll 阶段会停止并且进入到 check 阶段执行 `setImmediate`
@@ -199,3 +206,49 @@ new Promise((resolve) => {
 console.log('script end');
 // script start => Promise => script end => promise1 => promise2 => setTimeout
 ```
+
+```javascript
+setImmediate(()=>{
+  console.log('setImmediate1')
+  setTimeout(()=>{
+    console.log('setTimeout1')    
+  },0)
+})
+setTimeout(()=>{
+  console.log('setTimeout2') 
+  process.nextTick(()=>{console.log('nextTick1')})
+  setImmediate(()=>{
+    console.log('setImmediate2')
+  })
+},0)
+/**
+首先我们可以看到上面的代码先执行的是setImmediate1,此时event loop在check队列
+然后setImmediate1从队列取出之后，输出setImmediate1，然后会将setTimeout1执行
+此时event loop执行完check队列之后，开始往下移动，接下来执行的是timers队列
+这里会有问题，我们都知道setTimeout1设置延迟为0的话，其实还是有4ms的延迟，那么这里就会有两种情况。先说第一种，此时setTimeout1已经执行完毕
+
+根据node事件环的规则，我们会执行完所有的事件，即取出timers队列中的setTimeout2,setTimeout1
+此时根据队列先进先出规则，输出顺序为setTimeout2,setTimeout1，在取出setTimeout2时，会将一个process.nextTick执行（执行完了就会被放入微任务队列），再将一个setImmediate执行（执行完了就会被放入check队列）
+到这一步，event loop会再去寻找下个事件队列，此时event loop会发现微任务队列有事件process.nextTick，就会去清空它，输出nextTick1
+最后event loop找到下个有事件的队列check队列，执行setImmediate，输出setImmediate2
+
+
+假如这里setTimeout1还未执行完毕（4ms耽误了它的终身大事？）
+
+此时event loop找到timers队列，取出*timers队列**中的setTimeout2，输出setTimeout2，把process.nextTick执行，再把setImmediate执行
+然后event loop需要去找下一个事件队列，这里大家要注意一下，这里会发生2步操作，1、setTimeout1执行完了，放入timers队列。2、找到微任务队列清空。，所以此时会先输出nextTick1
+接下来event loop会找到check队列，取出里面已经执行完的setImmediate2
+最后event loop找到timers队列，取出执行完的setTimeout1。这种情况下event loop比上面要多切换一次
+
+
+
+所以有两种答案
+
+setImmediate1,setTimeout2,setTimeout1,nextTick1,setImmediate2
+setImmediate1,setTimeout2,nextTick1,setImmediate2,setTimeout1
+*/
+```
+
+## reference
+
+1. [node基础面试事件环？微任务、宏任务？](https://juejin.im/post/5b35cdfa51882574c020d685)
