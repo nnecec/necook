@@ -8,8 +8,6 @@ React Component 的生命周期可以分为三个阶段：
 - Updating 更新
 - Unmounting 卸载
 
-
-
 ## Mounting 挂载
 
 会在实例被创建和插入到DOM后调用下列方法：
