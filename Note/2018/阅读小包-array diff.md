@@ -1,7 +1,7 @@
 # array diff
 
 > [link](https://github.com/jonschlinkert/arr-diff)
-> 返回一个数组，仅包含给定数组的唯一值，并使用严格相等来进行比较。
+> 返回一个数组，返回首个参数不存在与后面数组的唯一值，并使用严格相等来进行比较。
 
 ```javascript
 /**
