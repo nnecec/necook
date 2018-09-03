@@ -1,9 +1,20 @@
-var PENDING = 0;
-var FULFILLED = 1;
-var REJECTED = 2;
+
+/**
+ * 添加到
+ *
+ * @param {*} parent
+ * @param {*} child
+ * @param {*} onFulfillment
+ * @param {*} onRejection
+ */
+function subscribe(parent, child, onFulfilled, onRejected) {
+
+}
 
 module.exports = {
-  PENDING: PENDING,
-  FULFILLED: FULFILLED,
-  REJECTED: REJECTED,
+  PENDING: 0,
+  FULFILLED: 1,
+  REJECTED: 2,
+  noop: function () { },
+  subscribe: subscribe
 }
