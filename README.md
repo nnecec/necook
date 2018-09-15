@@ -1,3 +1,5 @@
 # necook
 
-necook is personal repository.
+necook is personal learning notebook.
+
+This notebook is focusing frontend.
