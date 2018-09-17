@@ -49,6 +49,18 @@ HOC在 render 方法中返回了一个 WrappedComponent 类型的 React Element�
 
 ### 2. Inheritance Inversion
 
+Inheritance Inversion (II) 的最简实现：
+
+```javascript
+function iiHOC(WrappedComponent) {
+  return class Enhancer extends WrappedComponent {
+    render() {
+      return super.render()
+    }
+  }
+}
+```
+
 ## Reference
 
 1. [深入理解 React 高阶组件](https://zhuanlan.zhihu.com/p/24776678)
