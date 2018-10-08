@@ -1,5 +1,6 @@
 var utils = require('../utils')
 var internal = require('../internal')
+var SubscriberItem = require('../subscriber')
 
 /**
  * 当 promise 状态变为 FULFILLED 调用
@@ -20,13 +21,14 @@ function then(onFulfilled, onRejected) {
   var _promise = new this.constructor(internal.noop)
 
   // 判断 promise 状态
-  if (this._state !== internal.PENDING) {
-    // 如果状态不是 pending
+  if (this._state !== internal.PENDING) { // 如果状态不是 pending 则执行对应状态的方法
     var resolver = this._state === internal.FULFILLED ? onFulfilled : onRejected
-    
-  } else {
-    subscribe(this, _promise, onFulfilled, onRejected)
+    internal.unwrap(_promise, resolver, this._outcome)
+  } else { // 如果状态是 pending 则将 promise 加入队列
+    this._subscribers.push(new SubscriberItem(_promise, onFulfilled, onRejected));
   }
+
+  return _promise
 }
 
 module.exports = then
