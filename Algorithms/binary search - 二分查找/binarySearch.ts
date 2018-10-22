@@ -1,13 +1,14 @@
 import Comparator from '../utils/comparator'
 
 /**
- *二分法查找
+ * 二分法查找
  *
- * @param {*} sortedArray
- * @param {*} seekElement
- * @param {*} comparatorCallback
+ * @param {Array<number>} sortedArray
+ * @param {number} seekElement
+ * @param {Function} comparatorCallback
+ * @returns {(Boolean | number)}
  */
-function binarySearch(sortedArray, seekElement, comparatorCallback) {
+function binarySearch(sortedArray: Array<number>, seekElement: number, comparatorCallback: Function): Boolean | number {
   const comparator = new Comparator(comparatorCallback)
 
   let start = 0

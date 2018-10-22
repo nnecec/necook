@@ -7,8 +7,9 @@ var internal = require('./internal')
 var utils = require('./utils')
 
 function Promise(resolver) {
-	this._state = internal.PENDING
-	this._subscribers = []
+	this._state = undefined // promise 当前状态
+	this._outcome = undefined // promise 当前值
+	this._subscribers = [] // promise 当前注册的回调队列
 }
 
 Promise.prototype = {

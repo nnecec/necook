@@ -1,17 +1,16 @@
 {
   "name": "promise",
   "version": "1.0.0",
-  "description": "## promise中第二个参数的 reject 中执行的方法和 promise.catch()都是失败执行的，分别这么写有什么区别，什么情况下会两个都同时用到？",
+  "description": "",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "assert": "^1.4.1",
+    "immediate": "^3.2.3",
     "mocha": "^5.2.0",
     "promises-aplus-tests": "^2.1.2"
   }
