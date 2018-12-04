@@ -23,31 +23,34 @@ var f2 = function(){};
 var f3 = new Function('str','console.log(str)');
 ```
 
-简单的说，凡是使用 `function` 关键字或 `Function` 构造函数创建的对象都是函数对象。而且，只有函数对象才拥有  `prototype` （原型）属性。
+简单的说，凡是使用 `function` 关键字或 `Function` 构造函数创建的对象都是函数对象。
 
-## `constructor` 构造函数
+**只有函数对象才拥有  `prototype` （原型）属性。**
 
-函数还有一种用法，就是把它作为构造函数使用。像 `Object` 和 `Array` 这样的原生构造函数，在运行时会自动出现在执行环境中。此外，也可以创建自定义的构造函数，从而自定义对象类型的属性和方法。如下代码所示：
+## constructor 构造函数
+
+函数还有一种用法，就是把它作为构造函数使用。像 `Object` 和 `Array` 这样的原生构造函数，在运行时会自动出现在执行环境中。
+
+在`class`出现之前，通过`function`模拟类的实现，如：
 
 ```javascript
 function Person(name, age, job){
     this.name = name;
     this.age = age;
-    this.job = job;
     this.sayName = function(){
         console.log(this.name);
     };
 }
 
-var person1 = new Person("Stone", 28, "Software Engineer");
-var person2 = new Person("Sophie", 29, "English Teacher");
+var person1 = new Person("Stone", 28)
+var person2 = new Person("Sophie", 29)
 ```
 
-在这个例子中，我们创建了一个自定义构造函数 `Person()`，并通过该构造函数创建了两个普通对象 `person1` 和 `person2`，这两个普通对象均包含3个属性和1个方法。
+在这个例子中，我们创建了一个自定义构造函数 `Person()`，并通过该构造函数创建了两个普通对象 `person1` 和 `person2`。
 
-你应该注意到函数名 `Person` 使用的是大写字母 `P`。按照惯例，构造函数始终都应该以一个大写字母开头，而非构造函数则应该以一个小写字母开头。这个做法借鉴自其他面向对象语言，主要是为了区别于 JavaScript 中的其他函数；因为构造函数本身也是函数，只不过可以用来创建对象而已。
+## new 操作符
 
-## `new` 操作符
+> 参考 [Interview/new关键字的过程](../interview/new关键字的过程.md)
 
 要创建 `Person` 的新实例，必须使用 `new` 操作符。以这种方式调用构造函数实际上会经历以下4个步骤：
 
@@ -58,24 +61,28 @@ var person2 = new Person("Sophie", 29, "English Teacher");
 
 ### 将构造函数当作函数
 
-构造函数与其他函数的唯一区别，就在于调用它们的方式不同。不过，构造函数毕竟也是函数，不存在定义构造函数的特殊语法。任何函数，只要通过 `new` 操作符来调用，那它就可以作为构造函数；而任何函数，如果不通过 `new` 操作符来调用，那它跟普通函数也不会有什么两样。例如，前面例子中定义的 `Person()` 函数可以通过下列任何一种方式来调用。
+任何函数，只要通过 `new` 操作符来调用，那它就可以作为构造函数。例如，前面例子中定义的 `Person()` 函数可以通过下列任何一种方式来调用。
 
 ```javascript
 // 当作构造函数使用
-var person = new Person("Stone", 28, "Software Engineer");
+var person = new Person("Stone", 28);
 person.sayName(); // "Stone"
 
 // 作为普通函数调用
-Person("Sophie", 29, "English Teacher"); // 添加到 window
+Person("Sophie", 29); // 添加到 window
 window.sayName(); // "Sophie"
 
 // 在另一个对象的作用域中调用
 var o = new Object();
-Person.call(o, "Tommy", 3, "Baby");
+Person.call(o, "Tommy", 3);
 o.sayName(); // "Tommy"
 ```
 
-这个例子中的前两行代码展示了构造函数的典型用法，即使用 `new` 操作符来创建一个新对象。接下来的两行代码展示了不使用 `new` 操作符调用 `Person()` 会出现什么结果，属性和方法都被添加给 `window` 对象了。当在全局作用域中调用一个函数时，`this` 对象总是指向 `Global` 对象（在浏览器中就是 `window` 对象）。因此，在调用完函数之后，可以通过 `window` 对象来调用 `sayName()` 方法，并且还返回了 `"Sophie"` 。最后，也可以使用 `call()`（或者 `apply()`）在某个特殊对象的作用域中调用 `Person()` 函数。这里是在对象 `o` 的作用域中调用的，因此调用后 `o` 就拥有了所有属性和 `sayName()` 方法。
+这个例子中的前两行代码展示了构造函数的典型用法，即使用 `new` 操作符来创建一个新对象。
+
+接下来的两行代码展示了不使用 `new` 操作符调用 `Person()` 会出现什么结果，属性和方法都被添加给 `window` 对象了。当在全局作用域中调用一个函数时，`this` 对象总是指向 `Global` 对象（在浏览器中就是 `window` 对象）。因此，在调用完函数之后，可以通过 `window` 对象来调用 `sayName()` 方法，并且还返回了 `"Sophie"` 。
+
+最后，也可以使用 `call()`（或者 `apply()`）在某个特殊对象的作用域中调用 `Person()` 函数。这里是在对象 `o` 的作用域中调用的，因此调用后 `o` 就拥有了所有属性和 `sayName()` 方法。
 
 ### 构造函数的问题
 
@@ -116,16 +123,15 @@ var person2 = new Person("Sophie", 29, "English Teacher");
 
 在这个例子中，我们把 `sayName()` 函数的定义转移到了构造函数外部。而在构造函数内部，我们将 `sayName` 属性设置成等于全局的 `sayName` 函数。这样一来，由于 `sayName` 包含的是一个指向函数的指针，因此 `person1` 和 `person2` 对象就共享了在全局作用域中定义的同一个 `sayName()` 函数。这样做确实解决了两个函数做同一件事的问题，可是新问题又来了，在全局作用域中定义的函数实际上只能被某个对象调用，这让全局作用域有点名不副实。而更让人无法接受的是，如果对象需要定义很多方法，那么就要定义很多个全局函数，于是我们这个自定义的引用类型就丝毫没有封装性可言了。好在，这些问题可以通过使用原型来解决。
 
-## `prototype` 原型
+## prototype 原型
 
-我们创建的每个函数都有一个 `prototype`（原型）属性。使用原型的好处是可以让所有对象实例共享它所包含的属性和方法。换句话说，不必在构造函数中定义对象实例的信息，而是可以将这些信息直接添加到原型中，如下面的例子所示。
+我们创建的每个函数都有一个 `prototype`（原型）属性。使用原型的好处是可以让所有对象实例共享它所包含的属性和方法。
 
 ```javascript
 function Person(){}
 
 Person.prototype.name = "Stone";
 Person.prototype.age = 28;
-Person.prototype.job = "Software Engineer";
 Person.prototype.sayName = function(){
     console.log(this.name);
 };
@@ -387,17 +393,15 @@ console.log(person1.sayName === person2.sayName);    // true
 
 这种构造函数与原型混成的模式，是目前在 JavaScript 中使用最广泛、认同度最高的一种创建自定义类型的方法。可以说，这是用来定义引用类型的一种默认模式。
 
-## `__proto__`
+## __proto__
 
 为什么在构造函数的 `prototype` 中定义了属性和方法，它的实例中就能访问呢？
 
-那是因为当调用构造函数创建一个新实例后，该实例的内部将包含一个指针 `__proto__`，指向构造函数的原型。Firefox、Safari 和 Chrome 的每个对象上都有这个属性 ，而在其他浏览器中是完全不可见的（为了确保浏览器兼容性问题，不要直接使用 `__proto__` 属性，此处只为解释原型链而演示）。让我们来看下面代码和图片：
+那是因为当调用构造函数创建一个新实例后，该实例的内部将包含一个指针 `__proto__`，指向构造函数的原型。Firefox、Safari 和 Chrome 的每个对象上都有这个属性 ，而在其他浏览器中是完全不可见的（为了确保浏览器兼容性问题，不要直接使用 `__proto__` 属性，此处只为解释原型链而演示）。
 
-![](http://qiniu.shijiajie.com/blog/javascript-lesson/2.5/2.jpg?1)
+在此，`Person.prototype.constructor` 指回了 `Person`。`Person.prototype` 中除了包含 `constructor` 属性之外，还包括后来添加的其他属性。此外，要格外注意的是，虽然这两个实例都不包含属性和方法，但我们却可以调用 `person1.sayName()`。这是因为内部指针 `__proto__` 指向 `Person.prototype`，而在 `Person.prototype` 中能找到 `sayName()` 方法。
 
-图中展示了 `Person` 构造函数、`Person` 的原型属性以及 `Person` 现有的两个实例之间的关系。在此，`Person.prototype.constructor` 指回了 `Person`。`Person.prototype` 中除了包含 `constructor` 属性之外，还包括后来添加的其他属性。此外，要格外注意的是，虽然这两个实例都不包含属性和方法，但我们却可以调用 `person1.sayName()`。这是因为内部指针 `__proto__` 指向 `Person.prototype`，而在 `Person.prototype` 中能找到 `sayName()` 方法。
-
-我们来证实一下，`__proto__` 是不是真的指向 `Person.prototype` 的？如下代码所示：
+我们来证实一下，`__proto__` 是不是真的指向 `Person.prototype` 的：
 
 ```javascript
 function Person(){}
@@ -417,7 +421,7 @@ person.__proto__ = Person.prototype;
 Person.call(person);
 ```
 
-这个例子中，我先创建了一个空对象 `person`，然后把 `person.__proto__` 指向了 `Person` 的原型对象，便继承了 `Person` 原型对象中的所有属性和方法，最后又以 `person` 为作用域执行了 `Person` 函数，`person` 便就拥有了 `Person` 的所有属性和方法。这个过程和 `var person = new Person();` 完全一样。
+先创建了一个空对象 `person`，然后把 `person.__proto__` 指向了 `Person` 的原型对象，便继承了 `Person` 原型对象中的所有属性和方法，最后又以 `person` 为作用域执行了 `Person` 函数，`person` 便就拥有了 `Person` 的所有属性和方法。这个过程和 `var person = new Person();` 完全一样。
 
 简单来说，当我们访问一个对象的属性时，如果这个属性不存在，那么就会去 `__proto__` 里找，这个 `__proto__` 又会有自己的 `__proto__`，于是就这样一直找下去，直到找到为止。在找不到的情况下，搜索过程总是要一环一环地前行到原型链末端才会停下来。
 
@@ -562,5 +566,4 @@ var yanzi2 = {};
 
 ## 更多
 
-> 关注微信公众号「劼哥舍」回复「答案」，获取关卡详解。  
-> 关注 [https://github.com/stone0090/javascript-lessons](https://github.com/stone0090/javascript-lessons)，获取最新动态。
+> [javascript-lessons](https://github.com/stone0090/javascript-lessons)
