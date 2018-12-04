@@ -2,11 +2,11 @@
 
 原型链是一种机制，指的是 JavaScript 每个对象都有一个内置的 `__proto__` 属性指向创建它的构造函数的 `prototype`（原型）属性。
 
-原型链的作用是为了实现对象的继承，要理解原型链，需要先从**函数对象**、`constructor`、`new`、`prototype`、`__proto__` 这五个概念入手。
+原型链的作用是为了实现对象的继承，要理解原型链，需要先从`函数对象`、`constructor`、`new`、`prototype`、`__proto__` 这五个概念入手。
 
 ## 函数对象
 
-前面讲过，在 JavaScript 里，函数即对象，程序可以随意操控它们。比如，可以把函数赋值给变量，或者作为参数传递给其他函数，也可以给它们设置属性，甚至调用它们的方法。下面示例代码对「普通对象」和「函数对象」进行了区分。
+下面示例代码对「普通对象」和「函数对象」进行了区分。凡是使用 `function` 关键字或 `Function` 构造函数创建的对象都是函数对象。
 
 普通对象：
 
@@ -22,8 +22,6 @@ function f1(){};
 var f2 = function(){};
 var f3 = new Function('str','console.log(str)');
 ```
-
-简单的说，凡是使用 `function` 关键字或 `Function` 构造函数创建的对象都是函数对象。
 
 **只有函数对象才拥有  `prototype` （原型）属性。**
 
@@ -86,13 +84,12 @@ o.sayName(); // "Tommy"
 
 ### 构造函数的问题
 
-构造函数模式虽然好用，但也并非没有缺点。使用构造函数的主要问题，就是每个方法都要在每个实例上重新创建一遍。在前面的例子中，`person1` 和 `person2` 都有一个名为 `sayName()` 的方法，但那两个方法不是同一个 `Function` 的实例。因为 JavaScript 中的函数是对象，因此每定义一个函数，也就是实例化了一个对象。从逻辑角度讲，此时的构造函数也可以这样定义。
+构造函数模式虽然好用，但也并非没有缺点。使用构造函数的主要问题，就是每个方法都要在每个实例上重新创建一遍。在前面的例子中，`person1` 和 `person2` 都有一个名为 `sayName()` 的方法，但那两个方法不是同一个 `Function` 的实例。因为 JavaScript 中的函数是对象，因此每定义一个函数，也就是实例化了一个对象。
 
 ```javascript
 function Person(name, age, job){
     this.name = name;
     this.age = age;
-    this.job = job;
     this.sayName = new Function("console.log(this.name)"); // 与声明函数在逻辑上是等价的
 }
 ```
@@ -103,7 +100,7 @@ function Person(name, age, job){
 console.log(person1.sayName == person2.sayName);  // false
 ```
 
-然而，创建两个完成同样任务的 `Function` 实例的确没有必要；况且有 `this` 对象在，根本不用在执行代码前就把函数绑定到特定对象上面。因此，大可像下面这样，通过把函数定义转移到构造函数外部来解决这个问题。
+像下面这样，通过把函数定义转移到构造函数外部来解决这个问题。
 
 ```javascript
 function Person(name, age, job){
@@ -121,11 +118,11 @@ var person1 = new Person("Stone", 28, "Software Engineer");
 var person2 = new Person("Sophie", 29, "English Teacher");
 ```
 
-在这个例子中，我们把 `sayName()` 函数的定义转移到了构造函数外部。而在构造函数内部，我们将 `sayName` 属性设置成等于全局的 `sayName` 函数。这样一来，由于 `sayName` 包含的是一个指向函数的指针，因此 `person1` 和 `person2` 对象就共享了在全局作用域中定义的同一个 `sayName()` 函数。这样做确实解决了两个函数做同一件事的问题，可是新问题又来了，在全局作用域中定义的函数实际上只能被某个对象调用，这让全局作用域有点名不副实。而更让人无法接受的是，如果对象需要定义很多方法，那么就要定义很多个全局函数，于是我们这个自定义的引用类型就丝毫没有封装性可言了。好在，这些问题可以通过使用原型来解决。
+在这个例子中，我们把 `sayName()` 函数的定义转移到了构造函数外部。可是新问题又来了，在全局作用域中定义的函数实际上只能被某个对象调用，这让全局作用域有点名不副实。好在，这些问题可以通过使用原型来解决。
 
 ## prototype 原型
 
-我们创建的每个函数都有一个 `prototype`（原型）属性。使用原型的好处是可以让所有对象实例共享它所包含的属性和方法。
+创建的每个函数都有一个 `prototype`（原型）属性。使用原型的好处是可以让所有对象实例共享它所包含的属性和方法。
 
 ```javascript
 function Person(){}
@@ -145,7 +142,7 @@ person2.sayName();   // "Stone"
 console.log(person1.sayName == person2.sayName);  // true
 ```
 
-在此，我们将 `sayName()` 方法和所有属性直接添加到了 `Person` 的 `prototype` 属性中，构造函数变成了空函数。即使如此，也仍然可以通过调用构造函数来创建新对象，而且新对象还会具有相同的属性和方法。但与前面的例子不同的是，新对象的这些属性和方法是由所有实例共享的。换句话说，`person1` 和 `person2` 访问的都是同一组属性和同一个 `sayName()` 函数。
+在此，我们将 `sayName()` 方法和所有属性直接添加到了 `Person` 的 `prototype` 属性中，构造函数变成了空函数。即使如此，也仍然可以通过调用构造函数来创建新对象，而且新对象还会具有相同的属性和方法。但与前面的例子不同的是，新对象的这些属性和方法是由所有实例共享的。
 
 ### 理解原型对象
 
