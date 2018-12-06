@@ -28,7 +28,7 @@
 
 如果没办法解决通用问题，能否解决更具体的问题？
 
-例如，通过比较`Person.prototype instanceof React.Component`判断是否是`React Component`。
+例如，通过比较`Person.prototype instanceof React.Component`判断是否是`React Component`。这也正是`React`所使用的方法。
 
 `__proto__.__proto__.__proto__`比`prototype.prototype.prototype`更像原型链。
 
@@ -43,3 +43,11 @@
 另一个可能的启发是，检查`render`方法是否在`prototype`上。但每次检查也都很耗费性能。
 
 所以`React`增加了一个特殊的标志`isReactComponent`，来标记是否是`React.Component`。但是，某些扩展没有拷贝这个静态属性。所以将标志移到`React.Component.prototype`上来记录。
+
+Note：
+
+本文讲述了`React`识别出组件是否是`React Component`，通过区分`function`和`class`的类型，很多种情况导致`React`不能仅从类型上区分是否是`React Component`。
+
+后面又讲到通过原型链判断是否是继承自`React.Component`这种方法。
+
+高级代码的本质都是基于基础的概念，并且在实用场景中，需要考虑的还有API是否简单易用，是否语义化，性能是否优秀等等。
