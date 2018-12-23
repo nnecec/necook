@@ -15,6 +15,7 @@ function ppHOC(WrappedComponent) {
   }
 }
 ```
+
 HOC在 render 方法中返回了一个 WrappedComponent 类型的 React Element，并且可以传入 HOC 接受到的 props。
 
 使用 Props Proxy 可以:
