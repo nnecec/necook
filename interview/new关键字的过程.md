@@ -21,7 +21,7 @@ new的过程就是三步:
 ```Javascript
 var createObject = function(){
   var obj = new Object(),   // 1. 创建了一个空对象（准确的说是克隆了Object.prototype对象）
-      Constructor = Array.prototype.shift.call(arguments);   // 2.取到构造函数参数，赋值给Constructor变量，也就是说 Rocker 构造函数变成 Constructor 的一个引用了
+    Constructor = Array.prototype.shift.call(arguments);   // 2.取到构造函数参数，赋值给Constructor变量，也就是说 Rocker 构造函数变成 Constructor 的一个引用了
 
   obj.__proto__ = Constructor.prototype;    // 3. 把Constructor.prototype（也就是Rocker.prototype）赋值给(1)刚刚创建的 obj 的原型链，或者这么说，把 obj 的原型链指向 Constructor 的原型
 

@@ -2,16 +2,16 @@
 
 总体来说分为以下几个过程:
 
-1. 浏览器会开启一个新的线程来处理这个请求，对 URL 分析判断如果是 http 协议就按照 Web 方式来处理;
+1. 浏览器会开启一个新的线程来处理这个请求，对 URL 分析判断如果是 http 协议就按照 Web 方式来处理，如果不是合法的 URL 则可能进入浏览器默认的搜索流程;
 2. 通过 DNS 解析获取网址的IP地址，设置 UA 等信息发出第二个GET请求;
-3. 进行 HTTP 协议会话，客户端发送报头(请求报头);
-4. 进入到 web 服务器上的 Web Server，如 Apache、Tomcat、Node.JS 等服务器;
+3. 进行 HTTP 协议会话，客户端发送报头(请求报头)，三次握手建立TCP连接;
+4. 进入到 web 服务器上的 Web Server，如 Apache、Tomcat、Node.js 等服务器;
 5. 进入部署好的后端应用，如 PHP、Java、JavaScript、Python 等，找到对应的请求处理;
 6. 处理结束回馈报头，和资源，如果是浏览器访问过的资源，浏览器缓存上有对应的，会与服务器最后修改时间对比，一致则返回304;
 7. 如果 html 没缓存，则浏览器开始下载 html 文档(响应报头，状态码200)，同时使用缓存;
 8. html 一边下载一边解析 html，根据标签建立文档树 DOM;
 9. 其中根据标记下载所需css、js、图片文件，其中 css 是异步下载，同步执行(By default CSS is treated as a render blocking resource, html 也是)并会阻塞式的建立 CSSOM, 然后这俩一起会 render 成完整的 render 树（最后我们看到的样子），然后再因为假如把 css 放到底部,可能页面会出现白屏(阻塞 render)，或者布局混乱样式很丑直到CSS加载完成闪跳(rerender)的感觉。所以写到顶部确保用户至少能早一点看到界面;
-10. js 在现代浏览器里面是异步下载，同步执行的，最好放到底部。因为对于在 js 后面的内容（html），html 的逐步呈现会被阻塞;
+10. js 在现代浏览器里面是异步下载，同步执行的，最好放到底部。因为对于在 js 后面的内容（html），html 的逐步呈现会被阻塞。资源下载完毕后，经过四次挥手关闭TCP连接;
 11. 当 js 运行完成，页面加载完成。
 
 ## DNS解析
@@ -88,9 +88,7 @@ eg: GET index.html HTTP/1.1
 
 常用的方法有: GET, POST, PUT, DELETE, OPTIONS, HEAD。
 
-TODO：
-
-- GET 和 POST 有什么区别？
+- [GET 和 POST 有什么区别？](./Get和Post的区别.md)
 
 #### 请求报头
 

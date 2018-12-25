@@ -8,28 +8,6 @@ function bindActionCreator(actionCreator, dispatch) {
 }
 
 /**
- * Turns an object whose values are action creators, into an object with the
- * same keys, but with every function wrapped into a `dispatch` call so they
- * may be invoked directly. This is just a convenience method, as you can call
- * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
- *
- * For convenience, you can also pass a single function as the first argument,
- * and get a function in return.
- *
- * @param {Function|Object} actionCreators An object whose values are action
- * creator functions. One handy way to obtain it is to use ES6 `import * as`
- * syntax. You may also pass a single function.
- *
- * @param {Function} dispatch The `dispatch` function available on your Redux
- * store.
- *
- * @returns {Function|Object} The object mimicking the original object, but with
- * every action creator wrapped into the `dispatch` call. If you passed a
- * function as `actionCreators`, the return value will also be a single
- * function.
- */
-
-/**
  * 将一个值为 action creators 的对象，转为同一个key的对象，但是每一个函数都用 dispatch 包裹
  * 从而可以直接调用。这只是一个方便的方式，正如你可以直接调用 store.dispatch(MyActionCreators.doSomething())
  * 为了方便，也可以传入一个函数作为第一个参数，会返回一个函数
