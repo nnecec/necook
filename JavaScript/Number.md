@@ -1,4 +1,8 @@
-# JavaScript浮点数
+# Number
+
+## 浮点数
+
+## 最大值/最小值
 
 ## Reference
 

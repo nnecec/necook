@@ -27,7 +27,7 @@ var createObject = function(){
 
   var ret = Constructor.apply(obj, arguments);    //4. 用 apply 改变 this 的指向，用 obj 代替 Constructor 构造函数内部的 this，并把arguments作为参数传入（在第2步时已经用shift把第一个参数去除了）
 
-  return typeof ret === 'object' ? ret : obj;   // 5. 保险起见，第5步返回时判断 ret 是否是对象，如果不是就返回一个空对象。
+  return typeof ret === 'object' ? ret : obj;   // 5. 保险起见，第5步返回时判断构造函数是否返回的是对象，如果是对象，则屏蔽构造函数的属性，如果不是则暴露构造函数的属性
 };
 
 var shock = createObject(Rocker, 'Shock');
@@ -53,3 +53,8 @@ while (x.__proto__ !== null) {
 }
 if (x.__proto__==null) return false
 ```
+
+
+## Reference
+
+1. [JavaScript深入之new的模拟实现](https://github.com/mqyqingfeng/Blog/issues/13)

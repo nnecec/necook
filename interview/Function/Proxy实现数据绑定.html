@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Proxy 实现数据绑定</title>
+</head>
+
+<body>
+
+  <h1>Proxy</h1>
+  <input type="text" id="proxyInput">
+  <p id="proxy"></p>
+
+  <h1>Object.defineProperty</h1>
+  <input type="text" id="objectInput">
+  <p id="object"></p>
+
+</body>
+
+<script>
+  // Proxy
+  const obj1 = new Proxy({}, {
+    set: (target, prop, value) => {
+      target[prop] = value
+      document.getElementById('proxyInput').value = value
+      document.getElementById('proxy').innerHTML = value
+    }
+  })
+  const input1 = document.getElementById('proxyInput')
+  input1.addEventListener('keyup', function (e) {
+    obj1.value = e.target.value
+  })
+
+  // Object.defineProperty
+  const obj2 = {}
+  Object.defineProperty(obj2, 'text', {
+    get: function () {
+      console.log('get obj2 value')
+    },
+    set: function (value) {
+      console.log('set val2 value:' + value)
+      document.getElementById('objectInput').value = value
+      document.getElementById('object').innerHTML = value
+    }
+  })
+
+  const input2 = document.getElementById('objectInput')
+  input2.addEventListener('keyup', function (e) {
+    obj2.text = e.target.value
+  })
+  
+</script>
+
+</html>

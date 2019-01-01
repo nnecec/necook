@@ -16,3 +16,4 @@
 1. [es6-promise](https://github.com/stefanpenner/es6-promise)
 2. [lie](https://github.com/calvinmetcalf/lie)
 3. [JavaScript Promise 迷你书](http://liubin.org/promises-book/)
+4. [Promise实现原理](https://segmentfault.com/a/1190000013396601)

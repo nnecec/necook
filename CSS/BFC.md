@@ -22,3 +22,7 @@ Block formatting context直译为"块级格式化上下文"。它是一个独立
 
 2. BFC 不会重叠浮动元素，BFC 可以包含浮动/清除浮动
     浮动定位和清除浮动时只会应用于同一个BFC内的元素。浮动不会影响其它BFC中元素的布局，而清除浮动只能清除同一BFC中在它前面的元素的浮动。
+
+## Reference
+
+1. [BFC深入理解](https://juejin.im/post/5909db2fda2f60005d2093db)
