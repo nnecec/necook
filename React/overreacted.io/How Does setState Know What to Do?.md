@@ -2,7 +2,7 @@
 
 > https://overreacted.io/how-does-setstate-know-what-to-do/
 
-`React`重新渲染了组件还是`ReactDOM`呢？
+`React`还是`ReactDOM`重新渲染了组件呢？
 
 当调用`this.setState()`时，为什么`React.Component`会更新DOM？
 
@@ -35,3 +35,30 @@
 ---
 
 现在我们知道为什么需要针对新功能更新`react`和`react-dom`包。 例如，当React 16.3添加了`Context` API时，React会暴露出`React.createContext()`。
+
+但是`React.createContext()`没有实现 context 功能。比如这个实现在`ReactDom`和`ReactDom Server`之间有所不同。所以`createContext()`返回一些对象：
+
+```javascript
+// A bit simplified
+function createContext(defaultValue) {
+  let context = {
+    _currentValue: defaultValue,
+    Provider: null,
+    Consumer: null
+  };
+  context.Provider = {
+    $$typeof: Symbol.for('react.provider'),
+    _context: context
+  };
+  context.Consumer = {
+    $$typeof: Symbol.for('react.context'),
+    _context: context,
+  };
+  return context;
+}
+```
+
+当你使用`<MyContext.Provider>`或者`<MyContext.Consumer>`，由渲染器决定如何处理它们。 React DOM 可能以一种方式跟踪上下文值，但React DOM Server可能会采用不同的方式。
+
+所以如果你升级 react 到 16.3+ 但是没有更新`react-dom`的话，渲染器将不会识别`Provider`和`Consumer`。这也是为什么老的`react-dom`会报`types are invalid`的错。
+
