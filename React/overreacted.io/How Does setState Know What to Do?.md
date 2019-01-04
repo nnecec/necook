@@ -62,3 +62,38 @@ function createContext(defaultValue) {
 
 所以如果你升级 react 到 16.3+ 但是没有更新`react-dom`的话，渲染器将不会识别`Provider`和`Consumer`。这也是为什么老的`react-dom`会报`types are invalid`的错。
 
+同样的警告也适用于React Native。 但是，与React DOM不同，React版本不会立即“强制”使用React Native版本。 他们有独立的发布时间表。 几周后，更新的渲染器代码将单独同步到React Native库中。 
+
+所以我们知道`react`包没有什么有趣的东西，实现渲染的方法也在渲染器中如`react-dom`, `react-native`等。`setState()`如何告诉正确的渲染器的呢？
+
+答案是：每个渲染器都在创建的类上设置一个特殊字段。这个字段叫做`updater`。这不是你需要设置的，这是渲染器在创建实例后设置好的：
+
+```javascript
+// Inside React DOM
+const inst = new YourComponent();
+inst.props = props;
+inst.updater = ReactDOMUpdater;
+
+// Inside React DOM Server
+const inst = new YourComponent();
+inst.props = props;
+inst.updater = ReactDOMServerUpdater;
+
+// Inside React Native
+const inst = new YourComponent();
+inst.props = props;
+inst.updater = ReactNativeUpdater;
+```
+
+看一下`setState()`在`React.Component`中的实现，它所做的就是将工作交给创建此组件实例的渲染器：
+
+```javascript
+setState(partialState, callback) {
+  // Use the `updater` field to talk back to the renderer!
+  this.updater.enqueueSetState(this, partialState, callback);
+}
+```
+
+React DOM Server可能希望忽略状态更新并警告，而 React DOM 和 React Native 会让其协调程序的副本处理它。
+
+这就是`this.setState()`可以更新DOM的方式，即使它是在 React 包中定义的。 它读取由 React DOM 设置的 this.updater，并让 React DOM 调度并处理更新。
