@@ -6,11 +6,41 @@ var PENDING = 0
 var FULFILLED = 1
 var REJECTED = 2
 var handlers = {}
-if (!process.browser) {
-  // in which we actually take advantage of JS scoping
-  var UNHANDLED = ['UNHANDLED'];
-}
 
+
+/**
+ *
+ *
+ * @param {*} self
+ * @param {*} thenable
+ */
+function safelyResolveThenable(self, thenable) {
+  var called = false; // 标记该promise是否被调用过
+  function onError(value) { // 
+    if (called) {
+      return;
+    }
+    called = true;
+    handlers.reject(self, value);
+  }
+
+  function onSuccess(value) {
+    if (called) {
+      return;
+    }
+    called = true;
+    handlers.resolve(self, value);
+  }
+
+  function tryToUnwrap() {
+    thenable(onSuccess, onError);
+  }
+
+  var result = tryCatch(tryToUnwrap);
+  if (result.status === 'error') {
+    onError(result.value);
+  }
+}
 
 /**
  * 添加到 parent 队列中，并绑定 resolve reject 方法
@@ -41,19 +71,19 @@ function subscribe(parent, child, onFulfilled, onRejected) {
  * 执行 then 状态对应的方法 func
  *
  * @param {Promise} promise then 内部新建的 promise，用于返回值
- * @param {Function} func
- * @param {any} value
+ * @param {Function} func 
+ * @param {any} value func 的参数
  */
 function unwrap(promise, func, value) {
   immediate(function () {
     var returnValue
-    try {
+    try { // 捕获报错
       returnValue = func(value) // 对当前 then 中的值调用 resolver 方法获得 returnValue
     } catch (e) {
       return handlers.reject(promise, e)
     }
 
-    // 如果返回值 与 promise 一样，则说明 promise 返回了自身
+    // 如果返回值 与 promise 一样，则说明 promise 返回了自身，不允许返回自身所以报错
     if (returnValue === promise) {
       handlers.reject(promise, new TypeError('Cannot resolve promise with itself'))
     } else {
@@ -62,8 +92,15 @@ function unwrap(promise, func, value) {
   })
 }
 
+/**
+ *  执行 resolve 处理
+ *
+ * @param {Promise} self
+ * @param {any} value
+ * @returns
+ */
 handlers.resolve = function (self, value) {
-  // TODO: 为什么 tryCatch getThen
+  // Promise 执行的方法都需要经过 try..catch
   var result = tryCatch(getThen, value)
 
   // 如果有 error，则进入 reject
@@ -78,9 +115,8 @@ handlers.resolve = function (self, value) {
   } else {
     // promise 的状态修改为 Fulfilled 当前值修改为 value
     self._state = FULFILLED;
-    self._outcome = value
+    self._value = value
 
-    // 
     var i = -1
     var len = self._subscribers.length
     while (++i < len) {
@@ -92,17 +128,7 @@ handlers.resolve = function (self, value) {
 
 handlers.reject = function (self, error) {
   self._state = REJECTED
-  self._outcome = error
-
-  if (!process.browser) {
-    if (self.handled === UNHANDLED) {
-      immediate(function () {
-        if (self.handled === UNHANDLED) {
-          process.emit('unhandledRejection', error, self)
-        }
-      })
-    }
-  }
+  self._value = error
 
   var i = -1
   var len = self._subscribers.length
@@ -135,7 +161,7 @@ function getThen(obj) {
   // Make sure we only access the accessor once as required by the spec
   var then = obj && obj.then
   if (obj && (typeof obj === 'object' || typeof obj === 'function') && typeof then === 'function') {
-    return function appyThen() {
+    return function applyThen() {
       then.apply(obj, arguments)
     }
   }
@@ -149,4 +175,5 @@ module.exports = {
   subscribe: subscribe,
   handlers: handlers,
   unwrap: unwrap,
+  safelyResolveThenable: safelyResolveThenable,
 }

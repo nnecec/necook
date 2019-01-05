@@ -21,14 +21,16 @@ newPromise.then(data => {
 
 当在 resolve 阶段遇到错误需要处理，则两个同时都需要用到。reject 处理 Promise 中的错误，catch 处理 resolve 中的错误。
 
-
 ## 方法
 
-### finally()
+### .finally()
 
 返回一个Promise，在执行then()和catch()后，都会执行finally指定的回调函数。避免同样的语句需要在then()和catch()中各写一次的情况。
 
-### catch() 
+### .catch()
 
 返回一个Promise，并且处理拒绝的情况。它的行为与调用`Promise.prototype.then(undefined, onRejected)`相同。 (事实上, calling `obj.catch(onRejected)` 内部calls `obj.then(undefined, onRejected)`).
 
+### Promise.resolve() 和 Promise.reject()
+
+`Promise.resolve(value)`方法返回一个以给定值解析后的 Promise 对象。`Promise.reject(reason)`方法返回一个带有拒绝原因 reason 参数的 Promise 对象。

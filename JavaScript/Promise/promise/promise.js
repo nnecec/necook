@@ -6,32 +6,44 @@ var reject = require('./function/reject')
 var internal = require('./internal')
 var utils = require('./utils')
 
+
+/**
+ * Promise 构造函数
+ *
+ * @param {Function} resolver
+ */
 function Promise(resolver) {
+	if (typeof resolver !== 'function') {
+		throw new TypeError('resolver must be a function');
+	}
+
 	this._state = undefined // promise 当前状态
-	this._outcome = undefined // promise 当前值
+	this._value = undefined // promise 当前值
 	this._subscribers = [] // promise 当前注册的回调队列
+
+	if (resolver !== internal.noop) {
+		internal.safelyResolveThenable(this, resolver)
+	}
 }
 
-Promise.prototype = {
-	then: then,
+Promise.prototype.then = then
 
-	catch: function (onRejected) {
-		return this.then(null, onRejected)
-	},
-	
-	finally: function (callback) {
-		var constructor = this.constructor
+Promise.prototype.catch = function (onRejected) {
+	return this.then(null, onRejected)
+}
 
-		return this.then(function (value) {
-			constructor.resolve(callback()).then(function () {
-				return value
-			})
-		}, function (reason) {
-			constructor.resolve(callback()).then(function () {
-				throw reason
-			})
+Promise.prototype.finally = function (callback) {
+	var constructor = this.constructor
+
+	return this.then(function (value) {
+		constructor.resolve(callback()).then(function () {
+			return value
 		})
-	},
+	}, function (reason) {
+		constructor.resolve(callback()).then(function () {
+			throw reason
+		})
+	})
 }
 
 Promise.all = all

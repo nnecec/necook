@@ -23,7 +23,7 @@ function then(onFulfilled, onRejected) {
   // 判断 promise 状态
   if (this._state !== internal.PENDING) { // 如果状态不是 pending 则执行对应状态的方法
     var resolver = this._state === internal.FULFILLED ? onFulfilled : onRejected
-    internal.unwrap(_promise, resolver, this._outcome)
+    internal.unwrap(_promise, resolver, this._value)
   } else { // 如果状态是 pending 则将 promise 加入队列
     this._subscribers.push(new SubscriberItem(_promise, onFulfilled, onRejected));
   }
