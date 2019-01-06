@@ -1,26 +1,54 @@
 # 面试题
 
-## 基础
+## JavaScript
 
 - [基础问题](./面试初级问题.md)
-- 继承
+- [继承](../JavaScript/继承.md)
 - [new 关键字的过程](./new关键字的过程.md)
 - 数组去重
 - 遍历对象
 - [Event Loop](./Event%20Loop.md)
-
-## 常规问题
-
 - 跨域
 - 前端安全
-- [用户输入URL回车之后，浏览器做了什么？](../HTTP/从输入URL到页面加载发生了什么.md)
 - 浏览器缓存
 - [页面渲染的流程](./浏览器.md)
+- [事件代理](../JavaScript/事件捕获与事件冒泡.md)
+- [闭包与作用域](../JavaScript/闭包.md)
+- 匿名函数
+- 宿主对象 (host objects) 和原生对象 (native objects)
+- 请指出以下代码的区别：function Person(){}、var person = Person()、var person = new Person()？
+- [变量声明提升](./变量提升&函数提升.md)
+- 如何实现 apply call bind?
+- [同源策略与跨域](./跨域.md)
+- Ajax 工作原理
+- attribute 和 property
 
+## React
+
+- 虚拟 DOM 和 diff 算法原理
+- 事件绑定
+- 生命周期
+- 性能优化
+- react-router 原理
+- redux 原理
+- 高阶组件
+- 
 
 ## 优化
 
 - [前端性能优化](./性能优化指南.md)
+- [重排和重绘](./重排&重绘.md)
+- 合成层
+
+## HTTP
+
+- [用户输入URL回车之后，浏览器做了什么？](../HTTP/从输入URL到页面加载发生了什么.md)
+- [常见状态码](../HTTP/状态码.md)
+- HTTP/2
+- [缓存](../HTTP/缓存.md)
+- 常见的请求头和响应头
+- SSL
+
 
 ## Others
 
@@ -49,3 +77,7 @@
 
 - [gaearon / overreacted.io](https://github.com/gaearon/overreacted.io)
     Dan Abramov 的博客
+
+## 题目
+
+- [2018大厂高级前端面试题汇总](https://github.com/yygmind/blog/issues/5)
