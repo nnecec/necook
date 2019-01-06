@@ -41,32 +41,6 @@ function safelyResolveThenable(self, thenable) {
     onError(result.value);
   }
 }
-
-/**
- * 添加到 parent 队列中，并绑定 resolve reject 方法
- *
- * @param {*} parent
- * @param {*} child
- * @param {*} onFulfillment
- * @param {*} onRejection
- */
-function subscribe(parent, child, onFulfilled, onRejected) {
-  var _subscribers = parent._subscribers
-  var length = _subscribers.length
-
-  parent._onerror = null
-
-  _subscribers[length] = child
-  _subscribers[length + FULFILLED] = onFulfilled
-  _subscribers[length + REJECTED] = onRejected
-
-  // 如果 parent 订阅队列为空，且 state 不是 pending，说明队列执行完毕，调用publish
-  if (length === 0 && parent._state) {
-    asap.asap(publish, parent)
-  }
-}
-
-
 /**
  * 执行 then 状态对应的方法 func
  *
@@ -172,7 +146,6 @@ module.exports = {
   FULFILLED: FULFILLED,
   REJECTED: REJECTED,
   noop: function () { },
-  subscribe: subscribe,
   handlers: handlers,
   unwrap: unwrap,
   safelyResolveThenable: safelyResolveThenable,

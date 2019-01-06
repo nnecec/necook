@@ -17,10 +17,12 @@ function Promise(resolver) {
 		throw new TypeError('resolver must be a function');
 	}
 
-	this._state = undefined // promise 当前状态
+	this._state = internal.PENDING // promise 当前状态
 	this._value = undefined // promise 当前值
 	this._subscribers = [] // promise 当前注册的回调队列
 
+	// 如果调用 Promise 的不是来自 Promise 内部
+	// 构造 Promise 实例
 	if (resolver !== internal.noop) {
 		internal.safelyResolveThenable(this, resolver)
 	}
@@ -28,10 +30,22 @@ function Promise(resolver) {
 
 Promise.prototype.then = then
 
+/**
+ * Promise.catch
+ *
+ * @param {*} onRejected
+ * @returns
+ */
 Promise.prototype.catch = function (onRejected) {
 	return this.then(null, onRejected)
 }
 
+/**
+ * Promise.finally
+ *
+ * @param {*} callback
+ * @returns
+ */
 Promise.prototype.finally = function (callback) {
 	var constructor = this.constructor
 
