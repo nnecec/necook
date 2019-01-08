@@ -1,4 +1,4 @@
-## [一道常被人轻视的前端JS面试题](http://www.cnblogs.com/xxcanghai/p/5189353.html)
+# this
 
 ```javascript
 function Foo() {
@@ -82,3 +82,8 @@ getName();//最终输出4
 ```
 
 - 第三问
+
+
+## Reference
+
+1. [一道常被人轻视的前端JS面试题](http://www.cnblogs.com/xxcanghai/p/5189353.html)

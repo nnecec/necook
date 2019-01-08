@@ -84,7 +84,7 @@ componentDidMount(){
 }
 ```
 
-相比不使用之前中间件，使用Redux Thunk后，在组件中不再关注action creator中是否需要dispatch/getState参数，不再关注dispatch的是异步还是同步的方法。
+相比不使用之前中间件，使用 redux-thunk后，在组件中不再关注 action creator 中是否需要 dispatch/getState 参数，不再关注dispatch的是异步还是同步的方法。
 
 当使用中间件完成异步请求时，action在应用中流程如下所示
 

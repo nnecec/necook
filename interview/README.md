@@ -8,31 +8,40 @@
 - 数组去重
 - 遍历对象
 - [Event Loop](./Event%20Loop.md)
-- 跨域
-- 前端安全
-- 浏览器缓存
+- [跨域](./跨域.md)
+- [前端安全](./前端安全.md)
+- [浏览器缓存](../HTTP/浏览器缓存机制剖析.md)
 - [页面渲染的流程](./浏览器.md)
 - [事件代理](../JavaScript/事件捕获与事件冒泡.md)
 - [闭包与作用域](../JavaScript/闭包.md)
 - 匿名函数
 - 宿主对象 (host objects) 和原生对象 (native objects)
-- 请指出以下代码的区别：function Person(){}、var person = Person()、var person = new Person()？
 - [变量声明提升](./变量提升&函数提升.md)
 - 如何实现 apply call bind?
 - [同源策略与跨域](./跨域.md)
 - Ajax 工作原理
-- attribute 和 property
+- [装饰器](../JavaScript/Decorator.md)
+
+## CSS
+
+- [选择器优先级](../CSS/CSS优先级.md)
+- [如何启用GPU](../CSS/硬件加速.md)
 
 ## React
 
-- 虚拟 DOM 和 diff 算法原理
+- [虚拟 DOM 和 diff 算法原理](../React/React%20diff.md)
 - 事件绑定
-- 生命周期
-- 性能优化
-- react-router 原理
-- redux 原理
-- 高阶组件
-- 
+- [生命周期](../React/Understanding%20React/lifeCycle.md)
+- [性能优化](../React/React%20优化.md)
+- [react-router 原理](../React/React%20Router.md)
+- [高阶组件](../React/Understanding%20React/HOC.md)
+
+## Redux
+
+- redux 原理理解，主要解决什么问题
+- redux 数据流流程
+- redux 中间件
+- [redux 各组件状态拆分，公共状态维护](../State/探索Redux的最佳实践.md)
 
 ## 优化
 
@@ -49,6 +58,16 @@
 - 常见的请求头和响应头
 - SSL
 
+## 设计模式
+
+- 工厂模式
+- 单例模式
+- 观察者模式
+- 中介者模式
+
+## 计算机科学
+
+- 数据结构：链表，哈希表，堆栈，队列，树，图
 
 ## Others
 
