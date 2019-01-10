@@ -32,7 +32,7 @@
 ## React
 
 - [虚拟 DOM 和 diff 算法原理](../React/React%20diff.md)
-- 事件绑定
+- [事件绑定](../React/Understanding%20React/Events.md)
 - [生命周期](../React/Understanding%20React/lifeCycle.md)
 - [性能优化](../React/React%20优化.md)
 - [react-router 原理](../React/React%20Router.md)
@@ -59,7 +59,7 @@
 
 - [用户输入URL回车之后，浏览器做了什么？](../HTTP/从输入URL到页面加载发生了什么.md)
 - [常见状态码](../HTTP/状态码.md)
-- HTTP/2
+- [HTTP/2](../HTTP/HTTP2.md)
 - [缓存](../HTTP/缓存.md)
 - [常见的请求头和响应头](../HTTP/Headers.md)
 - SSL
