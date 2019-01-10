@@ -20,6 +20,6 @@
   },
 9. 缩小编译范围，如配置modules, mainFields, noParse, includes, exclude, alias
 10. 有两个阶段较慢
-    1. babel 等 loaders 解析阶段: happyPack 加速
+    1. babel 等 loaders 解析阶段: happyPack 多线程加速
     2. js 压缩阶段: 使用  webpack-parallel-uglify-plugin 多进程处理
 11. DllPlugin
