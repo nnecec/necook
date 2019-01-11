@@ -42,7 +42,7 @@
 
 - redux 原理理解，主要解决什么问题
 - redux 数据流流程
-- [redux 中间件](../State/redux中间件.md)
+- [redux 中间件](../State/Redux/中间件.md)
 - [redux 各组件状态拆分，公共状态维护](../State/探索Redux的最佳实践.md)
 
 ## 打包工具
@@ -69,7 +69,7 @@
 - 工厂模式
 - 单例模式
 - 观察者模式
-- 中介者模式
+- [中介者模式](../Design%20Pattern/中介者模式.md)
 
 ## 计算机科学
 
