@@ -23,6 +23,7 @@
 - [装饰器](../JavaScript/Decorator.md)
 - [Cookie Session Token](./cookie,%20session,%20token.md)
 - [Promise 相关问题](../JavaScript/Promise/README.md)
+- [async/await](../JavaScript/async&await.md)
 
 ## CSS
 
@@ -53,7 +54,7 @@
 
 - [前端性能优化](./性能优化指南.md)
 - [重排和重绘](./重排&重绘.md)
-- 合成层
+- [合成层](http://taobaofed.org/blog/2016/04/25/performance-composite/)
 
 ## HTTP
 
@@ -107,3 +108,4 @@
 
 - [半年准备，成功进入BAT](https://github.com/brickspert/blog/issues/16)
 - [2018大厂高级前端面试题汇总](https://github.com/yygmind/blog/issues/5)
+- [2017笔记：阿里、网易、滴滴共十次前端面试碰到的问题](https://zhoukekestar.github.io/notes/2017/06/07/interview-answers.html)

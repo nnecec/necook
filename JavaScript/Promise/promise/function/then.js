@@ -27,7 +27,7 @@ function then(onFulfilled, onRejected) {
     // 如果状态是 pending
     this._subscribers.push(new SubscriberItem(_promise, onFulfilled, onRejected));
   }
-
+  console.log(this)
   return _promise
 }
 

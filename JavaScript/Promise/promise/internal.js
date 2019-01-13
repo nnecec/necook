@@ -12,9 +12,9 @@ var handlers = {}
  *
  *
  * @param {*} self
- * @param {*} thenable
+ * @param {Function} resolver 构建Promise传入的 function
  */
-function safelyResolveThenable(self, thenable) {
+function safelyResolveThenable(self, resolver) {
   var called = false; // 标记该promise是否被调用过
   function onError(value) { // 
     if (called) {
@@ -33,7 +33,7 @@ function safelyResolveThenable(self, thenable) {
   }
 
   function tryToUnwrap() {
-    thenable(onSuccess, onError);
+    resolver(onSuccess, onError);
   }
 
   var result = tryCatch(tryToUnwrap);
