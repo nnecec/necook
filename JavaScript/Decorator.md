@@ -28,28 +28,28 @@ A = decorator(A) || A;
 
 ```Javascript
 function Check (type) {
-    return function (target, name, descriptor) {
-        let v = descriptor.initializer && descriptor.initializer.call(this);
-        /**
-         * 将属性名字以及需要的类型的对应关系记录到类的原型上
-         */
-        if (!target.constructor.__checkers__) {
-            // 将这个隐藏属性定义成 not enumerable，遍历的时候是取不到的。
-            Object.defineProperty(target.constructor, "__checkers__", {
-                value: {},
-                enumerable: false,
-                writeable: true,
-                configurable: true
-            });
-        }
-        target.constructor.__checkers__[name] = {
-            type: type
-        };
-        return descriptor
-    }
+  return function (target, name, descriptor) {
+    let v = descriptor.initializer && descriptor.initializer.call(this);
+      /**
+       * 将属性名字以及需要的类型的对应关系记录到类的原型上
+       */
+      if (!target.constructor.__checkers__) {
+        // 将这个隐藏属性定义成 not enumerable，遍历的时候是取不到的。
+        Object.defineProperty(target.constructor, "__checkers__", {
+          value: {},
+            enumerable: false,
+            writeable: true,
+            configurable: true
+        });
+      }
+      target.constructor.__checkers__[name] = {
+        type: type
+      };
+    return descriptor
+  }
 }
 ```
-}
+
 注意这里的 target 对应的是被装饰的属性所属类的原型，如果是装饰一个 A 类的属性，并且 A 类是继承自 B 类的，这时候你打印 target，获取到的是 A.prototype
 
 - 针对访问操作符的装饰
