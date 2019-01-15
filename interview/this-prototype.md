@@ -87,3 +87,4 @@ getName();//最终输出4
 ## Reference
 
 1. [一道常被人轻视的前端JS面试题](http://www.cnblogs.com/xxcanghai/p/5189353.html)
+2. [【进阶3-1期】JavaScript深入之史上最全--5种this绑定全面解析](https://github.com/yygmind/blog/issues/20)
