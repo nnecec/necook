@@ -18,7 +18,7 @@ function then(onFulfilled, onRejected) {
 
   // 在 then 中新建一个内部 promise 用于返回
   var _promise = new this.constructor(internal.noop)
-
+  console.log(this._value)
   // 判断 promise 状态
   if (this._state !== internal.PENDING) { // 如果状态不是 pending 则执行对应状态的方法
     var resolver = this._state === internal.FULFILLED ? onFulfilled : onRejected
@@ -27,7 +27,7 @@ function then(onFulfilled, onRejected) {
     // 如果状态是 pending
     this._subscribers.push(new SubscriberItem(_promise, onFulfilled, onRejected));
   }
-  console.log(this)
+
   return _promise
 }
 

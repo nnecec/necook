@@ -15,15 +15,15 @@ function all(iterable) {
   }
 
   var len = iterable.length
+
   var called = false
   // 如果参数长度为0 则说明为空数组
   if (!len) {
     return this.resolve([])
   }
 
-  // 
-  var values = new Array(len)
-  var resolved = 0
+  var values = new Array(len) // 最后输出的值
+  var resolved = 0 // resolve 的数量
   var i = 0
   var promise = new this(internal.noop)
 
@@ -31,22 +31,20 @@ function all(iterable) {
     allResolver(iterable[i], i)
   }
   return promise
-}
-
-function allResolver(value, i) {
-  self.resolve(value).then(resolveFromAll, function (error) {
-    if (!called) {
-      called = true
-      handlers.reject(promise, error)
+  function allResolver(value, i) {
+    self.resolve(value).then(resolveFromAll, function (error) {
+      if (!called) {
+        called = true;
+        handlers.reject(promise, error);
+      }
+    });
+    function resolveFromAll(outValue) {
+      values[i] = outValue;
+      if (++resolved === len && !called) {
+        called = true;
+        handlers.resolve(promise, values);
+      }
     }
-  })
-}
-
-function resolveFromAll(outValue) {
-  values[i] = outValue
-  if (++resolved === len && !called) {
-    called = true
-    handlers.resolve(promise, values)
   }
 }
 

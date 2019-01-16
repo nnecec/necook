@@ -134,6 +134,7 @@ function tryCatch(func, value) {
 function getThen(obj) {
   // Make sure we only access the accessor once as required by the spec
   var then = obj && obj.then
+  console.log(111,then)
   if (obj && (typeof obj === 'object' || typeof obj === 'function') && typeof then === 'function') {
     return function applyThen() {
       then.apply(obj, arguments)

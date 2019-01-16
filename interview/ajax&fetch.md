@@ -52,6 +52,22 @@ req.addEventListener("loadend", loadEnd, false);
 - 使用 AJAX
 - 使用 `FormData` API
 
+### 完整的 Ajax 请求示例
+
+```javascript
+var xhr = new XMLHttpRequest()
+
+xhr.open(method, url, async)
+
+xhr.onreadystatechange = function(){
+  if(xhr.readyState == 4 && xhr.status == 200){
+    ...  
+  }
+}
+
+xhr.send()
+```
+
 ## Fetch
 
 fetch 返回一个 Promise
