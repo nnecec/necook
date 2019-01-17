@@ -419,7 +419,7 @@ selectedContactId:'001'
 
 #### 2.4.1 Object.assign/Spread Operator
 
-最初我们使用Object.assign或者Spread Operator来修改数据，在Reducer中使用Spread Operator修改数据的简单示例如下
+最初我们使用 Object.assign 或者 Spread Operator来修改数据，在 Reducer 中使用 Spread Operator 修改数据的简单示例如下
 
 ```Javascript
 function todoApp(state = initialState ,action){
