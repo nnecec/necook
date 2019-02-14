@@ -8,7 +8,7 @@ JavaScript 是门非阻塞单线程语言，JavaScript 在执行的过程中会�
 
 微任务包括 `process.nextTick` ，`promise` ，`Object.observe` ，`MutationObserver`
 
-宏任务包括 `script`(主程序代码) ， `setTimeout` ，`setInterval` ，`setImmediate` ，`requestAnimationFrame` ， I/O
+宏任务包括 `script`(主程序代码) ， `setTimeout` ，`setInterval` ，`setImmediate` ，`requestAnimationFrame` ， I/O， UI Rendering
 
 `promise` 优先于 `setTimeout`, micro-task 和 macro-task
 
@@ -252,3 +252,4 @@ setImmediate1,setTimeout2,nextTick1,setImmediate2,setTimeout1
 ## reference
 
 1. [node基础面试事件环？微任务、宏任务？](https://juejin.im/post/5b35cdfa51882574c020d685)
+2. [一次弄懂Event Loop](https://juejin.im/post/5c3d8956e51d4511dc72c200)
