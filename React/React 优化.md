@@ -14,6 +14,7 @@
 - 使用 Immutablejs
 - 慎用 setState，因为会导致重新渲染
 - 在 constructor 中 bind 方法
+- 使用 pureComponent
 
 ## Reference
 
