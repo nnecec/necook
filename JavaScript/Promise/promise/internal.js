@@ -81,7 +81,7 @@ handlers.resolve = function (self, value) {
   if (result.status === 'error') {
     return handlers.reject(self, result.value);
   }
-  // 如果没有 error
+  // TODO: what & why ?
   var thenable = result.value;
 
   if (thenable) {
@@ -91,9 +91,9 @@ handlers.resolve = function (self, value) {
     self._state = FULFILLED;
     self._value = value
 
-    var i = -1
+    var i = 0
     var len = self._subscribers.length
-    while (++i < len) {
+    while (i++ < len) {
       self._subscribers[i].callFulfilled(value)
     }
   }
@@ -104,9 +104,9 @@ handlers.reject = function (self, error) {
   self._state = REJECTED
   self._value = error
 
-  var i = -1
+  var i = 0
   var len = self._subscribers.length
-  while (++i < len) {
+  while (i++ < len) {
     self._subscribers[i].callRejected(error)
   }
   return self
@@ -134,7 +134,7 @@ function tryCatch(func, value) {
 function getThen(obj) {
   // Make sure we only access the accessor once as required by the spec
   var then = obj && obj.then
-  console.log(111,then)
+
   if (obj && (typeof obj === 'object' || typeof obj === 'function') && typeof then === 'function') {
     return function applyThen() {
       then.apply(obj, arguments)
