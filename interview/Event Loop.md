@@ -253,3 +253,5 @@ setImmediate1,setTimeout2,nextTick1,setImmediate2,setTimeout1
 
 1. [node基础面试事件环？微任务、宏任务？](https://juejin.im/post/5b35cdfa51882574c020d685)
 2. [一次弄懂Event Loop](https://juejin.im/post/5c3d8956e51d4511dc72c200)
+3. [什么是浏览器的事件循环(Event Loop)](https://segmentfault.com/a/1190000010622146)
+4. [Tasks, microtasks, queues and schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/)
