@@ -14,8 +14,21 @@ module.exports = {
     path: path.resolve(__dirname, 'dist')
   },
   devtool: 'inline-source-map',
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+        }
+      }
+    ]
+  },
   plugins: [
     new CleanWebpackPlugin(['dist']),
-    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      template: './example/index.html'
+    }),
   ]
 }

@@ -1,5 +1,3 @@
-// export default class App extends React.Component {
+import React, { render } from '../react/index'
 
-// }
-
-console.log('app')
+render(<div name="shicheng">Hello <span>world!</span></div>, document.getElementById('app'))

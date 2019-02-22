@@ -1,3 +1,7 @@
-console.log('react start')
+import { createElement } from './ReactElement'
 
-const ReactElement = require('./')
+const React = {
+  createElement
+}
+
+export default React

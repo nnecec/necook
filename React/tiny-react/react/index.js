@@ -1,5 +1,10 @@
 'use strict'
 
-const React = require('./src/React')
+import React from './src/React'
 
-module.exports = React.default || React
+import render from '../react-dom/render'
+
+
+export default React
+
+export { render }     
