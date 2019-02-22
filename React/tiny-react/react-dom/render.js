@@ -1,4 +1,4 @@
-function render(ele, container) {
+function appendChildToContainer(ele, container) {
 
   // 没被 html 标签包裹的 字段节点， 没有 children
   if (typeof ele === 'string') {
@@ -18,10 +18,15 @@ function render(ele, container) {
 
   // 遍历子节点（起码有一个 child 是节点内的文字内容
   for (let child of ele.children) {
-    render(child, node)
+    appendChildToContainer(child, node)
   }
 
   return container.appendChild(node)
+}
+
+function render(ele, container) {
+  container.innerHTML = ''
+  return appendChildToContainer(ele, container)
 }
 
 export default render
