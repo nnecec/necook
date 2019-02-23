@@ -6,7 +6,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 module.exports = {
   entry: {
-    react: './react/index.js',
+    react: './react/React.js',
     app: './example/app.js'
   },
   output: {

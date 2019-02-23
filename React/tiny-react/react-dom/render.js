@@ -1,9 +1,27 @@
-function appendChildToContainer(ele, container) {
+import { Component } from '../react/ReactBaseClasses'
 
-  // 没被 html 标签包裹的 字段节点， 没有 children
-  if (typeof ele === 'string') {
+function appendChildToContainer(ele, container) {
+  console.log(ele)
+
+  // 没被 html 标签包裹的 string number节点， 没有 children
+  if (typeof ele === 'string' || typeof ele === 'number') {
     const node = document.createTextNode(ele)
     return container.appendChild(node)
+  }
+
+  // 如果是 ReactElement 即 type 为 function
+  if (typeof ele.type === 'function') {
+    let instance = null
+    // 如果是 class 组件则构建 instance
+    if (ele.type.prototype && ele.type.prototype.render) {
+      instance = new ele.type(ele.attrs)
+
+      // 实例接收 props 并调用 render 方法
+      instance.props = ele.attrs
+      const _renderer = instance.render()
+      return appendChildToContainer(_renderer, container)
+    }
+
   }
 
   // 有标签的节点

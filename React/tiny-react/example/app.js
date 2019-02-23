@@ -1,4 +1,6 @@
-import React, { render } from '../react/index'
+import React from '../react/React'
+import ReactDOM from '../react-dom'
 
+import State from './pages/state'
 
-render(<div name="shicheng">Hello <span>world!</span></div>, document.getElementById('app'))
+ReactDOM.render(<State />, document.getElementById('app'))
