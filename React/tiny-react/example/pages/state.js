@@ -5,7 +5,16 @@ export default class State extends Component {
     super(props)
   }
 
+  componentDidUpdate() {
+    console.log('state did update.')
+  }
+
+  componentDidMount() {
+    console.log('state did mount.')
+    console.log(document.getElementById('state'))
+  }
+
   render() {
-    return (<div>hello world!</div>)
+    return (<div id="state">hello world!</div>)
   }
 }

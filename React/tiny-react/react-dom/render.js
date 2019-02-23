@@ -16,12 +16,20 @@ function appendChildToContainer(ele, container) {
     if (ele.type.prototype && ele.type.prototype.render) {
       instance = new ele.type(ele.attrs)
 
+      if (instance.componentDidUpdate) {
+        instance.componentDidUpdate()
+      }
+
       // 实例接收 props 并调用 render 方法
       instance.props = ele.attrs
       const _renderer = instance.render()
-      return appendChildToContainer(_renderer, container)
-    }
 
+      appendChildToContainer(_renderer, container)
+      if (instance.componentDidMount) {
+        instance.componentDidMount()
+      }
+      return
+    }
   }
 
   // 有标签的节点
