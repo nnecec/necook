@@ -8,6 +8,12 @@
       {
         "pragma": "React.createElement"
       }
+    ],
+    [
+      "@babel/plugin-proposal-class-properties",
+      {
+        "loose": true
+      }
     ]
   ]
 }

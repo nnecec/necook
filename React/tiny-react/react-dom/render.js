@@ -1,8 +1,9 @@
 import { Component } from '../react/ReactBaseClasses'
+import { setAttribute } from './utils'
 
 function appendChildToContainer(ele, container) {
   console.log(ele)
-
+  if (ele === undefined || ele === null || typeof ele === 'boolean') ele = '';
   // 没被 html 标签包裹的 string number节点， 没有 children
   if (typeof ele === 'string' || typeof ele === 'number') {
     const node = document.createTextNode(ele)
@@ -38,7 +39,7 @@ function appendChildToContainer(ele, container) {
   // 如果有属性 则赋值属性
   if (ele.attrs) {
     for (let attr in ele.attrs) {
-      node.setAttribute(attr, ele.attrs[attr])
+      setAttribute(node, attr, ele.attrs[attr])
     }
   }
 
@@ -53,6 +54,11 @@ function appendChildToContainer(ele, container) {
 function render(ele, container) {
   container.innerHTML = ''
   return appendChildToContainer(ele, container)
+}
+
+// 渲染 ReactElement
+export function renderReactComponent(component) {
+  console.log(component)
 }
 
 export default render

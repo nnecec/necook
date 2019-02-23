@@ -1,3 +1,5 @@
+import { renderReactComponent } from '../react-dom/render'
+
 export class Component {
   constructor(props) {
     this.props = props
@@ -7,7 +9,6 @@ export class Component {
   setState(newState, callback) {
     // 将新的 state 合并到 this.state 并触发重新渲染
     this.state = Object.assign(this.state, newState)
-    console.log('rerender')
-    // reRender(this)
+    renderReactComponent(this)
   }
 }
