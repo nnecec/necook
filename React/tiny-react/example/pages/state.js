@@ -8,6 +8,10 @@ export default class State extends Component {
     }
   }
 
+  componentWillReceiveProps() {
+    console.log('state will receive props.')    
+  }
+
   componentDidUpdate() {
     console.log('state did update.')
   }
@@ -18,7 +22,6 @@ export default class State extends Component {
 
   changeCount = () => {
     const { count } = this.state
-    console.log(count)
 
     this.setState({
       count: count + 1

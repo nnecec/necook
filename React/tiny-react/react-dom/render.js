@@ -2,7 +2,6 @@ import { Component } from '../react/ReactBaseClasses'
 import { setAttribute } from './utils'
 
 function buildNode(ele) {
-  console.log(ele)
   if (ele === undefined || ele === null || typeof ele === 'boolean') ele = '';
   // 没被 html 标签包裹的 string number节点， 没有 children
   if (typeof ele === 'string' || typeof ele === 'number') {
@@ -65,12 +64,22 @@ function createComponent(Constructor, props) {
 }
 
 /**
- * 给组件设置 props
+ * 给组件设置 props 
  *
  * @param {*} component
  * @param {*} props
  */
 function setComponentProps(component, props) {
+  const isUpdate = !!component.base
+  debugger
+  // 如果是更新阶段
+  if (isUpdate) {
+    if (component.componentWillReceiveProps) component.componentWillReceiveProps(props)
+  } else if (component.componentWillMount) {
+    // 如果是装载阶段
+    component.componentWillMount();
+  }
+
   component.props = props
   renderComponent(component)
 }
@@ -84,8 +93,19 @@ function setComponentProps(component, props) {
  */
 export function renderComponent(component) {
   const renderer = component.render()
+  const isUpdate = !!component.base
+
+  if (isUpdate && component.componentWillUpdate) {
+    component.componentWillUpdate(props);
+  }
 
   const base = buildNode(renderer) // base 是组件渲染的节点
+
+  if (isUpdate) {
+    if (component.componentDidUpdate) component.componentDidUpdate();
+  } else if (component.componentDidMount) {
+    component.componentDidMount();
+  }
 
   // 如果已有 component.base 则进入更新模式 将老的节点替换为新节点
   if (component.base && component.base.parentNode) {
