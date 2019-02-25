@@ -71,7 +71,7 @@ function createComponent(Constructor, props) {
  */
 function setComponentProps(component, props) {
   const isUpdate = !!component.base
-  debugger
+
   // 如果是更新阶段
   if (isUpdate) {
     if (component.componentWillReceiveProps) component.componentWillReceiveProps(props)
@@ -106,6 +106,7 @@ export function renderComponent(component) {
   } else if (component.componentDidMount) {
     component.componentDidMount();
   }
+  component._dirty = false
 
   // 如果已有 component.base 则进入更新模式 将老的节点替换为新节点
   if (component.base && component.base.parentNode) {

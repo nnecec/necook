@@ -9,7 +9,7 @@ export default class State extends Component {
   }
 
   componentWillReceiveProps() {
-    console.log('state will receive props.')    
+    console.log('state will receive props.')
   }
 
   componentDidUpdate() {
@@ -24,8 +24,12 @@ export default class State extends Component {
     const { count } = this.state
 
     this.setState({
-      count: count + 1
+      count: this.state.count + 1
     })
+    this.setState({
+      count: this.state.count + 1
+    })
+
   }
 
   render() {

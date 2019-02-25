@@ -1,10 +1,5 @@
-# 异步的setState
+import { renderComponent } from "./render";
 
-React 中会批量将多次`setState`合并为一次再进行渲染。
-
-`setState`将变动放入一个更新队列。
-
-```javascript
 let setStateQueue = []
 
 export function enqueueRender(component, partialState, callback) {
@@ -26,10 +21,3 @@ export function rerender() {
 }
 
 const defer = typeof Promise == 'function' ? Promise.resolve().then.bind(Promise.resolve()) : setTimeout;
-```
-
-将多次`setState`合并到`setStateQueue`队列中。在队列第一次加入 setState 方法时，添加一个异步渲染的方法。
-
-`defer`是一个异步执行的方法，使用`Promise.then`或`setTimeout`。
-
-在向`setStateQueue`执行完之后，检查是否有异步任务。将加入队列中的 component 取出并执行渲染。
