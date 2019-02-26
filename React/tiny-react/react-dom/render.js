@@ -1,42 +1,44 @@
 import { Component } from '../react/ReactBaseClasses'
 import { setAttribute } from './utils'
+import { diff } from './diff'
 
-function buildNode(ele) {
-  if (ele === undefined || ele === null || typeof ele === 'boolean') ele = '';
+export function buildNode(vnode) {
+  if (vnode === undefined || vnode === null || typeof vnode === 'boolean') vnode = '';
   // 没被 html 标签包裹的 string number节点， 没有 children
-  if (typeof ele === 'string' || typeof ele === 'number') {
-    const node = document.createTextNode(ele)
+  if (typeof vnode === 'string' || typeof vnode === 'number') {
+    const node = document.createTextNode(vnode)
     return node
   }
 
   // 如果是 ReactElement 即 type 为 function
-  if (typeof ele.type === 'function') {
+  if (typeof vnode.type === 'function') {
     // ReactElement 实例
-    const instance = createComponent(ele.type, ele.attrs)
-    setComponentProps(instance, ele.attrs)
+    const instance = createComponent(vnode.type, vnode.attrs)
+    setComponentProps(instance, vnode.attrs)
     return instance.base
   }
 
   // 有标签的节点
-  const node = document.createElement(ele.type)
+  const node = document.createElement(vnode.type)
 
   // 如果有属性 则赋值属性
-  if (ele.attrs) {
-    for (let attr in ele.attrs) {
-      setAttribute(node, attr, ele.attrs[attr])
+  if (vnode.attrs) {
+    for (let attr in vnode.attrs) {
+      setAttribute(node, attr, vnode.attrs[attr])
     }
   }
 
   // 遍历子节点（起码有一个 child 是节点内的文字内容
-  for (let child of ele.children) {
+  for (let child of vnode.children) {
     render(child, node)
   }
 
   return node
 }
 
-function render(ele, container) {
-  return container.appendChild(buildNode(ele))
+function render(vnode, container, dom) {
+  return diff(dom, vnode, container)
+  // return container.appendChild(buildNode(vnode))
 }
 
 
@@ -98,8 +100,9 @@ export function renderComponent(component) {
   if (isUpdate && component.componentWillUpdate) {
     component.componentWillUpdate(props);
   }
-
-  const base = buildNode(renderer) // base 是组件渲染的节点
+  // base 是组件渲染的节点
+  // 将已有 dom 与新的 dom 进行比对
+  const base = diff(component.base, renderer)
 
   if (isUpdate) {
     if (component.componentDidUpdate) component.componentDidUpdate();
@@ -115,7 +118,7 @@ export function renderComponent(component) {
   component.base = base
 }
 
-export default function (ele, container) {
+export default function (vnode, container) {
   container.innerHTML = ''
-  return render(ele, container)
+  return render(vnode, container)
 }
