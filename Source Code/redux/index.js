@@ -5,13 +5,9 @@ import applyMiddleware from './applyMiddleware'
 import compose from './compose'
 import warning from './utils/warning'
 
-/*
-* This is a dummy function to check if the function name has been altered by minification.
-* If the function has been minified and NODE_ENV !== 'production', warn the user.
-*/
 
 /**
- * 校验代码在非production环境是否被压缩
+ * 校验代码在 非production环境 是否被压缩
  */
 function isCrushed() {}
 

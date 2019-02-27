@@ -1,5 +1,7 @@
-import isPlainObject from 'lodash/isPlainObject'
 import $$observable from 'symbol-observable'
+
+import ActionTypes from './utils/actionTypes'
+import isPlainObject from './utils/isPlainObject'
 
 /**
  * 这是Redux保留的私有 action
@@ -12,31 +14,37 @@ export const ActionTypes = {
 }
 
 /**
- * 创建一个 Redux store 来保存 state 树。
+ * 创建一个 Redux store 来以存放应用中所有的 state。应用中应有且仅有一个 store
+ * 
  * 唯一改变 store 里的数据的方法是调用 dispatch()。
- * 在你的app里应该只有一个唯一的 store。为了按 actions 的不同区分
- * state 树， 你可以通过 combineReducers 连接多个 reducer 到一个 reducer
+ * 可以通过 combineReducers 连接多个 reducer 到一个 reducer。
  * 
- * @param {Function} [reducer] 一个function，接受当前 state 树和要处理的 action ，返回下一个 state 树，
+ * @param {Function} [reducer] 接收两个参数，分别是当前的 state 树和要处理的 action，返回新的 state 树。
  * 
- * @param {any} [preloadedState] 初始 state。可选，指定它
- * 以通用app的服务器 state 进行加密，或恢复先前序列化的用户会话
- * 如果使用`combineReducers`来生成根减少函数，那么它必须是
- * 与`combineReducers`键相同形状的对象。
+ * @param {any} [preloadedState] 初始 state。在同构应用中，你可以决定是否把服务端传来的 state 水合（hydrate）后传给它，或者从之前保存的用户会话中恢复一个传给它。如果你使用 combineReducers 创建 reducer，它必须是一个普通对象，与传入的 keys 保持同样的结构。否则，你可以自由传入任何 reducer 可理解的内容。
  *
- * @param {Function} [enhancer] store 增强器。可选，通过它
- * 来使用第三方组件 增强 store，比如 middleware，
- * 时间旅行，持久化数据等等。Redux 附带的唯一 store enhancer 是 applyMiddleware()
+ * @param {Function} [enhancer] Store enhancer 是一个组合 store creator 的高阶函数，返回一个新的强化过的 store creator。这与 middleware 相似，它也允许你通过复合函数改变 store 接口。
  *
- * @returns {Store} 返回 Redux store。允许读取 state， dispatch actions 和 subscribe 变动。
+ * @returns {Store} 保存了应用所有 state 的对象。改变 state 的惟一方法是 dispatch action。你也可以 subscribe 监听 state 的变化，然后更新 UI。
  */
 export default function createStore(reducer, preloadedState, enhancer) {
-	// 当第二个参数为 function，且不存在第三个参数
+	// 检测参数合法性
+	if (
+		(typeof preloadedState === 'function' && typeof enhancer === 'function') ||
+		(typeof enhancer === 'function' && typeof arguments[3] === 'function')
+	) {
+		throw new Error(
+			'It looks like you are passing several store enhancers to ' +
+			'createStore(). This is not supported. Instead, compose them ' +
+			'together to a single function'
+		)
+	}
+	// 当第二个参数为 function，且不存在第三个参数，说明没传 preloadedState
 	if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
 		enhancer = preloadedState
 		preloadedState = undefined
 	}
-	// 当存在 enhancer 且 enhancer 不为 function 返回错误
+	// 当存在 enhancer
 	if (typeof enhancer !== 'undefined') {
 		if (typeof enhancer !== 'function') {
 			throw new Error('Expected the enhancer to be a function.')
@@ -53,39 +61,31 @@ export default function createStore(reducer, preloadedState, enhancer) {
    * 初始化变量
    */
 	let currentReducer = reducer // 当前 reducer
-	let currentState = preloadedState // 当前 state
+	let currentState = preloadedState // 当前 store 中的数据
 	let currentListeners = [] // 当前 listeners，触发 actions 会依次触发
 	let nextListeners = currentListeners
 	let isDispatching = false // 是否在 dispatch 状态
-  /**
-   * 保存一份nextListeners快照
-   */
+
+
+	// 保存 nextListeners 快照
 	function ensureCanMutateNextListeners() {
 		if (nextListeners === currentListeners) {
 			nextListeners = currentListeners.slice() // 通过 slice() 拷贝
 		}
 	}
 
-	/**
-	 * 获取 state 
-	 * 
-	 * @returns {any} app 当前的 state 树
-	 */
+	// 获取 state 
 	function getState() {
 		return currentState
 	}
 
 	/**
-	 * 添加一个监听器。在每个 action 被 dispatch 的时候调用，
-	 * 以及一些 state 的一些部分有可能被改变。你可以在回调里调用 getState() 去读到当前state树。
+	 * 添加一个变化监听器。每当 dispatch action 的时候就会执行，state 树中的一部分可能已经变化。你可以在回调函数里调用 getState() 来拿到当前 state。
 	 *
 	 * 你可以在监听器里调用 dispatch() 有下列注意事项：
-	 * 1. 每次dispatch()之前都会保存 subscriptions 的快照。
-	 *    如果在监听器被调用期间 subscribe 或 unsubscribe
-	 *    对当前的 dispatch() 将不会产生效果，
-	 *    然而，下一次dispatch()调用，不论是否嵌套，都会使用更多最近的 subscription 快照
-	 * 2. 监听器不会获得所有的 state 变动，因为状态可能在调用 listeners 之前在嵌套`dispatch（）'期间被多次更新。
-	 *    dispatch() 开始前，被注册的 subscription 在被调用的时候一定会获取最新的 state
+	 * 1. 监听器调用 dispatch() 仅仅应当发生在响应用户的 actions 或者特殊的条件限制下（比如： 在 store 有一个特殊的字段时 dispatch action）。虽然没有任何条件去调用 dispatch() 在技术上是可行的，但是随着每次 dispatch() 改变 store 可能会导致陷入无穷的循环。
+	 * 2. 订阅器（subscriptions） 在每次 dispatch() 调用之前都会保存一份快照。当你在正在调用监听器（listener）的时候订阅(subscribe)或者去掉订阅（unsubscribe），对当前的 dispatch() 不会有任何影响。但是对于下一次的 dispatch()，无论嵌套与否，都会使用订阅列表里最近的一次快照。
+	 * 3. 订阅器不应该注意到所有 state 的变化，在订阅器被调用之前，往往由于嵌套的 dispatch() 导致 state 发生多次的改变。保证所有的监听器都注册在 dispatch() 启动之前，这样，在调用监听器的时候就会传入监听器所存在时间里最新的一次 state。
 	 * 
 	 * @param {Function} listener 每次 dispatch 时要触发的回调
 	 * @returns {Function} 返回一个函数，用于移除 listener
@@ -93,6 +93,16 @@ export default function createStore(reducer, preloadedState, enhancer) {
 	function subscribe(listener) {
 		if (typeof listener !== 'function') {
 			throw new Error('Expected listener to be a function.')
+		}
+
+		// 检测是否在 dispatch 中
+		if (isDispatching) {
+			throw new Error(
+				'You may not call store.subscribe() while the reducer is executing. ' +
+				'If you would like to be notified after the store has been updated, subscribe from a ' +
+				'component and invoke store.getState() in the callback to access the latest state. ' +
+				'See https://redux.js.org/api-reference/store#subscribe(listener) for more details.'
+			)
 		}
 
 		// 标记是否已有listener
@@ -133,14 +143,16 @@ export default function createStore(reducer, preloadedState, enhancer) {
 	 * Note：如果你使用自定义middleware，可能会包裹 dispatch() 导致返回其他
 	 */
 	function dispatch(action) {
-		if (!isPlainObject(action)) { // 检测是否是基本对象
+		// 检测是否是基本对象
+		if (!isPlainObject(action)) {
 			throw new Error(
 				'Actions must be plain objects. ' +
 				'Use custom middleware for async actions.'
 			)
 		}
 
-		if (typeof action.type === 'undefined') { // 检测是否包含 type 属性
+		// 检测是否包含 type 属性
+		if (typeof action.type === 'undefined') {
 			throw new Error(
 				'Actions may not have an undefined "type" property. ' +
 				'Have you misspelled a constant?'
@@ -159,10 +171,10 @@ export default function createStore(reducer, preloadedState, enhancer) {
 		}
 
 		// dispatch会获取最新的快照
-		const listeners = currentListeners = nextListeners // 设置监听器 为下一状态 所有监听器
+		const listeners = (currentListeners = nextListeners)// 设置监听器 为下一状态 所有监听器
 		// 执行当前所有的listeners
 		for (let i = 0; i < listeners.length; i++) {
-			const listener = listeners[i] // 保证this指向window
+			const listener = listeners[i] // 保证 this 指向window
 			listener()
 		}
 
@@ -172,7 +184,7 @@ export default function createStore(reducer, preloadedState, enhancer) {
   /**
    * 替换当前reducer
    * 1. 当你的app代码分割，你想要动态加载一些reducer
-   * 2. 还可能在代码热替换时需要使用
+   * 2. 在代码热替换时需要使用
    */
 	function replaceReducer(nextReducer) {
 		if (typeof nextReducer !== 'function') { // 检测 nextReducer 是否为 function

@@ -3,4 +3,4 @@ import ReactDOM from '../react-dom'
 
 import State from './pages/state'
 
-ReactDOM.render(<State />, document.getElementById('app'))
+ReactDOM.render(<div>Hello <span>world</span></div>, document.getElementById('app'))

@@ -9,10 +9,11 @@ import warning from './utils/warning'
  */
 function getUndefinedStateErrorMessage(key, action) {
 	const actionType = action && action.type
-	const actionName = (actionType && `"${actionType.toString()}"`) || 'an action'
+	const actionDescription =
+		(actionType && `action "${String(actionType)}"`) || 'an action'
 
 	return (
-		`Given action ${actionName}, reducer "${key}" returned undefined. ` +
+		`Given ${actionDescription}, reducer "${key}" returned undefined. ` +
 		`To ignore an action, you must explicitly return the previous state. ` +
 		`If you want this reducer to hold no value, you can return null instead of undefined.`
 	)
@@ -98,22 +99,6 @@ function assertReducerShape(reducers) {
 	})
 }
 
-/**
- * Turns an object whose values are different reducer functions, into a single
- * reducer function. It will call every child reducer, and gather their results
- * into a single state object, whose keys correspond to the keys of the passed
- * reducer functions.
- *
- * @param {Object} reducers An object whose values correspond to different
- * reducer functions that need to be combined into one. One handy way to obtain
- * it is to use ES6 `import * as reducers` syntax. The reducers may never return
- * undefined for any action. Instead, they should return their initial state
- * if the state passed to them was undefined, and the current state for any
- * unrecognized action.
- *
- * @returns {Function} A reducer function that invokes every reducer inside the
- * passed object, and builds a state object with the same shape.
- */
 /**
  * 讲包含多个不同 reducer 函数的对象转化为单 reducer 函数
  * 将会调用每个子 reducer，以及合并他们的结果为单 state 对象，key 对应传入的 reducer 函数。

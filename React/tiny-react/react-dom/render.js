@@ -14,6 +14,7 @@ export function buildNode(vnode) {
   if (typeof vnode.type === 'function') {
     // ReactElement 实例
     const instance = createComponent(vnode.type, vnode.attrs)
+    component._component = instance
     setComponentProps(instance, vnode.attrs)
     return instance.base
   }
