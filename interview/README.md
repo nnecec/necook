@@ -12,7 +12,7 @@
 - [前端安全](./前端安全.md)
 - [浏览器缓存](../HTTP/浏览器缓存机制剖析.md)
 - [页面渲染的流程](./浏览器.md)
-- [事件代理](../JavaScript/事件捕获与事件冒泡.md)
+- [事件代理](../JavaScript/事件委托.md)
 - [闭包与作用域](../JavaScript/闭包.md)
 - 匿名函数
 - 宿主对象 (host objects) 和原生对象 (native objects)

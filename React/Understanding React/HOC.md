@@ -51,8 +51,7 @@
       - 把样式包裹进元素树（就像在 Props Proxy 中的那样）
     - 操作 state
 
-
-
 ## Reference
 
 1. [深入理解 React 高阶组件](https://zhuanlan.zhihu.com/p/24776678)
+2. [React 中的高阶组件及其应用场景](https://juejin.im/post/5c72b97de51d4545c66f75d5)

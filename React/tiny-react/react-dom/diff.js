@@ -47,14 +47,10 @@ function idiff(dom, vnode) {
 
   if (!dom) {
     out = document.createElement(vnodeName)
-
-    if (dom) {
-
-    }
   }
 
   if (vnode.children && vnode.children.length) {
-    innerDiffNode(out, vnode.children)
+    diffChildren(out, vnode.children)
   }
 
 
@@ -95,7 +91,7 @@ function buildComponentFromVNode(dom, vnode) {
 }
 
 
-function innerDiffNode(dom, vchildren) {
+function diffChildren(dom, vchildren) {
 
   const domChildren = dom.childNodes
   const children = []
