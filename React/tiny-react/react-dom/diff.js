@@ -1,4 +1,4 @@
-import { buildNode } from './render'
+import { buildNode, createComponent, setComponentProps } from './render'
 
 export function diff(dom, vnode, parent) {
   let ret = idiff(dom, vnode)
@@ -23,7 +23,7 @@ function idiff(dom, vnode) {
   if (vnode == null || typeof vnode === 'boolean') vnode = ''
 
   // string number
-  if (typeof vnode === 'string') {
+  if (typeof vnode === 'string' || typeof vnode === 'number') {
     // dom 不为空时
     if (dom && dom.splitText !== undefined && dom.parentNode) {
       if (dom.nodeValue != vnode) { // 如果 dom 与 vnode 不同则更新
@@ -58,27 +58,27 @@ function idiff(dom, vnode) {
 }
 
 function buildComponentFromVNode(dom, vnode) {
-
   let c = dom && dom._component
   let oldDom = dom
 
-  // 如果组件类型没有变化，则重新set props
-  if (c && c.constructor === vnode.tag) {
+  // 如果组件类型没有变化，则重新设置 props
+  if (c && c.constructor === vnode.type) {
     setComponentProps(c, vnode.attrs)
     dom = c.base
-    // 如果组件类型变化，则移除掉原来组件，并渲染新的组件
+    // 如果组件类型变化
   } else {
-
-    if (c) {
+    if (c) { // 移除掉原来组件
       unmountComponent(c)
-      oldDom = null
+      dom = oldDom = null
     }
 
-    c = createComponent(vnode.tag, vnode.attrs)
+    // 并渲染新的组件
+    c = createComponent(vnode.type, vnode.attrs)
 
     setComponentProps(c, vnode.attrs)
     dom = c.base
 
+    // 如果新旧 dom 不同
     if (oldDom && dom !== oldDom) {
       oldDom._component = null
       removeNode(oldDom)
@@ -171,4 +171,11 @@ function diffChildren(dom, vchildren) {
 function unmountComponent(component) {
   if (component.componentWillUnmount) component.componentWillUnmount();
   removeNode(component.base);
+}
+
+function removeNode(dom) {
+  if (dom && dom.parentNode) {
+    dom.parentNode.removeChild(dom);
+  }
+
 }

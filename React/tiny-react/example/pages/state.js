@@ -22,7 +22,7 @@ export default class State extends Component {
 
   changeCount = () => {
     const { count } = this.state
-
+    console.log('change count')
     this.setState({
       count: this.state.count + 1
     })

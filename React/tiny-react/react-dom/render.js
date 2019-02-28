@@ -50,7 +50,7 @@ function render(vnode, container, dom) {
  * @param {*} props 组件的 props
  * @returns
  */
-function createComponent(Constructor, props) {
+export function createComponent(Constructor, props) {
   let instance = null
   // 如果是 class 组件则构建 instance
   if (Constructor.prototype && Constructor.prototype.render) {
@@ -72,7 +72,7 @@ function createComponent(Constructor, props) {
  * @param {*} component
  * @param {*} props
  */
-function setComponentProps(component, props) {
+export function setComponentProps(component, props) {
   const isUpdate = !!component.base
 
   // 如果是更新阶段
