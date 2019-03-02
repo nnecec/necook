@@ -1,4 +1,5 @@
 import { buildNode, createComponent, setComponentProps } from './render'
+import { setAttribute } from './utils'
 
 export function diff(dom, vnode, parent) {
   let ret = idiff(dom, vnode)
@@ -14,7 +15,7 @@ export function diff(dom, vnode, parent) {
  *
  * @param {*} dom 当前 dom
  * @param {*} vnode 新 dom
- * @returns
+ * @returns 返回对比结果 dom
  */
 function idiff(dom, vnode) {
   let out = dom
@@ -26,10 +27,10 @@ function idiff(dom, vnode) {
   if (typeof vnode === 'string' || typeof vnode === 'number') {
     // dom 不为空时
     if (dom && dom.splitText !== undefined && dom.parentNode) {
-      if (dom.nodeValue != vnode) { // 如果 dom 与 vnode 不同则更新
+      if (dom.nodeValue != vnode) { // 如果值不同则更新
         dom.nodeValue = vnode
       }
-    } else { // dom 为空时 创建新节点
+    } else { // dom 为空时 创建新文本节点
       out = document.createTextNode(vnode)
       if (dom && dom.parentNode) {
         dom.parentNode.replaceChild(out, dom)
@@ -45,14 +46,18 @@ function idiff(dom, vnode) {
     return buildComponentFromVNode(dom, vnode)
   }
 
+  // 如果没有真实dom 则根据 vnode 创建新dom
   if (!dom) {
     out = document.createElement(vnodeName)
   }
 
+  // 如果还有子节点 diff 子节点
   if (vnode.children && vnode.children.length) {
     diffChildren(out, vnode.children)
   }
 
+  // diff 属性
+  diffAttributes(out, vnode.attrs)
 
   return out
 }
@@ -78,7 +83,7 @@ function buildComponentFromVNode(dom, vnode) {
     setComponentProps(c, vnode.attrs)
     dom = c.base
 
-    // 如果新旧 dom 不同
+    // 如果新旧 dom 不同 替换旧dom
     if (oldDom && dom !== oldDom) {
       oldDom._component = null
       removeNode(oldDom)
@@ -169,13 +174,48 @@ function diffChildren(dom, vchildren) {
 }
 
 function unmountComponent(component) {
-  if (component.componentWillUnmount) component.componentWillUnmount();
+  if (component.componentWillUnmount) component.componentWillUnmount()
   removeNode(component.base);
 }
 
 function removeNode(dom) {
   if (dom && dom.parentNode) {
-    dom.parentNode.removeChild(dom);
+    dom.parentNode.removeChild(dom)
   }
 
+}
+
+function diffAttributes(dom, attrs) {
+  const old = {}
+
+  for (let i = 0; i < dom.attributes.length; i++) {
+    const attr = dom.attributes[i]
+    old[attr.name] = attr.value
+  }
+
+  // 如果原来的属性不在新的属性当中，则将其移除掉（属性值设为undefined）
+  for (let name in old) {
+    if (!(name in attrs)) {
+      setAttribute(dom, name, undefined)
+    }
+  }
+
+  // 更新新的属性值
+  for (let name in attrs) {
+    if (old[name] !== attrs[name]) {
+      setAttribute(dom, name, attrs[name])
+    }
+  }
+}
+
+function isSameNodeType(dom, vnode) {
+  if (typeof vnode === 'string' || typeof vnode === 'number') {
+    return dom.nodeType === 3
+  }
+
+  if (typeof vnode.type === 'string') {
+    return dom.nodeName.toLowerCase() === vnode.type.toLowerCase();
+  }
+
+  return dom && dom._component && dom._component.constructor === vnode.type;
 }

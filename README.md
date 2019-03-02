@@ -11,8 +11,3 @@ necook is personal learning notebook.
 ## Other
 
 - [Cookbook 食谱](https://github.com/nnecec/necook/tree/master/Cookbook)
-
-3月 200人
-
-技术面 hr面
-
