@@ -44,13 +44,10 @@ module.exports = class Application extends Emitter {
   }
 
   /**
-   * Return JSON representation.
-   * We only bother showing settings.
+   * JSON 过滤返回指定结构
    *
    * @return {Object}
-   * @api public
    */
-
   toJSON() {
     return only(this, [
       'subdomainOffset',
@@ -58,13 +55,6 @@ module.exports = class Application extends Emitter {
       'env'
     ]);
   }
-
-  /**
-   * Inspect implementation.
-   *
-   * @return {Object}
-   * @api public
-   */
 
   inspect() {
     return this.toJSON();
