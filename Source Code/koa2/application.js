@@ -101,15 +101,14 @@ module.exports = class Application extends Emitter {
 
   /**
    * 使用 fnMiddleware 处理 ctx 并返回
-   * @return {Promise} 返回了一个 promise
+   * @return {Promise} 返回了一个 promise 这个 promise 用来处理每次请求
    */
   handleRequest(ctx, fnMiddleware) {
     const res = ctx.res;
     res.statusCode = 404;
     const onerror = err => ctx.onerror(err); // 处理请求错误
-    const handleResponse = () => respond(ctx); // 处理正确请求
-    onFinished(res, onerror);
-    // TODO:返回了什么
+    const handleResponse = () => respond(ctx); // 处理正确res
+    onFinished(res, onerror); // 请求终止时调用 onerror
     return fnMiddleware(ctx).then(handleResponse).catch(onerror);
   }
 
