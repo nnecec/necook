@@ -1,12 +1,11 @@
-const isGeneratorFunction = require('is-generator-function');
 const debug = require('debug')('koa:application');
-const onFinished = require('on-finished');
+const onFinished = require('on-finished'); // https://github.com/jshttp/on-finished
 const response = require('./response');
 const compose = require('koa-compose');
-const isJSON = require('koa-is-json');
+const isJSON = require('koa-is-json'); // 检查入参 body 是否是 JSON
 const context = require('./context');
 const request = require('./request');
-const statuses = require('statuses');
+const statuses = require('statuses'); // 提供是否是对应 http status https://www.npmjs.com/package/statuses
 const Emitter = require('events');
 const util = require('util');
 const Stream = require('stream');
@@ -136,30 +135,35 @@ module.exports = class Application extends Emitter {
   }
 };
 
-/**
- * Response helper.
- */
 
+/**
+ * 处理经过中间件处理后的 ctx 并作为最终 res
+ *
+ * @param {*} ctx
+ * @returns
+ */
 function respond(ctx) {
-  // allow bypassing koa
+  // 提供跳过处理的选择
   if (false === ctx.respond) return;
 
+  // 如果 ctx 不可写
   if (!ctx.writable) return;
 
   const res = ctx.res;
   let body = ctx.body;
   const code = ctx.status;
 
-  // ignore body
+  // 如果 code 是对应 empty 内容时
   if (statuses.empty[code]) {
     // strip headers
     ctx.body = null;
     return res.end();
   }
 
+  // 如果是 HEAD 方法
   if ('HEAD' == ctx.method) {
-    if (!res.headersSent && isJSON(body)) {
-      ctx.length = Buffer.byteLength(JSON.stringify(body));
+    if (!res.headersSent && isJSON(body)) { // 如果 res未发出 且 body 是JSON格式
+      ctx.length = Buffer.byteLength(JSON.stringify(body)); // 设置 ctx 长度
     }
     return res.end();
   }
@@ -183,7 +187,7 @@ function respond(ctx) {
   if ('string' == typeof body) return res.end(body);
   if (body instanceof Stream) return body.pipe(res);
 
-  // body: json
+  // body 是 JSON 格式时
   body = JSON.stringify(body);
   if (!res.headersSent) {
     ctx.length = Buffer.byteLength(body);
