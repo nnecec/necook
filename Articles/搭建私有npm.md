@@ -1,12 +1,14 @@
 # 搭建私有npm
 
+## 使用 cnpmjs.org 搭建
+
 需要准备的：
 
 - [cnpmjs.org](https://github.com/cnpm/cnpmjs.org)
 - mysql
 - Node >=8.0.0
 
-## 准备好需要的环境
+### 准备好需要的环境
 
 首先`git clone https://github.com/cnpm/cnpmjs.org.git`，由于官方维护的不及时性，某些文档中的说明其实是已被弃用的。比如安装依赖，在 README 中依然是进入到项目路径中执行`make install`，但这个命令已经被删除。
 
@@ -16,7 +18,7 @@
 
 在 Navicat 中新建一个 mysql 的 connection，新增一个名称为`cnpmjs`的数据库。并进入 Query 执行`cnpmjs.org`中 `docs/db.sql`的语句之后，可以看到数据库中多出了很多个表。
 
-## 配置
+### 配置
 
 在`cnpmjs.org`中的`config/index.js`是项目的默认配置，在该路径下新建一个`config.js`文件作为自定义配置。
 
@@ -41,7 +43,7 @@ module.exports = {
 
 在本地使用这种配置作初步调试。
 
-## 调试
+### 调试
 
 在`cnpmjs.org`项目中，通过`make dev`启动本地调试，此时注意观察是否有报错信息。成功启动后，访问`127.0.0.1:7002`可以访问到与 [cnpmjs.org](https://cnpmjs.org) 一样的页面。
 
@@ -51,7 +53,7 @@ module.exports = {
 
 值得说的是，由于我们需要访问的 registry 是 `http://127.0.0.1:7001`，所以需要`npm config set registry http://127.0.0.1:7001`设置 registry，或者在每个 npm 命令后加上`--registry=http://127.0.0.1:7001`。
 
-在终端中，使用`npm adduser`新增一个 npm 账户，如下
+在终端中，使用`mysqld`启动本地 mysql，使用`npm adduser`新增一个 npm 账户，如下
 
 ```bash
 npm login
@@ -66,3 +68,57 @@ Logged in as admin on http://127.0.0.1:7001/.
 此时登录的 npm 账户为 admin，然后使用`npm publish`即可发布这个包。
 
 在`127.0.0.1:7002`可以搜索到，在`~/.cnpmjs.org/nfs`可以找到这个包，且使用`yarn add test`可以安装这个包到`node_modules`中。
+
+## 使用 verdaccio 搭建
+
+[verdaccio](https://github.com/verdaccio/verdaccio) 不再需要 mysql 的支持，使用本地文件系统作为储存方式。
+
+### 安装与调试
+
+通过`npm install -g verdaccio`安装 verdaccio。然后可以使用`verdaccio`启动本地服务。
+
+```bash
+➜ verdaccio
+ warn --- config file  - /Users/nnecec/.config/verdaccio/config.yaml
+ warn --- Plugin successfully loaded: htpasswd
+ warn --- Plugin successfully loaded: audit
+ warn --- http address - http://localhost:4873/ - verdaccio/3.11.6
+```
+
+verdaccio 的配置默认在`~/.config/verdaccio/config.yaml`中，可以在启动 verdaccio 时选择自定义的配置`verdaccio --listen 4000 --config ~./config.yaml`。
+
+配置访问 localhost:4873 会有一个类似 cnpmjs.org 的页面供查看本地所有的库。
+
+再去上面的测试包，同样可以登录用户且发布到这个私有源中。
+
+### 配置
+
+verdaccio 提供了丰富的配置。在[配置文件](https://verdaccio.org/docs/en/configuration)中可以查看文档。举例如下：
+
+```yaml
+storage: ./storage
+auth:
+  htpasswd: # 权限校验策略
+    file: ./htpasswd
+    max_users: 10000
+# 上行源
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    cache: false # 禁用缓存 将只缓存package.json
+  taobao:
+    url: https://registry.npm.taobao.org
+# 配置包访问权限
+packages:
+  '@*/*':
+    access: $all
+    publish: $authenticated
+    proxy: npmjs
+listen:
+# - localhost:4873            # default
+# - http://localhost:4873     # same thing
+# - 0.0.0.0:4873              # listen on all addresses (INADDR_ANY)
+# - https://example.org:4873  # if you want to use https
+# - "[::1]:4873"                # ipv6
+# - unix:/tmp/verdaccio.sock    # unix socket
+```
