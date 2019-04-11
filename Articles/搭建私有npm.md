@@ -71,6 +71,8 @@ Logged in as admin on http://127.0.0.1:7001/.
 
 ## 使用 verdaccio 搭建
 
+> https://github.com/huangshuwei/blog/issues/15
+
 [verdaccio](https://github.com/verdaccio/verdaccio) 不再需要 mysql 的支持，使用本地文件系统作为储存方式。
 
 ### 安装与调试
@@ -110,9 +112,12 @@ uplinks:
     url: https://registry.npm.taobao.org
 # 配置包访问权限
 packages:
-  '@*/*':
-    access: $all
-    publish: $authenticated
+  '@dian/*': # 不使用公开库代理 @dian 下的包
+    access: $all # 所有人都可以访问
+    publish: admin nnecec # admin 和 nnecec 可以发布
+  '**': # 其余的包使用 npmjs 代理
+    access: $anonymous # 未登录的可以访问
+    publish: $authenticated # 已登陆的可以发布
     proxy: npmjs
 listen:
 # - localhost:4873            # default
