@@ -1,6 +1,6 @@
 # 搭建私有npm
 
-## 使用 cnpmjs.org 搭建
+## 1. 使用 cnpmjs.org 搭建
 
 需要准备的：
 
@@ -10,13 +10,13 @@
 
 ### 准备好需要的环境
 
-首先`git clone https://github.com/cnpm/cnpmjs.org.git`，由于官方维护的不及时性，某些文档中的说明其实是已被弃用的。比如安装依赖，在 README 中依然是进入到项目路径中执行`make install`，但这个命令已经被删除。
+首先`git clone https://github.com/cnpm/cnpmjs.org.git`，由于官方维护的不及时性，某些文档中的说明其实是过时的。比如安装依赖，在 README 中依然是进入到项目路径中执行`make install`，但这个命令已经被删除。
 
-现在我们通过执行`yarn install`安装`cnpmjs.org`项目所需依赖。
+现在通过执行`yarn install`安装`cnpmjs.org`项目所需依赖。
 
 然后使用`brew install mysql`安装 mysql。
 
-在 Navicat 中新建一个 mysql 的 connection，新增一个名称为`cnpmjs`的数据库。并进入 Query 执行`cnpmjs.org`中 `docs/db.sql`的语句之后，可以看到数据库中多出了很多个表。
+在 Navicat 中新建一个 mysql 的 connection，新增一个名称为`cnpmjs`的数据库。登录数据库并进入 Query 执行`cnpmjs.org`中 `docs/db.sql`的语句来初始化数据库。
 
 ### 配置
 
@@ -34,7 +34,7 @@ module.exports = {
     password: ''
   },
   admins: {
-    admin: 'admin@dian.so',
+    admin: 'nnecec@outlook',
   },
   syncModel: 'exist',// 'none', 'all', 'exist'
   registryHost: '127.0.0.1:7001',
@@ -58,18 +58,18 @@ module.exports = {
 ```bash
 npm login
 
-Username: admin
+Username: nnecec
 Password:
-Email: (this IS public) admin@dian.so
+Email: (this IS public) nnecec@outlook.com
 
-Logged in as admin on http://127.0.0.1:7001/.
+Logged in as nnecec on http://127.0.0.1:7001/.
 ```
 
-此时登录的 npm 账户为 admin，然后使用`npm publish`即可发布这个包。
+此时登录的 npm 账户为 nnecec，然后使用`npm publish`即可发布这个包。
 
 在`127.0.0.1:7002`可以搜索到，在`~/.cnpmjs.org/nfs`可以找到这个包，且使用`yarn add test`可以安装这个包到`node_modules`中。
 
-## 使用 verdaccio 搭建
+## 2.使用 verdaccio 搭建
 
 > https://github.com/huangshuwei/blog/issues/15
 
@@ -87,9 +87,9 @@ Logged in as admin on http://127.0.0.1:7001/.
  warn --- http address - http://localhost:4873/ - verdaccio/3.11.6
 ```
 
-verdaccio 的配置默认在`~/.config/verdaccio/config.yaml`中，可以在启动 verdaccio 时选择自定义的配置`verdaccio --listen 4000 --config ~./config.yaml`。
+verdaccio 的配置默认在`~/.config/verdaccio/config.yaml`中，可以在启动 verdaccio 时选择自定义的配置，如`verdaccio --listen 4000 --config ~./config.yaml`。
 
-配置访问 localhost:4873 会有一个类似 cnpmjs.org 的页面供查看本地所有的库。
+访问 localhost:4873 会有一个类似 cnpmjs.org 的页面供查看本地所有的库。
 
 再去上面的测试包，同样可以登录用户且发布到这个私有源中。
 
