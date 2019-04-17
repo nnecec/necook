@@ -127,3 +127,40 @@ listen:
 # - "[::1]:4873"                # ipv6
 # - unix:/tmp/verdaccio.sock    # unix socket
 ```
+
+### 在服务器使用 docker 配置 verdaccio
+
+参考[官方文档](https://verdaccio.org/docs/en/docker)拉取最新的 verdaccio
+
+```bash
+docker pull verdaccio/verdaccio:4.x-next
+```
+
+在根目录创建 docker 文件夹。从 docker-examples 获取基础配置，并拷贝到 docker 中。
+
+```bash
+mkdir -p ~/docker/verdaccio
+git clone https://github.com/verdaccio/docker-examples.git
+cd docker-example
+mv docker-local-storage-volume  ~/docker/verdaccio
+```
+
+进入`conf/config.yaml`进行配置，如
+
+```yaml
+...
+uplinks:
+  taobao:
+    url: https://registry.npm.taobao.org/
+packages:
+  '@dian/*':
+    access: $all
+    publish: dian
+  '**':
+    access: $all
+    publish: dian
+    proxy: taobao
+...
+```
+
+回到 verdaccio 文件夹，通过`docker-compose up -d`在后台启用服务，此时访问 ip:4873 即可访问到 verdaccio。
