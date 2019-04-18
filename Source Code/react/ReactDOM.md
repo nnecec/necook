@@ -38,6 +38,8 @@ ReactDOM 中的 `render`, `hydrate`, `unstable_renderSubtreeIntoContainer`, `unm
 
 在`legacyRenderSubtreeIntoContainer`中，通过`legacyCreateRootFromDOMContainer`方法一连串的调用，创建并返回了`ReactRoot`实例并赋值给 root 变量，在这个 root 对象上挂在了属性名为 current 的 FiberNode。
 
+ReactRoot 就是整个 React 应用的入口，然后调用实例的`render`方法逐步渲染内部组件。
+
 调用组件`render`方法时，会将变更加入到 fiber enqueue 中。然后调用`scheduleWork`方法，应该是调度渲染工作的算法。
 
 ```javascript
@@ -50,7 +52,7 @@ function legacyRenderSubtreeIntoContainer(
 ) {
   let root = container._reactRootContainer;
   if (!root) { // 如果没有 root 元素
-  // 则通过 legacyCreateRootFromDOMContainer 初次构建
+  // 则通过 legacyCreateRootFromDOMContainer 初次构建 ReactRoot 并缓存到 _reactRootContainer 属性上
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
       forceHydrate,
@@ -93,7 +95,7 @@ function legacyRenderSubtreeIntoContainer(
       root.render(children, callback);
     }
   }
-  return getPublicRootInstance(root._internalRoot);
+  return getPublicRootInstance(root._internalRoot); // 返回根容器 Fiber 实例
 ```
 
 通过`legacyCreateRootFromDOMContainer`创建了 root 实例
@@ -133,7 +135,7 @@ function ReactRoot(
 
 `createContainer`方法在`ReactFiberReconciler.js`文件中定义
 
-ReactRoot 的 prototype 上定义了4个方法
+ReactRoot 的 prototype 上定义了4个方法。
 
 ```javascript
 ReactRoot.prototype.render = function(children, callback) {

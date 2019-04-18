@@ -1,5 +1,7 @@
 # React
 
+> current version: 16.8.6
+
 ## Basic
 
 1. ReactElement: React 通过 JSX 解析出节点信息，并通过 createElement 构建出 Virtual DOM
