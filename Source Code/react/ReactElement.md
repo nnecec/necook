@@ -98,6 +98,8 @@ const ReactElement = function(type, key, ref, self, source, owner, props) { // s
 
 ## cloneElement
 
+扩展方法。克隆一个 ReactElement，其中 props 是浅拷贝的。
+
 ```javascript
 
 export function cloneElement(element, config, children) {

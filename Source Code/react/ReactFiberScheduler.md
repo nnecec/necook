@@ -10,7 +10,14 @@ const RenderPhase = 4;
 const CommitPhase = 5;
 ```
 
+Fiber 将渲染分为多个阶段，分别为：
 
+0. 未工作阶段
+1. 批处理阶段
+2. d
+3. 同步阶段
+4. 渲染阶段
+5. 提交阶段
 
 ## requestCurrentTime
 
@@ -45,7 +52,14 @@ export function msToExpirationTime(ms) {
 
 ## computeExpirationForFiber
 
+计算 Fiber 到期时间。
+
 ```javascript
+export const NoContext = 0b000;
+export const ConcurrentMode = 0b001;
+export const StrictMode = 0b010;
+export const ProfileMode = 0b100;
+
 export function computeExpirationForFiber(currentTime, fiber) {
   if ((fiber.mode & ConcurrentMode) === NoContext) {
     return Sync;
@@ -56,10 +70,10 @@ export function computeExpirationForFiber(currentTime, fiber) {
     return renderExpirationTime;
   }
 
-  // Compute an expiration time based on the Scheduler priority.
+  // 根据优先级计算过期时间
   let expirationTime;
-  const priorityLevel = getCurrentPriorityLevel();
-  switch (priorityLevel) {
+  const priorityLevel = getCurrentPriorityLevel(); // 按优先级高向低排，依次返回 99 -> 95
+  switch (priorityLevel) { // 根据优先级 返回不同的过期时间
     case ImmediatePriority:
       expirationTime = Sync;
       break;
@@ -87,5 +101,70 @@ export function computeExpirationForFiber(currentTime, fiber) {
   }
 
   return expirationTime;
+}
+```
+
+## scheduleUpdateOnFiber
+
+```javascript
+export function scheduleUpdateOnFiber(
+  fiber: Fiber,
+  expirationTime: ExpirationTime,
+) {
+  checkForNestedUpdates();
+  // warnAboutInvalidUpdatesOnClassComponentsInDEV(fiber);
+
+  const root = markUpdateTimeFromFiberToRoot(fiber, expirationTime);
+  if (root === null) {
+    warnAboutUpdateOnUnmountedFiberInDEV(fiber);
+    return;
+  }
+
+  root.pingTime = NoWork;
+
+  checkForInterruption(fiber, expirationTime);
+  recordScheduleUpdate();
+
+  if (expirationTime === Sync) {
+    if (workPhase === LegacyUnbatchedPhase) {
+      // This is a legacy edge case. The initial mount of a ReactDOM.render-ed
+      // root inside of batchedUpdates should be synchronous, but layout updates
+      // should be deferred until the end of the batch.
+      let callback = renderRoot(root, Sync, true);
+      while (callback !== null) {
+        callback = callback(true);
+      }
+    } else {
+      scheduleCallbackForRoot(root, ImmediatePriority, Sync);
+      if (workPhase === NotWorking) {
+        // Flush the synchronous work now, wnless we're already working or inside
+        // a batch. This is intentionally inside scheduleUpdateOnFiber instead of
+        // scheduleCallbackForFiber to preserve the ability to schedule a callback
+        // without immediately flushing it. We only do this for user-initated
+        // updates, to preserve historical behavior of sync mode.
+        flushImmediateQueue();
+      }
+    }
+  } else {
+    // TODO: computeExpirationForFiber also reads the priority. Pass the
+    // priority as an argument to that function and this one.
+    const priorityLevel = getCurrentPriorityLevel();
+    if (priorityLevel === UserBlockingPriority) {
+      // This is the result of a discrete event. Track the lowest priority
+      // discrete update per root so we can flush them early, if needed.
+      if (rootsWithPendingDiscreteUpdates === null) {
+        rootsWithPendingDiscreteUpdates = new Map([[root, expirationTime]]);
+      } else {
+        const lastDiscreteTime = rootsWithPendingDiscreteUpdates.get(root);
+        if (
+          lastDiscreteTime === undefined ||
+          lastDiscreteTime > expirationTime
+        ) {
+          rootsWithPendingDiscreteUpdates.set(root, expirationTime);
+        }
+      }
+    }
+    scheduleCallbackForRoot(root, priorityLevel, expirationTime);
+  }
 }
 ```

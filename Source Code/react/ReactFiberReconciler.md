@@ -7,7 +7,7 @@
 ```javascript
 // 参数来自 ReactRoot 构造函数
 export function createContainer(containerInfo, isConcurrent, hydrate) {
-  return createFiberRoot(containerInfo, isConcurrent, hydrate); // `createFiberRoot`方法在`ReactFiberRoot.js`中定义。
+  return createFiberRoot(containerInfo, isConcurrent, hydrate); // createFiberRoot -> ReactFiberRoot.js
 }
 ```
 
@@ -30,7 +30,6 @@ export function getPublicRootInstance(container) {
 }
 ```
 
-
 ## updateContainer
 
 `currentTime`是当前时间，
@@ -42,14 +41,14 @@ export function updateContainer(
   parentComponent,
   callback,
  ) {
-  const current = container.current;
+  const current = container.current; // Fiber 对象
   const currentTime = requestCurrentTime();
-  const expirationTime = computeExpirationForFiber(currentTime, current);
+  const expirationTime = computeExpirationForFiber(currentTime, current); // 任务到期时间
   return updateContainerAtExpirationTime(
-    element,
-    container,
-    parentComponent,
-    expirationTime,
+    element, // ReactDOM.render() 的第一个参数 泛指各种 Virtual DOM
+    container, // ReactDOM.render() 的第二个参数
+    parentComponent, // 父组件
+    expirationTime, // 任务到期时间
     callback,
   );
 }
@@ -75,6 +74,28 @@ export function updateContainerAtExpirationTime(
     container.pendingContext = context;
   }
 
-  return scheduleRootUpdate(current, element, expirationTime, callback);
+  return scheduleRootUpdate(current, element, expirationTime, callback); // 调度更新
+}
+```
+
+## scheduleRootUpdate
+
+调度 Root 节点的更新
+
+```javascript
+function scheduleRootUpdate(current, element, expirationTime, callback) {
+  const update = createUpdate(expirationTime); // createUpdate -> ReactUpdateQueue.js
+  update.payload = {element}; // 将需要渲染的 element 赋值给 payload
+
+  callback = callback === undefined ? null : callback;
+  if (callback !== null) {
+    update.callback = callback;
+  }
+
+  flushPassiveEffects();
+  enqueueUpdate(current, update); // 将 current Fiber 加入到更新队列   enqueueUpdate -> ReactUpdateQueue.js
+  scheduleWork(current, expirationTime); // 调度当前 Fiber  scheduleWork -> ReactFiberScheduler.js -> scheduleUpdateOnFiber
+
+  return expirationTime;
 }
 ```

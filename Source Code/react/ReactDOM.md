@@ -40,18 +40,32 @@ ReactDOM 中的 `render`, `hydrate`, `unstable_renderSubtreeIntoContainer`, `unm
 
 ReactRoot 就是整个 React 应用的入口，然后调用实例的`render`方法逐步渲染内部组件。
 
-调用组件`render`方法时，会将变更加入到 fiber enqueue 中。然后调用`scheduleWork`方法，应该是调度渲染工作的算法。
+在经过该方法处理后 container 的结构变为
+
+```javascript
+container = {
+  _reactRootContainer: { // legacyCreateRootFromDOMContainer
+    _internalRoot: { // ReactRoot
+      current: { // createFiberRoot
+        // Fiber
+      }
+    }
+  }
+}
+```
+
+调用组件`render`或`legacy_renderSubtreeIntoContainer`方法时，其实都是调用`updateContainer`方法，区别在于是否传了`parentComponent`参数。
 
 ```javascript
 function legacyRenderSubtreeIntoContainer(
   parentComponent, // 当前组件的父组件，第一次渲染时为 null
   children, // 要插入 DOM 中的组件
   container, // 要插入的容器，如document.getElementById('app')
-  forceHydrate, // 是否 hydrate (hydrate=true / render=false)
+  forceHydrate, // 是否 hydrate (hydrate=true  render=false)
   callback, // 完成后的回调函数
 ) {
   let root = container._reactRootContainer;
-  if (!root) { // 如果没有 root 元素
+  if (!root) { // 如果没有 root 元素则说明是第一次构建
   // 则通过 legacyCreateRootFromDOMContainer 初次构建 ReactRoot 并缓存到 _reactRootContainer 属性上
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
@@ -64,10 +78,10 @@ function legacyRenderSubtreeIntoContainer(
       originalCallback.call(instance);
     };
   }
-  // 初次构建不应当批处理
+  // 初次构建不应当经过 batch 处理
   unbatchedUpdates(() => {
     if (parentComponent != null) {
-      root.legacy_renderSubtreeIntoContainer( // 参考下方说明
+      root.legacy_renderSubtreeIntoContainer(
         parentComponent,
         children,
         callback,
@@ -76,6 +90,7 @@ function legacyRenderSubtreeIntoContainer(
       root.render(children, callback);
     }
   });
+
   } else {
     if (typeof callback === 'function') {
       const originalCallback = callback;
@@ -98,7 +113,9 @@ function legacyRenderSubtreeIntoContainer(
   return getPublicRootInstance(root._internalRoot); // 返回根容器 Fiber 实例
 ```
 
-通过`legacyCreateRootFromDOMContainer`创建了 root 实例
+如果存在`parentComponent`，则通过`legacy_renderSubtreeIntoContainer`创建了 root 实例
+
+### legacyCreateRootFromDOMContainer
 
 ```javascript
 function legacyCreateRootFromDOMContainer(
@@ -120,6 +137,25 @@ function legacyCreateRootFromDOMContainer(
 }
 ```
 
+### unbatchedUpdates
+
+```javascript
+export function unbatchedUpdates(fn, a) {
+  if (workPhase !== BatchedPhase && workPhase !== FlushSyncPhase) {
+    // We're not inside batchedUpdates or flushSync, so unbatchedUpdates is
+    // a no-op.
+    return fn(a);
+  }
+  const prevWorkPhase = workPhase;
+  workPhase = LegacyUnbatchedPhase;
+  try {
+    return fn(a);
+  } finally {
+    workPhase = prevWorkPhase;
+  }
+}
+```
+
 ## ReactRoot
 
 ```javascript
@@ -128,12 +164,10 @@ function ReactRoot(
   isConcurrent, // 是否异步渲染
   hydrate, // 是否 hydrate
 ) {
-  const root = createContainer(container, isConcurrent, hydrate);
+  const root = createContainer(container, isConcurrent, hydrate); // createContainer -> ReactFiberReconciler.js
   this._internalRoot = root;
 }
 ```
-
-`createContainer`方法在`ReactFiberReconciler.js`文件中定义
 
 ReactRoot 的 prototype 上定义了4个方法。
 
@@ -145,7 +179,7 @@ ReactRoot.prototype.render = function(children, callback) {
   if (callback !== null) {
     work.then(callback);
   }
-  updateContainer(children, root, null, work._onCommit);
+  updateContainer(children, root, null, work._onCommit); // updateContainer -> ReactFiberReconciler.js
   return work;
 };
 
