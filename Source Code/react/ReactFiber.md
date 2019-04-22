@@ -31,13 +31,13 @@ function FiberNode(tag, pendingProps, key, mode) {
   this.tag = tag; // FiberNode 标签 -> ReactWorkTags.md
   this.key = key;
   this.elementType = null;
-  this.type = null; // 
+  this.type = null; // 对应的 function/class/module 类型组件名
   this.stateNode = null; // FiberNode 会通过 stateNode 绑定一些其他的对象，例如 FiberNode 对应的 Dom、FiberRoot、ReactComponent 实例
 
   // Fiber
-  this.return = null; // 表示父级 FiberNode
-  this.child = null; // 表示第一个子 FiberNode
-  this.sibling = null; // 表示相邻的下一个兄弟 FiberNode
+  this.return = null; // 指向父级 FiberNode
+  this.child = null; // 指向第一个子 FiberNode
+  this.sibling = null; // 指向相邻的下一个兄弟 FiberNode
   this.index = 0;
 
   this.ref = null;
@@ -57,36 +57,9 @@ function FiberNode(tag, pendingProps, key, mode) {
   this.firstEffect = null; // 与副作用操作遍历流程相关。当前节点下，第一个需要处理的副作用FiberNode的引用
   this.lastEffect = null; // 表示最后一个要处理的副作用 FiberNode 的引用
 
-  this.expirationTime = NoWork;
+  this.expirationTime = NoWork; // 更新任务的最晚执行时间
   this.childExpirationTime = NoWork;
 
   this.alternate = null; // Fiber调度算法采取了双缓冲池算法，FiberRoot底下的所有节点，都会在算法过程中，尝试创建自己的“镜像”
-
-  if (enableProfilerTimer) {
-    // Note: The following is done to avoid a v8 performance cliff.
-    //
-    // Initializing the fields below to smis and later updating them with
-    // double values will cause Fibers to end up having separate shapes.
-    // This behavior/bug has something to do with Object.preventExtension().
-    // Fortunately this only impacts DEV builds.
-    // Unfortunately it makes React unusably slow for some applications.
-    // To work around this, initialize the fields below with doubles.
-    //
-    // Learn more about this here:
-    // https://github.com/facebook/react/issues/14365
-    // https://bugs.chromium.org/p/v8/issues/detail?id=8538
-    this.actualDuration = Number.NaN;
-    this.actualStartTime = Number.NaN;
-    this.selfBaseDuration = Number.NaN;
-    this.treeBaseDuration = Number.NaN;
-
-    // It's okay to replace the initial doubles with smis after initialization.
-    // This won't trigger the performance cliff mentioned above,
-    // and it simplifies other profiler code (including DevTools).
-    this.actualDuration = 0;
-    this.actualStartTime = -1;
-    this.selfBaseDuration = 0;
-    this.treeBaseDuration = 0;
-  }
 }
 ```

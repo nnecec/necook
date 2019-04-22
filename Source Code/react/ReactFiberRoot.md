@@ -2,9 +2,9 @@
 
 ## createFiberRoot
 
-通过`FiberRootNode`构造 root，在 root 上通过`createHostRootFiber`挂载了 FiberNode。
+通过`FiberRootNode`构造 root。
 
-`current`属性引用 Fiber 对象，`containerInfo`属性引用`ReactDOM.render(<div/>, container)`的第二个参数，Fiber 对象的`stateNode`引用普通对象 root。
+通过`createHostRootFiber`创建了 FiberRootNode。`current`属性引用 Fiber 对象，`stateNode`引用普通对象 root。
 
 ```javascript
 export function createFiberRoot(containerInfo, isConcurrent, hydrate) {

@@ -25,7 +25,7 @@ Component.prototype.forceUpdate = function(callback) {
 };
 ```
 
-在声明 Component 类之后，在 prototype 上添加了 `setState` 和 `forceUpdate` 方法。
+在声明 Component 类之后，在 prototype 上添加了 `setState` 和 `forceUpdate` 方法。`this.updater.enqueueSetState`方法由 reconciler 提供。
 
 ## PureComponent
 

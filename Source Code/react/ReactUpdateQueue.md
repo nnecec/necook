@@ -31,54 +31,63 @@ export function enqueueUpdate(fiber, update) {
   let queue1;
   let queue2;
   if (alternate === null) {
-    // There's only one fiber.
-    queue1 = fiber.updateQueue;
+    queue1 = fiber.updateQueue; // 只存在1个 Fiber
     queue2 = null;
-    if (queue1 === null) {
-      queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState);
+    if (queue1 === null) { // 如果不存在则创建一个更新队列
+      queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState); // createUpdateQueue 根据 Fiber 状态返回了一个记录信息的对象
     }
   } else {
-    // There are two owners.
     queue1 = fiber.updateQueue;
     queue2 = alternate.updateQueue;
     if (queue1 === null) {
       if (queue2 === null) {
-        // Neither fiber has an update queue. Create new ones.
+        // 如果两个都不存在，则创建两个新的
         queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState);
         queue2 = alternate.updateQueue = createUpdateQueue(
           alternate.memoizedState,
         );
       } else {
-        // Only one fiber has an update queue. Clone to create a new one.
+        // queue1 不存在 queue2 存在，queue1 根据 queue2 创建
         queue1 = fiber.updateQueue = cloneUpdateQueue(queue2);
       }
     } else {
       if (queue2 === null) {
-        // Only one fiber has an update queue. Clone to create a new one.
+        // queue2 不存在 queue1 存在，queue2 根据 queue1 创建
         queue2 = alternate.updateQueue = cloneUpdateQueue(queue1);
       } else {
-        // Both owners have an update queue.
+
       }
     }
   }
   if (queue2 === null || queue1 === queue2) {
-    // There's only a single queue.
+    // 只存在一个更新队列
     appendUpdateToQueue(queue1, update);
   } else {
-    // There are two queues. We need to append the update to both queues,
-    // while accounting for the persistent structure of the list â€” we don't
-    // want the same update to be added multiple times.
+    // 两个队列都需要更新
     if (queue1.lastUpdate === null || queue2.lastUpdate === null) {
-      // One of the queues is not empty. We must add the update to both queues.
+      // 如果任意更新队列为空，则需要将更新添加至两个更新队列
       appendUpdateToQueue(queue1, update);
       appendUpdateToQueue(queue2, update);
     } else {
-      // Both queues are non-empty. The last update is the same in both lists,
-      // because of structural sharing. So, only append to one of the lists.
+      // 如果2个更新队列均非空，则添加更新至第一个队列，并更新另一个队列的尾部更新项
       appendUpdateToQueue(queue1, update);
-      // But we still need to update the `lastUpdate` pointer of queue2.
       queue2.lastUpdate = update;
     }
+  }
+}
+```
+
+## appendUpdateToQueue
+
+将 update 赋值给 queue
+
+```javascript
+function appendUpdateToQueue(queue, update) {
+  if (queue.lastUpdate === null) {
+    queue.firstUpdate = queue.lastUpdate = update;
+  } else {
+    queue.lastUpdate.next = update;
+    queue.lastUpdate = update;
   }
 }
 ```

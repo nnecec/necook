@@ -2,7 +2,7 @@
 
 ## render
 
-react-dom 的`render`方法是目前渲染组件的方法，未来将由`hydrate`替代。可以看到两者仅有一个参数的区别。
+react-dom 的`render`方法是目前渲染组件的方法，服务端的渲染方法将由`hydrate`替代。可以看到两者仅有一个参数的区别。
 
 ```javascript
 const ReactDOM = {
@@ -34,9 +34,9 @@ const ReactDOM = {
 
 ## legacyRenderSubtreeIntoContainer
 
-ReactDOM 中的 `render`, `hydrate`, `unstable_renderSubtreeIntoContainer`, `unmountComponentAtNode`都是`legacyRenderSubtreeIntoContainer`的加壳方法。
+ReactDOM 中的 `render`, `hydrate`, `unstable_renderSubtreeIntoContainer`, `unmountComponentAtNode`都是`legacyRenderSubtreeIntoContainer`的加壳方法，返回的是`ReactWork`对象。
 
-在`legacyRenderSubtreeIntoContainer`中，通过`legacyCreateRootFromDOMContainer`方法一连串的调用，创建并返回了`ReactRoot`实例并赋值给 root 变量，在这个 root 对象上挂在了属性名为 current 的 FiberNode。
+在`legacyRenderSubtreeIntoContainer`中，通过`legacyCreateRootFromDOMContainer`方法一连串的调用，创建并返回了`ReactRoot`实例并赋值给 root。
 
 ReactRoot 就是整个 React 应用的入口，然后调用实例的`render`方法逐步渲染内部组件。
 
@@ -46,15 +46,17 @@ ReactRoot 就是整个 React 应用的入口，然后调用实例的`render`方�
 container = {
   _reactRootContainer: { // legacyCreateRootFromDOMContainer
     _internalRoot: { // ReactRoot
+      containerInfo: {},
       current: { // createFiberRoot
         // Fiber
-      }
+      },
+      ...
     }
   }
 }
 ```
 
-调用组件`render`或`legacy_renderSubtreeIntoContainer`方法时，其实都是调用`updateContainer`方法，区别在于是否传了`parentComponent`参数。
+之后调用组件`render`或`legacy_renderSubtreeIntoContainer`方法时，其实都是调用`updateContainer`方法，区别在于是否传了`parentComponent`参数。
 
 ```javascript
 function legacyRenderSubtreeIntoContainer(
@@ -91,7 +93,7 @@ function legacyRenderSubtreeIntoContainer(
     }
   });
 
-  } else {
+  } else { // 在不是第一次构建的情况下
     if (typeof callback === 'function') {
       const originalCallback = callback;
       callback = function() {
@@ -169,7 +171,7 @@ function ReactRoot(
 }
 ```
 
-ReactRoot 的 prototype 上定义了4个方法。
+ReactRoot 的 prototype 上定义了4个方法。`render`方法通过调用`updateContainer`渲染接受到的组件
 
 ```javascript
 ReactRoot.prototype.render = function(children, callback) {
@@ -236,6 +238,8 @@ ReactRoot.prototype.createBatch = function() {
 ```
 
 ## ReactWork
+
+React 中类型任务系统的类。通过`then`订阅，并在`commit`为`true`时，执行任务系统里的方法。
 
 ```javascript
 function ReactWork() {

@@ -10,14 +10,7 @@ const RenderPhase = 4;
 const CommitPhase = 5;
 ```
 
-Fiber 将渲染分为多个阶段，分别为：
-
-0. 未工作阶段
-1. 批处理阶段
-2. d
-3. 同步阶段
-4. 渲染阶段
-5. 提交阶段
+Fiber 将渲染分为多个阶段
 
 ## requestCurrentTime
 
@@ -39,7 +32,7 @@ export function requestCurrentTime() {
     // Use the same start time for all updates until we enter React again.
     return currentEventTime;
   }
-  // This is the first update since React yielded. Compute a new start time.
+  // 第一次进入 React 应用，生成一个新的 startTime
   currentEventTime = msToExpirationTime(now() - initialTimeMs);
   return currentEventTime;
 }
@@ -61,8 +54,8 @@ export const StrictMode = 0b010;
 export const ProfileMode = 0b100;
 
 export function computeExpirationForFiber(currentTime, fiber) {
-  if ((fiber.mode & ConcurrentMode) === NoContext) {
-    return Sync;
+  if ((fiber.mode & ConcurrentMode) === NoContext) { // 按位与：a & b	对于每一个比特位，只有两个操作数相应的比特位都是1时，结果才为1，否则为0。
+    return Sync; // 1073741823
   }
 
   if (workPhase === RenderPhase) {
@@ -106,30 +99,22 @@ export function computeExpirationForFiber(currentTime, fiber) {
 
 ## scheduleUpdateOnFiber
 
+调度 Fiber 上的更新方法。
+
 ```javascript
-export function scheduleUpdateOnFiber(
-  fiber: Fiber,
-  expirationTime: ExpirationTime,
-) {
+export function scheduleUpdateOnFiber(fiber, expirationTime) {
   checkForNestedUpdates();
-  // warnAboutInvalidUpdatesOnClassComponentsInDEV(fiber);
 
-  const root = markUpdateTimeFromFiberToRoot(fiber, expirationTime);
-  if (root === null) {
-    warnAboutUpdateOnUnmountedFiberInDEV(fiber);
-    return;
-  }
+  const root = markUpdateTimeFromFiberToRoot(fiber, expirationTime); // 为 root 标记 lastPendingTime firstPendingTime
 
-  root.pingTime = NoWork;
+  root.pingTime = NoWork; // 0
 
-  checkForInterruption(fiber, expirationTime);
-  recordScheduleUpdate();
+  checkForInterruption(fiber, expirationTime); // TODO:检查是否需要打断，并将需要打断的 Fiber 缓存?
+  recordScheduleUpdate(); // TODO:标记 update 进度?
 
   if (expirationTime === Sync) {
     if (workPhase === LegacyUnbatchedPhase) {
-      // This is a legacy edge case. The initial mount of a ReactDOM.render-ed
-      // root inside of batchedUpdates should be synchronous, but layout updates
-      // should be deferred until the end of the batch.
+      // 在 batchUpdates 的内部，渲染 root 应该是同步的，但布局更新应该推迟到 batchUpdates 结束
       let callback = renderRoot(root, Sync, true);
       while (callback !== null) {
         callback = callback(true);
@@ -137,18 +122,12 @@ export function scheduleUpdateOnFiber(
     } else {
       scheduleCallbackForRoot(root, ImmediatePriority, Sync);
       if (workPhase === NotWorking) {
-        // Flush the synchronous work now, wnless we're already working or inside
-        // a batch. This is intentionally inside scheduleUpdateOnFiber instead of
-        // scheduleCallbackForFiber to preserve the ability to schedule a callback
-        // without immediately flushing it. We only do this for user-initated
-        // updates, to preserve historical behavior of sync mode.
+        // TODO:清理当前的同步队列
         flushImmediateQueue();
       }
     }
   } else {
-    // TODO: computeExpirationForFiber also reads the priority. Pass the
-    // priority as an argument to that function and this one.
-    const priorityLevel = getCurrentPriorityLevel();
+    const priorityLevel = getCurrentPriorityLevel(); // 获取优先级
     if (priorityLevel === UserBlockingPriority) {
       // This is the result of a discrete event. Track the lowest priority
       // discrete update per root so we can flush them early, if needed.
@@ -166,5 +145,107 @@ export function scheduleUpdateOnFiber(
     }
     scheduleCallbackForRoot(root, priorityLevel, expirationTime);
   }
+}
+```
+
+## markUpdateTimeFromFiberToRoot
+
+```javascript
+function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
+  // Update the source fiber's expiration time
+  if (fiber.expirationTime < expirationTime) {
+    fiber.expirationTime = expirationTime;
+  }
+  let alternate = fiber.alternate;
+  if (alternate !== null && alternate.expirationTime < expirationTime) {
+    alternate.expirationTime = expirationTime;
+  }
+  // Walk the parent path to the root and update the child expiration time.
+  let node = fiber.return;
+  let root = null;
+  if (node === null && fiber.tag === HostRoot) {
+    root = fiber.stateNode;
+  } else {
+    while (node !== null) {
+      alternate = node.alternate;
+      if (node.childExpirationTime < expirationTime) {
+        node.childExpirationTime = expirationTime;
+        if (
+          alternate !== null &&
+          alternate.childExpirationTime < expirationTime
+        ) {
+          alternate.childExpirationTime = expirationTime;
+        }
+      } else if (
+        alternate !== null &&
+        alternate.childExpirationTime < expirationTime
+      ) {
+        alternate.childExpirationTime = expirationTime;
+      }
+      if (node.return === null && node.tag === HostRoot) {
+        root = node.stateNode;
+        break;
+      }
+      node = node.return;
+    }
+  }
+
+  if (root !== null) {
+    // Update the first and last pending expiration times in this root
+    const firstPendingTime = root.firstPendingTime;
+    if (expirationTime > firstPendingTime) {
+      root.firstPendingTime = expirationTime;
+    }
+    const lastPendingTime = root.lastPendingTime;
+    if (lastPendingTime === NoWork || expirationTime < lastPendingTime) {
+      root.lastPendingTime = expirationTime;
+    }
+  }
+
+  return root;
+}
+```
+
+## scheduleCallbackForRoot
+
+```javascript
+function scheduleCallbackForRoot(root, priorityLevel, expirationTime) {
+  const existingCallbackExpirationTime = root.callbackExpirationTime;
+  if (existingCallbackExpirationTime < expirationTime) {
+    // New callback has higher priority than the existing one.
+    const existingCallbackNode = root.callbackNode;
+    if (existingCallbackNode !== null) {
+      cancelCallback(existingCallbackNode);
+    }
+    root.callbackExpirationTime = expirationTime;
+    const options =
+      expirationTime === Sync
+        ? null
+        : {timeout: expirationTimeToMs(expirationTime)};
+    root.callbackNode = scheduleCallback(
+      priorityLevel,
+      runRootCallback.bind(
+        null,
+        root,
+        renderRoot.bind(null, root, expirationTime),
+      ),
+      options,
+    );
+    if (
+      enableUserTimingAPI &&
+      expirationTime !== Sync &&
+      workPhase !== RenderPhase &&
+      workPhase !== CommitPhase
+    ) {
+      // Scheduled an async callback, and we're not already working. Add an
+      // entry to the flamegraph that shows we're waiting for a callback
+      // to fire.
+      startRequestCallbackTimer();
+    }
+  }
+
+  // Add the current set of interactions to the pending set associated with
+  // this root.
+  schedulePendingInteraction(root, expirationTime);
 }
 ```

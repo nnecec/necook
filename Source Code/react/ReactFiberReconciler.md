@@ -2,7 +2,7 @@
 
 ## createContainer
 
-创建 root 对象
+根据`containerInfo`创建 root 对象，`containerInfo`属性引用`ReactDOM.render(<div/>, container)`的第二个参数。通过另外两个参数配置 root。
 
 ```javascript
 // 参数来自 ReactRoot 构造函数
@@ -36,13 +36,13 @@ export function getPublicRootInstance(container) {
 
 ```javascript
 export function updateContainer(
-  element,
-  container,
-  parentComponent,
+  element, // 需要渲染的 element
+  container, // element 的 root 容器
+  parentComponent, // ReactDOM.render 传入的 parentComponent
   callback,
  ) {
   const current = container.current; // Fiber 对象
-  const currentTime = requestCurrentTime();
+  const currentTime = requestCurrentTime(); // 生成当前开始时间
   const expirationTime = computeExpirationForFiber(currentTime, current); // 任务到期时间
   return updateContainerAtExpirationTime(
     element, // ReactDOM.render() 的第一个参数 泛指各种 Virtual DOM
@@ -68,6 +68,7 @@ export function updateContainerAtExpirationTime(
   const current = container.current;
 
   const context = getContextForSubtree(parentComponent);
+  // 初始化 context
   if (container.context === null) {
     container.context = context;
   } else {
@@ -93,7 +94,7 @@ function scheduleRootUpdate(current, element, expirationTime, callback) {
   }
 
   flushPassiveEffects();
-  enqueueUpdate(current, update); // 将 current Fiber 加入到更新队列   enqueueUpdate -> ReactUpdateQueue.js
+  enqueueUpdate(current, update); // 将 update 添加到 Fiber 的 lastUpdate 属性上   enqueueUpdate -> ReactUpdateQueue.js
   scheduleWork(current, expirationTime); // 调度当前 Fiber  scheduleWork -> ReactFiberScheduler.js -> scheduleUpdateOnFiber
 
   return expirationTime;
