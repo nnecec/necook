@@ -4,6 +4,13 @@
 
 `render`方法实际上调用了`React.createElement`方法，JSX 解析出的结构都会被`createElement`调用。在[不使用JSX](https://reactjs.org/docs/react-without-jsx.html)的文档中，也同样说明了`createElement`是如何使用的。
 
+`type`有如下值：
+
+- HostComponent: `div`, `p`代表原生DOM
+- ClassComponent: Class 是继承自 Component 或 PureComponent 的组件
+- functional Component: 方法
+- Symbol: 原生提供的 Fragment、AsyncMode等
+
 ```javascript
 export function createElement = function(type, config, children) {
   let propName;

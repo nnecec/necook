@@ -14,51 +14,44 @@ Fiber 将渲染分为多个阶段
 
 ## requestCurrentTime
 
+`now()`可以理解为`performance.now()`
+
 ```javascript
-export const NoWork = 0;
 let currentEventTime = NoWork;
 
-const UNIT_SIZE = 10;
-const MAGIC_NUMBER_OFFSET = MAX_SIGNED_31_BIT_INT - 1; // MAX_SIGNED_31_BIT_INT = 1073741823  V8在32位系统上的最大整形值 Math.pow(2, 30) - 1
-
-
 export function requestCurrentTime() {
+  // 在 RenderPhase CommitPhase 重新生成 currentTime
   if (workPhase === RenderPhase || workPhase === CommitPhase) {
-    // We're inside React, so it's fine to read the actual time.
-    return msToExpirationTime(now() - initialTimeMs);
+    return msToExpirationTime(now());
   }
-  // We're not inside React, so we may be in the middle of a browser event.
+  // 在该阶段的所有 Update 都是同一 currentTime，从而可以产生同一过期时间
   if (currentEventTime !== NoWork) {
-    // Use the same start time for all updates until we enter React again.
     return currentEventTime;
   }
   // 第一次进入 React 应用，生成一个新的 startTime
-  currentEventTime = msToExpirationTime(now() - initialTimeMs);
+  currentEventTime = msToExpirationTime(now());
   return currentEventTime;
 }
 
-export function msToExpirationTime(ms) {
-  // Always add an offset so that we don't clash with the magic number for NoWork.
+export function msToExpirationTime(ms: number): ExpirationTime {
   return MAGIC_NUMBER_OFFSET - ((ms / UNIT_SIZE) | 0);
 }
+
+export const now = initialTimeMs < 10000 ? Scheduler_now : () => Scheduler_now() - initialTimeMs;
 ```
 
 ## computeExpirationForFiber
 
-计算 Fiber 到期时间。
+计算 Fiber 过期时间。
 
 ```javascript
-export const NoContext = 0b000;
-export const ConcurrentMode = 0b001;
-export const StrictMode = 0b010;
-export const ProfileMode = 0b100;
-
 export function computeExpirationForFiber(currentTime, fiber) {
-  if ((fiber.mode & ConcurrentMode) === NoContext) { // 按位与：a & b	对于每一个比特位，只有两个操作数相应的比特位都是1时，结果才为1，否则为0。
+  // 按位与：a & b	对于每一个比特位，只有两个操作数相应的比特位都是1时，结果才为1，否则为0。
+  if ((fiber.mode & ConcurrentMode) === NoContext) { // fiber.mode 不为 ConcurrentMode 时
     return Sync; // 1073741823
   }
 
-  if (workPhase === RenderPhase) {
+  if (workPhase === RenderPhase) { // work === 4
     // Use whatever time we're already rendering
     return renderExpirationTime;
   }
@@ -67,20 +60,18 @@ export function computeExpirationForFiber(currentTime, fiber) {
   let expirationTime;
   const priorityLevel = getCurrentPriorityLevel(); // 按优先级高向低排，依次返回 99 -> 95
   switch (priorityLevel) { // 根据优先级 返回不同的过期时间
-    case ImmediatePriority:
+    case ImmediatePriority: // 立即执行
       expirationTime = Sync;
       break;
-    case UserBlockingPriority:
-      // TODO: Rename this to computeUserBlockingExpiration
+    case UserBlockingPriority: // 用户操作
       expirationTime = computeInteractiveExpiration(currentTime);
       break;
-    case NormalPriority:
-    case LowPriority: // TODO: Handle LowPriority
-      // TODO: Rename this to... something better.
+    case NormalPriority: // 低优先级
+    case LowPriority:
       expirationTime = computeAsyncExpiration(currentTime);
       break;
     case IdlePriority:
-      expirationTime = Never;
+      expirationTime = Never; // 1
       break;
     default:
       // invariant(false, 'Expected a valid priority level');
@@ -93,7 +84,7 @@ export function computeExpirationForFiber(currentTime, fiber) {
     expirationTime -= 1;
   }
 
-  return expirationTime;
+  return expirationTime; // 返回 1 到 MAX 的值
 }
 ```
 
@@ -218,10 +209,16 @@ function scheduleCallbackForRoot(root, priorityLevel, expirationTime) {
       cancelCallback(existingCallbackNode);
     }
     root.callbackExpirationTime = expirationTime;
-    const options =
-      expirationTime === Sync
-        ? null
-        : {timeout: expirationTimeToMs(expirationTime)};
+    let options = null;
+    if (expirationTime !== Sync && expirationTime !== Never) {
+      let timeout = expirationTimeToMs(expirationTime) - now();
+      if (timeout > 5000) {
+        // Sanity check. Should never take longer than 5 seconds.
+        // TODO: Add internal warning?
+        timeout = 5000;
+      }
+      options = {timeout};
+    }
     root.callbackNode = scheduleCallback(
       priorityLevel,
       runRootCallback.bind(
@@ -256,8 +253,7 @@ function scheduleCallbackForRoot(root, priorityLevel, expirationTime) {
 function renderRoot(root, expirationTime, isSync){
   if (enableUserTimingAPI && expirationTime !== Sync) {
     const didExpire = isSync;
-    const timeoutMs = expirationTimeToMs(expirationTime);
-    stopRequestCallbackTimer(didExpire, timeoutMs);
+    stopRequestCallbackTimer(didExpire);
   }
 
   if (root.firstPendingTime < expirationTime) {

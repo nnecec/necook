@@ -42,13 +42,13 @@ export function updateContainer(
   callback,
  ) {
   const current = container.current; // Fiber 对象
-  const currentTime = requestCurrentTime(); // 生成当前开始时间
-  const expirationTime = computeExpirationForFiber(currentTime, current); // 任务到期时间
+  const currentTime = requestCurrentTime(); // 获取当前时间
+  const expirationTime = computeExpirationForFiber(currentTime, current); // 任务过期时间
   return updateContainerAtExpirationTime(
     element, // ReactDOM.render() 的第一个参数 泛指各种 Virtual DOM
     container, // ReactDOM.render() 的第二个参数
     parentComponent, // 父组件
-    expirationTime, // 任务到期时间
+    expirationTime, // 任务过期时间
     callback,
   );
 }
@@ -85,7 +85,7 @@ export function updateContainerAtExpirationTime(
 
 ```javascript
 function scheduleRootUpdate(current, element, expirationTime, callback) {
-  const update = createUpdate(expirationTime); // createUpdate -> ReactUpdateQueue.js
+  const update = createUpdate(expirationTime); // createUpdate -> ReactUpdateQueue.js  Update -> Type.md
   update.payload = {element}; // 将需要渲染的 element 赋值给 payload
 
   callback = callback === undefined ? null : callback;

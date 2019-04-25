@@ -67,8 +67,8 @@ function legacyRenderSubtreeIntoContainer(
   callback, // 完成后的回调函数
 ) {
   let root = container._reactRootContainer;
-  if (!root) { // 如果没有 root 元素则说明是第一次构建
-  // 则通过 legacyCreateRootFromDOMContainer 初次构建 ReactRoot 并缓存到 _reactRootContainer 属性上
+  if (!root) { // 如果没有 root 则说明是第一次构建
+  // 通过 legacyCreateRootFromDOMContainer 初次构建 ReactRoot 并缓存到 _reactRootContainer 属性上
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
       forceHydrate,
@@ -76,22 +76,22 @@ function legacyRenderSubtreeIntoContainer(
     if (typeof callback === 'function') {
       const originalCallback = callback;
       callback = function() {
-      const instance = getPublicRootInstance(root._internalRoot);
-      originalCallback.call(instance);
-    };
-  }
-  // 初次构建不应当经过 batch 处理
-  unbatchedUpdates(() => {
-    if (parentComponent != null) {
-      root.legacy_renderSubtreeIntoContainer(
-        parentComponent,
-        children,
-        callback,
-      );
-    } else {
-      root.render(children, callback);
+        const instance = getPublicRootInstance(root._internalRoot);
+        originalCallback.call(instance);
+      };
     }
-  });
+    // 初次构建不应当经过 batch 处理
+    unbatchedUpdates(() => {
+      if (parentComponent != null) {
+        root.legacy_renderSubtreeIntoContainer(
+          parentComponent,
+          children,
+          callback,
+        );
+      } else {
+        root.render(children, callback);
+      }
+    });
 
   } else { // 在不是第一次构建的情况下
     if (typeof callback === 'function') {

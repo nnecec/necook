@@ -8,7 +8,7 @@
 
 ```javascript
 export function createFiberRoot(containerInfo, isConcurrent, hydrate) {
-  const root = new FiberRootNode(containerInfo, hydrate);
+  const root = new FiberRootNode(containerInfo, hydrate); // FiberRootNode -> Type.md
 
   // TODO: 用于适应当前类型系统
   const uninitializedFiber = createHostRootFiber(isConcurrent); // createHostRootFiber -> ReactFiber.js
@@ -16,36 +16,5 @@ export function createFiberRoot(containerInfo, isConcurrent, hydrate) {
   uninitializedFiber.stateNode = root;
 
   return root;
-}
-```
-
-## FiberRootNode
-
-```javascript
-export const NoWork = 0;
-
-function FiberRootNode(containerInfo, hydrate) {
-  this.current = null;
-  this.containerInfo = containerInfo;
-  this.pendingChildren = null;
-  this.pingCache = null;
-  this.pendingCommitExpirationTime = NoWork;
-  this.finishedWork = null;
-  this.timeoutHandle = noTimeout;
-  this.context = null;
-  this.pendingContext = null;
-  this.hydrate = hydrate;
-  this.firstBatch = null;
-  this.callbackNode = null;
-  this.callbackExpirationTime = NoWork;
-  this.firstPendingTime = NoWork;
-  this.lastPendingTime = NoWork;
-  this.pingTime = NoWork;
-
-  // if (enableSchedulerTracing) {
-  //   this.interactionThreadID = unstable_getThreadID();
-  //   this.memoizedInteractions = new Set();
-  //   this.pendingInteractionMap = new Map();
-  // }
 }
 ```
