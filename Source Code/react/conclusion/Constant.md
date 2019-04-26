@@ -19,15 +19,15 @@ const RenderPhase = 4;
 const CommitPhase = 5;
 
 // priorityLevel
-export const ImmediatePriority: ReactPriorityLevel = 99;
-export const UserBlockingPriority: ReactPriorityLevel = 98;
-export const NormalPriority: ReactPriorityLevel = 97;
-export const LowPriority: ReactPriorityLevel = 96;
-export const IdlePriority: ReactPriorityLevel = 95;
-export const NoPriority: ReactPriorityLevel = 90;
+export const ImmediatePriority = 99;
+export const UserBlockingPriority = 98;
+export const NormalPriority = 97;
+export const LowPriority = 96;
+export const IdlePriority = 95;
+export const NoPriority = 90;
 
 // expiration time
-MAX_SIGNED_31_BIT_INT = 1073741823
+MAX_SIGNED_31_BIT_INT = 1073741823 // V8在32位系统上的最大整形值 Math.pow(2, 30) - 1
 const MAGIC_NUMBER_OFFSET = MAX_SIGNED_31_BIT_INT - 1;
 NoWork = 0;
 Never = 1;

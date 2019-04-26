@@ -14,7 +14,7 @@ Fiber 将渲染分为多个阶段
 
 ## requestCurrentTime
 
-`now()`可以理解为`performance.now()`
+`now()`可以理解为`performance.now()`，
 
 ```javascript
 let currentEventTime = NoWork;
@@ -90,13 +90,13 @@ export function computeExpirationForFiber(currentTime, fiber) {
 
 ## scheduleUpdateOnFiber
 
-调度 Fiber 上的更新方法。
+即是`scheduleWork`调度 Fiber 上的更新方法。
 
 ```javascript
 export function scheduleUpdateOnFiber(fiber, expirationTime) {
   checkForNestedUpdates();
 
-  const root = markUpdateTimeFromFiberToRoot(fiber, expirationTime); // 为 root 标记 lastPendingTime firstPendingTime
+  const root = markUpdateTimeFromFiberToRoot(fiber, expirationTime); 
 
   root.pingTime = NoWork; // 0
 
@@ -140,6 +140,10 @@ export function scheduleUpdateOnFiber(fiber, expirationTime) {
 ```
 
 ## markUpdateTimeFromFiberToRoot
+
+- 获取 root 的 Fiber 对象
+- expirationTime 大于子节点的 childExpirationTime 时，expirationTime 赋值给子节点
+- expirationTime 大于 firstPendingTime 和 lastPendingTime 时，expirationTime 赋值给两个值
 
 ```javascript
 function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
