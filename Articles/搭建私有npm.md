@@ -164,3 +164,11 @@ packages:
 ```
 
 回到 verdaccio 文件夹，通过`docker-compose up -d`在后台启用服务，此时访问 ip:4873 即可访问到 verdaccio。
+
+### 注意点
+
+#### 账户
+
+通过`npm login`或`npm adduser`会在 htpasswd 文件中添加账户。
+
+或者通过 http://www.htaccesstools.com/htpasswd-generator/ 生成密码，手动修改 htpasswd 文件。
