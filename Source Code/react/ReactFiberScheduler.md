@@ -90,39 +90,37 @@ export function computeExpirationForFiber(currentTime, fiber) {
 
 ## scheduleUpdateOnFiber
 
-即是`scheduleWork`调度 Fiber 上的更新方法。
+即是`scheduleWork`，调度 Fiber 上的更新方法。
 
 ```javascript
 export function scheduleUpdateOnFiber(fiber, expirationTime) {
-  checkForNestedUpdates();
+  // checkForNestedUpdates(); // 检测队列中的 Update 是否超出限制
 
   const root = markUpdateTimeFromFiberToRoot(fiber, expirationTime); // -> markUpdateTimeFromFiberToRoot
 
   root.pingTime = NoWork; // 0
 
   checkForInterruption(fiber, expirationTime); // 检查是否需要打断 -> checkForInterruption
-  recordScheduleUpdate(); // TODO:标记 update 进度 (__DEV__)
+  // recordScheduleUpdate(); // FIXME:标记 update 进度 (__DEV__)
 
   if (expirationTime === Sync) { // 如果是同步任务
     if (workPhase === LegacyUnbatchedPhase) {
       // 在 batchUpdates 的内部，渲染 root 应该是同步的，但布局更新应该推迟到 batchUpdates 结束
-      // renderRoot
       let callback = renderRoot(root, Sync, true);
       while (callback !== null) {
         callback = callback(true);
       }
     } else {
       scheduleCallbackForRoot(root, ImmediatePriority, Sync);
-      if (workPhase === NotWorking) {
-        // TODO:清理当前的同步队列
+      if (workPhase === NotWorking) { // 0
+        // FIXME:清理当前的同步队列。仅对用户启动的更新执行此操作，以保留同步模式的历史行为。
         flushImmediateQueue();
       }
     }
   } else { // 如果是异步任务
     const priorityLevel = getCurrentPriorityLevel(); // 获取优先级
-    if (priorityLevel === UserBlockingPriority) {
-      // This is the result of a discrete event. Track the lowest priority
-      // discrete update per root so we can flush them early, if needed.
+    if (priorityLevel === UserBlockingPriority) { // 98
+      // 这是离散事件的结果。 跟踪每个 root 的最低优先级离散更新，以便我们可以在需要时尽早清除它们。
       if (rootsWithPendingDiscreteUpdates === null) {
         rootsWithPendingDiscreteUpdates = new Map([[root, expirationTime]]);
       } else {
@@ -142,13 +140,15 @@ export function scheduleUpdateOnFiber(fiber, expirationTime) {
 
 ## markUpdateTimeFromFiberToRoot
 
+标记含有待处理工作的 Fiber，而不是当作来自事件的典型更新
+
 - 获取 root 的 Fiber 对象
 - expirationTime 大于子节点的 childExpirationTime 时，expirationTime 赋值给子节点
 - expirationTime 大于 firstPendingTime 和 lastPendingTime 时，expirationTime 赋值给两个值
 
 ```javascript
 function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
-  // Update the source fiber's expiration time
+  // 更新源 Fiber 过期时间
   if (fiber.expirationTime < expirationTime) {
     fiber.expirationTime = expirationTime;
   }
@@ -156,7 +156,7 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
   if (alternate !== null && alternate.expirationTime < expirationTime) {
     alternate.expirationTime = expirationTime;
   }
-  // Walk the parent path to the root and update the child expiration time.
+  // 遍历父节点路径直到 root，并且更新子节点的 过期时间
   let node = fiber.return;
   let root = null;
   if (node === null && fiber.tag === HostRoot) {
@@ -187,7 +187,7 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
   }
 
   if (root !== null) {
-    // Update the first and last pending expiration times in this root
+    // 更新 root 中的 firstPendingTime 和 lastPendingTime
     const firstPendingTime = root.firstPendingTime;
     if (expirationTime > firstPendingTime) {
       root.firstPendingTime = expirationTime;
@@ -199,6 +199,27 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
   }
 
   return root;
+}
+```
+
+## checkForInterruption
+
+没有任务在执行，且当前的任务比之前执行的任务过期时间要早，即优先级较高。
+
+则之前的任务被打断，转而执行当前任务。
+
+```javascript
+function checkForInterruption(
+  fiberThatReceivedUpdate: Fiber,
+  updateExpirationTime: ExpirationTime,
+) {
+  if (
+    enableUserTimingAPI && // __DEV__
+    workInProgressRoot !== null && // 是否有工作中的 Root
+    updateExpirationTime > renderExpirationTime
+  ) {
+    interruptedBy = fiberThatReceivedUpdate; // 将当前 Fiber 缓存到 interruptedBy
+  }
 }
 ```
 
@@ -256,10 +277,10 @@ function scheduleCallbackForRoot(root, priorityLevel, expirationTime) {
 
 ```javascript
 function renderRoot(root, expirationTime, isSync){
-  if (enableUserTimingAPI && expirationTime !== Sync) { // __DEV__
-    const didExpire = isSync;
-    stopRequestCallbackTimer(didExpire);
-  }
+  // if (enableUserTimingAPI && expirationTime !== Sync) { // __DEV__
+  //   const didExpire = isSync;
+  //   stopRequestCallbackTimer(didExpire);
+  // }
 
   // 如果在 到期时间 内没有剩余的工作需立即退出。
   // 当单个 root 有多个回调时, 较早的回调会刷新以后的回调的工作时就会发生这种情况。
@@ -267,9 +288,8 @@ function renderRoot(root, expirationTime, isSync){
     return null;
   }
 
-  if (root.pendingCommitExpirationTime === expirationTime) {
-    // 已经有一个等待中的 commit
-    root.pendingCommitExpirationTime = NoWork;
+  if (root.pendingCommitExpirationTime === expirationTime) { // 已经有一个等待中的 commit
+    root.pendingCommitExpirationTime = NoWork; // 重置 pendingCommitExpirationTime
     return commitRoot.bind(null, root, expirationTime);
   }
 
@@ -277,14 +297,14 @@ function renderRoot(root, expirationTime, isSync){
 
   // 如果 root 或 过期时间 已更改, 丢弃现有堆栈并准备一个新堆栈。否则会从离开的地方继续
   if (root !== workInProgressRoot || expirationTime !== renderExpirationTime) {
-    prepareFreshStack(root, expirationTime);
+    prepareFreshStack(root, expirationTime); // 准备一个新 Stack
     startWorkOnPendingInteraction(root, expirationTime);
   }
 
   // 如果已经有一个工作中的 Fiber，意味着在该 root 中仍有工作
   if (workInProgress !== null) {
     const prevWorkPhase = workPhase;
-    workPhase = RenderPhase;
+    workPhase = RenderPhase; // 切换 workPhase 到 RenderPhase
     let prevDispatcher = ReactCurrentDispatcher.current;
     if (prevDispatcher === null) {
       // React 同构包不包括默认 dispatcher。
@@ -292,34 +312,33 @@ function renderRoot(root, expirationTime, isSync){
       prevDispatcher = ContextOnlyDispatcher;
     }
     ReactCurrentDispatcher.current = ContextOnlyDispatcher;
-    let prevInteractions: Set<Interaction> | null = null;
-    if (enableSchedulerTracing) {
+    let prevInteractions = null;
+    if (enableSchedulerTracing) { // __PROFILE__
       prevInteractions = __interactionsRef.current;
       __interactionsRef.current = root.memoizedInteractions;
     }
 
-    startWorkLoopTimer(workInProgress);
+    // startWorkLoopTimer(workInProgress); // DEV 打印信息
 
-    if (isSync) {
+    if (isSync) { // 如果是同步的
       if (expirationTime !== Sync) {
         // 异步更新已过期。 root 中可能有其他过期的 updates
         // 我们应该在这个 batch 中渲染所有过期的工作
         const currentTime = requestCurrentTime();
         if (currentTime < expirationTime) {
-          // 重启当前时间
-          workPhase = prevWorkPhase;
-          resetContextDependencies();
+          workPhase = prevWorkPhase; // 切换 workPhase
+          resetContextDependencies(); // 重置
           ReactCurrentDispatcher.current = prevDispatcher;
-          if (enableSchedulerTracing) {
+          if (enableSchedulerTracing) { // __PROFILE__
             __interactionsRef.current = prevInteractions;
           }
           return renderRoot.bind(null, root, currentTime);
         }
       }
     } else {
-      // Since we know we're in a React event, we can clear the current
-      // event time. The next update will compute a new event time.
-      currentEventTime = NoWork;
+      // 由于知道正处于 React 事件中，因此可以清除 currentEventTime
+      // 下一次更新将计算新的 eventTime
+      currentEventTime = NoWork; // 0
     }
 
     do {
@@ -331,16 +350,16 @@ function renderRoot(root, expirationTime, isSync){
         }
         break;
       } catch (thrownValue) {
-        // Reset module-level state that was set during the render phase.
+        // 重置在 render 阶段设置的模块级状态。
         resetContextDependencies();
         resetHooks();
 
         const sourceFiber = workInProgress;
         if (sourceFiber === null || sourceFiber.return === null) {
-          // Expected to be working on a non-root fiber. This is a fatal error
-          // because there's no ancestor that can handle it; the root is
-          // supposed to capture all errors that weren't caught by an error
-          // boundary.
+          // 被期望工作在 非root 的 Fiber上
+          // 这是致命的错误，因为没有处理祖先
+          // root 应该捕获所有未被错误边界捕获的错误。
+
           prepareFreshStack(root, expirationTime);
           workPhase = prevWorkPhase;
           throw thrownValue;
@@ -472,22 +491,71 @@ function renderRoot(root, expirationTime, isSync){
 }
 ```
 
-## checkForInterruption
-
-没有任务在执行，且当前的任务比之前执行的任务过期时间要早，即优先级较高。
-
-则之前的任务被打断，转而执行当前任务。
+## commitRoot
 
 ```javascript
-function checkForInterruption(
-  fiberThatReceivedUpdate: Fiber,
-  updateExpirationTime: ExpirationTime,
-) {
-  if (
-    enableUserTimingAPI && // __DEV__
-    workInProgressRoot !== null && // 是否有工作中的 Root
-    updateExpirationTime > renderExpirationTime // 
-  ) {
-    interruptedBy = fiberThatReceivedUpdate;
+function commitRoot(root, expirationTime) {
+  runWithPriority(
+    ImmediatePriority,
+    commitRootImpl.bind(null, root, expirationTime),
+  );
+  // If there are passive effects, schedule a callback to flush them. This goes
+  // outside commitRootImpl so that it inherits the priority of the render.
+  if (rootWithPendingPassiveEffects !== null) {
+    const priorityLevel = getCurrentPriorityLevel();
+    scheduleCallback(priorityLevel, () => {
+      flushPassiveEffects();
+      return null;
+    });
+  }
+  return null;
+}
+```
+
+## prepareFreshStack
+
+```javascript
+function prepareFreshStack(root, expirationTime) {
+  root.pendingCommitExpirationTime = NoWork;
+
+  const timeoutHandle = root.timeoutHandle;
+  if (timeoutHandle !== noTimeout) {
+    // The root previous suspended and scheduled a timeout to commit a fallback
+    // state. Now that we have additional work, cancel the timeout.
+    root.timeoutHandle = noTimeout;
+    // $FlowFixMe Complains noTimeout is not a TimeoutID, despite the check above
+    cancelTimeout(timeoutHandle);
+  }
+
+  if (workInProgress !== null) {
+    let interruptedWork = workInProgress.return;
+    while (interruptedWork !== null) {
+      unwindInterruptedWork(interruptedWork);
+      interruptedWork = interruptedWork.return;
+    }
+  }
+  workInProgressRoot = root;
+  workInProgress = createWorkInProgress(root.current, null, expirationTime);
+  renderExpirationTime = expirationTime;
+  workInProgressRootExitStatus = RootIncomplete;
+  workInProgressRootMostRecentEventTime = Sync;
+}
+```
+
+## workLoop / workLoopSync
+
+```javascript
+function workLoopSync() {
+  // Already timed out, so perform work without checking if we need to yield.
+  while (workInProgress !== null) {
+    workInProgress = performUnitOfWork(workInProgress);
   }
 }
+
+function workLoop() {
+  // Perform work until Scheduler asks us to yield
+  while (workInProgress !== null && !shouldYield()) {
+    workInProgress = performUnitOfWork(workInProgress);
+  }
+}
+```
