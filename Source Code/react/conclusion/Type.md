@@ -5,10 +5,11 @@
 ```javascript
 export const NoWork = 0;
 
-function FiberRootNode(containerInfo, hydrate) {
-  this.current = null; // 对应的 Fiber
+function FiberRootNode(containerInfo, tag, hydrate) {
+  this.tag = tag; //
+  this.current = null; // 对应的 fiber
   this.containerInfo = containerInfo; // root节点，render方法接收的第二个参数
-  this.pendingChildren = null; // 只有在持久更新中会用到，也就是不支持增量更新的平台，react-dom不会用到
+  this.pendingChildren = null; // 只有在持久更新中会用到，react-dom不会用到
   this.pingCache = null;
   this.pendingCommitExpirationTime = NoWork;
   this.finishedWork = null; // 已结束状态的 work-in-progress HostRoot 等待被 commit
@@ -30,7 +31,7 @@ function FiberRootNode(containerInfo, hydrate) {
 Fiber Reconciler 作为 React 的默认调度器，核心数据结构就是由 FiberNode 组成的 Node Tree
 
 ```javascript
-// Fiber 工作在将要完成或已完成的组件上。每个组件可以有多个 Fiber
+// fiber 工作在将要完成或已完成的组件上。每个组件可以有多个 fiber
 function FiberNode(tag, pendingProps, key, mode) {
   // 实例
   this.tag = tag; // FiberNode 组件类型 -> ReactWorkTags.js
@@ -39,30 +40,31 @@ function FiberNode(tag, pendingProps, key, mode) {
   this.type = null; // 对应的 function/class/module 类型组件名
   this.stateNode = null; // Node储存空间，通过 stateNode 绑定如 FiberNode 对应的 Dom、FiberRoot、ReactComponent 实例
 
-  // Fiber
-  this.return = null; // 指向父级 FiberNode
-  this.child = null; // 指向第一个子 FiberNode
-  this.sibling = null; // 指向相邻的下一个兄弟 FiberNode
+  // fiber
+  this.return = null; // 指向父 FiberNode
+  this.child = null; // 指向子 FiberNode
+  this.sibling = null; // 指向下一个兄弟 FiberNode
   this.index = 0;
 
   this.ref = null;
 
   this.pendingProps = pendingProps; // 表示新的 props
   this.memoizedProps = null; // 上一次渲染处理之后的 props
-  this.updateQueue = null; // Fiber 对应的组件产生的 Update 会存在队列里
+  this.updateQueue = null; // fiber 对应的组件产生的 Update 会存在队列里
   this.memoizedState = null; // 上一次渲染处理之后的 state
   this.contextDependencies = null;
 
   // 用来描述当前Fiber和他子树的`Bitfield`
   // 共存的模式表示这个子树是否默认是异步渲染的
-  // Fiber 被创建的时候他会继承父 Fiber
+  // fiber 被创建的时候他会继承父 fiber
   // 其他的标识也可以在创建的时候被设置
   // 但是在创建之后不应该再被修改，特别是他的子Fiber创建之前
-  
-  // export const NoContext = 0b000;
-  // export const ConcurrentMode = 0b001;
-  // export const StrictMode = 0b010;
-  // export const ProfileMode = 0b100;
+
+  // export const NoMode = 0b0000;
+  // export const StrictMode = 0b0001;
+  // export const BatchedMode = 0b0010;
+  // export const ConcurrentMode = 0b0100;
+  // export const ProfileMode = 0b1000;
   this.mode = mode;
 
   // 副作用
@@ -86,11 +88,11 @@ type Update = {
   expirationTime: ExpirationTime,
 
   tag: 0 | 1 | 2 | 3, // UpdateState = 0 ReplaceState = 1 ForceUpdate = 2 CaptureUpdate = 3
-  payload: any,// 更新内容，比如`setState`接收的第一个参数
+  payload: any, // 更新内容，比如`setState`接收的第一个参数
   callback: (() => mixed) | null,
 
   next: Update<State> | null, // 指向下一个更新
-  nextEffect: Update<State> | null, // 指向下一个 side effect
+  nextEffect: Update<State> | null // 指向下一个 side effect
 };
 ```
 
@@ -114,6 +116,16 @@ type UpdateQueue = {
 
   // 第一个和最后一个捕获产生的 side effect
   firstCapturedEffect: Update<State> | null,
-  lastCapturedEffect: Update<State> | null,
+  lastCapturedEffect: Update<State> | null
 };
+```
+
+## RootTag
+
+```javascript
+export type RootTag = 0 | 1 | 2;
+
+export const LegacyRoot = 0;
+export const BatchedRoot = 1;
+export const ConcurrentRoot = 2;
 ```

@@ -84,7 +84,7 @@ export function createElement = function(type, config, children) {
 ```javascript
 const REACT_ELEMENT_TYPE = hasSymbol
   ? Symbol.for('react.element')
-  : 0xeac7;
+  : 0xeac7; // look like React
   
 const ReactElement = function(type, key, ref, self, source, owner, props) { // self source 在开发环境中生效
   const element = {

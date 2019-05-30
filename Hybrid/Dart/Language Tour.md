@@ -16,12 +16,12 @@
 
 ## 变量
 
-| Dart                                  | JavaScript         | Note                                                                                                   |
-| ------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------ |
-| var name = 'Bob'                      | let name = 'Bob'   |
-| String name = 'Bob'                   |                    | 在变量声明时添加类型                                                                                   |
-| int lineCount                         |                    | 未设置初始值的变量默认值为 null                                                                        |
-| final name = 'Bob' const name = 'Bob' | const name = 'Bob' | final 和 const 的区别是 final 可以接收一个变量但 const 不行，多数情况下使用 final 来定义只赋值一次的值 |
+| Dart                                    | JavaScript         | Note                                                             |
+| --------------------------------------- | ------------------ | ---------------------------------------------------------------- |
+| var name = 'Bob';                       | let name = 'Bob'   |                                                                  |
+| String name = 'Bob';                    |                    | 在变量声明时添加类型                                             |
+| int lineCount;                          |                    | 未设置初始值的变量默认值为 null                                  |
+| final name = 'Bob'; const name = 'Bob'; | const name = 'Bob' | 区别是 final 可以接收一个变量但 const 不行，多数情况下使用 final |
 
 ## 内建类型
 
@@ -51,6 +51,17 @@ assert(piAsString == '3.14');
 ### Strings
 
 ```dart
+// 模版字符串
+var s = 'string interpolation';
+
+assert('Dart has $s, which is very handy.' ==
+    'Dart has string interpolation, ' +
+        'which is very handy.');
+assert('That deserves all caps. ' +
+        '${s.toUpperCase()} is very handy!' ==
+    'That deserves all caps. ' +
+        'STRING INTERPOLATION is very handy!');
+
 // 创建多行字符串
 var s1 = '''
 You can create
@@ -139,6 +150,8 @@ final constantMap = const {
 ```
 
 ### Runes
+
+In Dart, runes are the UTF-32 code points of a string.
 
 ### Symbols
 
@@ -263,21 +276,27 @@ try {
 
 ```dart
 class Point {
-  num x;
+  num x; // 初始值为 null
   num y;
+  num z = 0;
 
-  Point(num x, num y) {
+  Point(num x, num y) { // 简化写法 Point(this.x, this.y);
     // 建议忽略 this，仅在重名时使用
     this.x = x;
     this.y = y;
   }
 
-  // Named constructor
+  // 或者使用Named constructor
   Point.origin() {
     x = 0;
     y = 0;
   }
 }
+
+// 使用构造函数
+var p1 = Point(2, 2); // 与 JavaScript 类似的访问方式 p1.x === 2
+var p2 = Point.fromJson({'x': 1, 'y': 2});
+
 ```
 
 ## 泛型
@@ -296,13 +315,38 @@ class Point {
 
 ## 异步支持
 
-| Dart                                              | JavaScript                 | Note |
-| ------------------------------------------------- | -------------------------- | ---- |
-| Future\<String> lookUpVersion() async => '1.0.0'; | main = async () => '1.0.0' |      |
+| Dart                                                                             | JavaScript                                                                       | Note |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---- |
+| Future checkVersion() async {<br>&nbsp;var version = await lookUpVersion();<br>} | async function checkVersion(){<br>&nbsp;let version = await lookUpVersion()<br>} |      |
+| Future\<String> lookUpVersion() async => '1.0.0';                                | main = async () => '1.0.0'                                                       |      |
+
+### Handling Streams
 
 ## Generators
 
 ## Metadata
+
+- @deprecated
+- @override
+
+```dart
+library todo;
+
+class Todo {
+  final String who;
+  final String what;
+
+  const Todo(this.who, this.what);
+}
+
+
+import 'todo.dart';
+
+@Todo('seth', 'make this do something')
+void doSomething() {
+  print('do something');
+}
+```
 
 ## 注释
 

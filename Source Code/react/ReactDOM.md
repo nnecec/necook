@@ -56,7 +56,7 @@ container = {
 }
 ```
 
-之后调用组件`render`或`legacy_renderSubtreeIntoContainer`方法时，其实都是调用`updateContainer`方法，区别在于是否传了`parentComponent`参数。
+之后调用组件`render`，其实都是调用`updateContainer`方法，区别在于是否传了`parentComponent`参数。
 
 ```javascript
 function legacyRenderSubtreeIntoContainer(
@@ -81,51 +81,33 @@ function legacyRenderSubtreeIntoContainer(
       };
     }
     // 初次构建不应当经过 batch 处理
-    unbatchedUpdates(() => {
-      if (parentComponent != null) {
-        root.legacy_renderSubtreeIntoContainer(
-          parentComponent,
-          children,
-          callback,
-        );
-      } else {
-        root.render(children, callback);
-      }
+    unbatchedUpdates(() => { // // unbatchedUpdates -> ReactFiberWorkLoop.js
+      updateContainer(children, fiberRoot, parentComponent, callback);
     });
 
   } else { // 在不是第一次构建的情况下
+    fiberRoot = root._internalRoot;
     if (typeof callback === 'function') {
       const originalCallback = callback;
       callback = function() {
-        const instance = getPublicRootInstance(root._internalRoot);
+        const instance = getPublicRootInstance(fiberRoot);
         originalCallback.call(instance);
       };
     }
     // Update
-    if (parentComponent != null) {
-      root.legacy_renderSubtreeIntoContainer(
-        parentComponent,
-        children,
-        callback,
-      );
-    } else {
-      root.render(children, callback);
-    }
+    updateContainer(children, fiberRoot, parentComponent, callback);
   }
   return getPublicRootInstance(root._internalRoot); // 返回根容器 Fiber 实例
 ```
 
-如果存在`parentComponent`，则通过`legacy_renderSubtreeIntoContainer`创建了 root 实例
-
 ### legacyCreateRootFromDOMContainer
 
 ```javascript
-function legacyCreateRootFromDOMContainer(
-  container,
-  forceHydrate
-) {
-  const shouldHydrate = forceHydrate || shouldHydrateDueToLegacyHeuristic(container); // 初始化 shouldHydrate
+function legacyCreateRootFromDOMContainer(container, forceHydrate) {
+  const shouldHydrate =
+    forceHydrate || shouldHydrateDueToLegacyHeuristic(container); // 初始化 shouldHydrate
 
+  // 如果是客户端渲染，则将 container 的 child 清空
   if (!shouldHydrate) {
     let warned = false;
     let rootSibling;
@@ -134,47 +116,35 @@ function legacyCreateRootFromDOMContainer(
     }
   }
 
-  const isConcurrent = false; // 异步渲染开关 在16中写死 false
-  return new ReactRoot(container, isConcurrent, shouldHydrate);
+  return new ReactSyncRoot(container, LegacyRoot, shouldHydrate);
 }
 ```
 
-### unbatchedUpdates
+## ReactSyncRoot ReactRoot
 
 ```javascript
-export function unbatchedUpdates(fn, a) {
-  if (workPhase !== BatchedPhase && workPhase !== FlushSyncPhase) {
-    // We're not inside batchedUpdates or flushSync, so unbatchedUpdates is
-    // a no-op.
-    return fn(a);
-  }
-  const prevWorkPhase = workPhase;
-  workPhase = LegacyUnbatchedPhase;
-  try {
-    return fn(a);
-  } finally {
-    workPhase = prevWorkPhase;
-  }
-}
-```
-
-## ReactRoot
-
-```javascript
-function ReactRoot(
+function ReactSyncRoot(
   container, // 在 container 中创建 ReactRoot
-  isConcurrent, // 是否异步渲染
-  hydrate, // 是否 hydrate
+  tag, // 同步渲染、批量渲染、异步渲染
+  hydrate // 是否 hydrate
 ) {
-  const root = createContainer(container, isConcurrent, hydrate); // createContainer -> ReactFiberReconciler.js
+  const root = createContainer(container, tag, hydrate); // createContainer -> ReactFiberReconciler.js
+  this._internalRoot = root;
+}
+
+function ReactRoot(container, hydrate) {
+  const root = createContainer(container, ConcurrentRoot, hydrate);
   this._internalRoot = root;
 }
 ```
 
-ReactRoot 的 prototype 上定义了4个方法。`render`方法通过调用`updateContainer`渲染接受到的组件
+prototype 上定义了 4 个方法。`render`方法通过调用`updateContainer`渲染接受到的组件
 
 ```javascript
-ReactRoot.prototype.render = function(children, callback) {
+ReactRoot.prototype.render = ReactSyncRoot.prototype.render = function(
+  children,
+  callback
+) {
   const root = this._internalRoot;
   const work = new ReactWork();
   callback = callback === undefined ? null : callback;
@@ -185,7 +155,9 @@ ReactRoot.prototype.render = function(children, callback) {
   return work;
 };
 
-ReactRoot.prototype.unmount = function(callback) {
+ReactRoot.prototype.unmount = ReactSyncRoot.prototype.unmount = function(
+  callback
+) {
   const root = this._internalRoot;
   const work = new ReactWork();
   callback = callback === undefined ? null : callback;
@@ -193,17 +165,6 @@ ReactRoot.prototype.unmount = function(callback) {
     work.then(callback);
   }
   updateContainer(null, root, null, work._onCommit);
-  return work;
-};
-
-ReactRoot.prototype.legacy_renderSubtreeIntoContainer = function(parentComponent, children, callback) {
-  const root = this._internalRoot;
-  const work = new ReactWork();
-  callback = callback === undefined ? null : callback;
-  if (callback !== null) {
-    work.then(callback);
-  }
-  updateContainer(children, root, parentComponent, work._onCommit);
   return work;
 };
 
