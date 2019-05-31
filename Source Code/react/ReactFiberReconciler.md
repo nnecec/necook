@@ -69,6 +69,7 @@ export function updateContainerAtExpirationTime(
   container,
   parentComponent,
   expirationTime,
+  suspenseConfig,
   callback
 ) {
   // TODO: If this is a nested container, this won't be the root.
@@ -82,7 +83,13 @@ export function updateContainerAtExpirationTime(
     container.pendingContext = context;
   }
 
-  return scheduleRootUpdate(current, element, expirationTime, callback); // 调度更新
+  return scheduleRootUpdate(
+    current,
+    element,
+    expirationTime,
+    suspenseConfig,
+    callback
+  ); // 调度更新
 }
 ```
 
@@ -100,7 +107,9 @@ function scheduleRootUpdate(current, element, expirationTime, callback) {
     update.callback = callback;
   }
 
-  flushPassiveEffects();
+  // if (revertPassiveEffectsChange) { // false
+  //   flushPassiveEffects();
+  // }
   enqueueUpdate(current, update); // 将 update 添加到 Fiber 的 lastUpdate 属性上   enqueueUpdate -> ReactUpdateQueue.js
   scheduleWork(current, expirationTime); // 调度当前 Fiber  scheduleWork -> ReactFiberWorkLoop.js -> scheduleUpdateOnFiber
 

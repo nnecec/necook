@@ -74,7 +74,8 @@ export function computeExpirationForFiber(currentTime, fiber) {
 
   // 根据优先级计算过期时间
   let expirationTime;
-  if (suspenseConfig !== null) { // FIXME:当前为 null
+  if (suspenseConfig !== null) {
+    // FIXME:当前为 null
     // Compute an expiration time based on the Suspense timeout.
     expirationTime = computeSuspenseExpiration(
       currentTime,
@@ -164,6 +165,70 @@ export function scheduleUpdateOnFiber(fiber, expirationTime) {
     }
     scheduleCallbackForRoot(root, priorityLevel, expirationTime);
   }
+}
+```
+
+## markUpdateTimeFromFiberToRoot
+
+标记含有待处理工作的 Fiber，而不是当作来自事件的典型更新
+
+- 获取 root 的 Fiber 对象
+- expirationTime 大于子节点的 childExpirationTime 时，expirationTime 赋值给子节点
+- expirationTime 大于 firstPendingTime 和 lastPendingTime 时，expirationTime 赋值给两个值
+
+```javascript
+function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
+  // 更新源 Fiber 过期时间
+  if (fiber.expirationTime < expirationTime) {
+    fiber.expirationTime = expirationTime;
+  }
+  let alternate = fiber.alternate;
+  if (alternate !== null && alternate.expirationTime < expirationTime) {
+    alternate.expirationTime = expirationTime;
+  }
+  // 遍历父节点路径直到 root，并且更新子节点的 过期时间
+  let node = fiber.return;
+  let root = null;
+  if (node === null && fiber.tag === HostRoot) {
+    root = fiber.stateNode;
+  } else {
+    while (node !== null) {
+      alternate = node.alternate;
+      if (node.childExpirationTime < expirationTime) {
+        node.childExpirationTime = expirationTime;
+        if (
+          alternate !== null &&
+          alternate.childExpirationTime < expirationTime
+        ) {
+          alternate.childExpirationTime = expirationTime;
+        }
+      } else if (
+        alternate !== null &&
+        alternate.childExpirationTime < expirationTime
+      ) {
+        alternate.childExpirationTime = expirationTime;
+      }
+      if (node.return === null && node.tag === HostRoot) {
+        root = node.stateNode;
+        break;
+      }
+      node = node.return;
+    }
+  }
+
+  if (root !== null) {
+    // 更新 root 中的 firstPendingTime 和 lastPendingTime
+    const firstPendingTime = root.firstPendingTime;
+    if (expirationTime > firstPendingTime) {
+      root.firstPendingTime = expirationTime;
+    }
+    const lastPendingTime = root.lastPendingTime;
+    if (lastPendingTime === NoWork || expirationTime < lastPendingTime) {
+      root.lastPendingTime = expirationTime;
+    }
+  }
+
+  return root;
 }
 ```
 

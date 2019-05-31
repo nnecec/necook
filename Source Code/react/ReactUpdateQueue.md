@@ -17,7 +17,7 @@ export function createUpdate(expirationTime) {
     callback: null,
 
     next: null,
-    nextEffect: null,
+    nextEffect: null
   };
 }
 ```
@@ -30,11 +30,13 @@ export function enqueueUpdate(fiber, update) {
   const alternate = fiber.alternate; // alternate 主要用来保存更新过程中各版本更新队列，方便崩溃或冲突时回退
   let queue1;
   let queue2;
+  // 第一次渲染
   if (alternate === null) {
-    queue1 = fiber.updateQueue; // 只存在1个 Fiber
+    queue1 = fiber.updateQueue; // 只存在一个 Fiber
     queue2 = null;
-    if (queue1 === null) { // 如果不存在则创建一个更新队列
-      queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState); // createUpdateQueue 根据 Fiber 状态返回了一个记录信息的对象
+    if (queue1 === null) {
+      // 如果不存在则创建一个更新队列
+      queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState); // createUpdateQueue 根据 fiber 状态返回了一个记录信息的对象
     }
   } else {
     queue1 = fiber.updateQueue;
@@ -44,7 +46,7 @@ export function enqueueUpdate(fiber, update) {
         // 如果两个都不存在，则创建两个新的
         queue1 = fiber.updateQueue = createUpdateQueue(fiber.memoizedState);
         queue2 = alternate.updateQueue = createUpdateQueue(
-          alternate.memoizedState,
+          alternate.memoizedState
         );
       } else {
         // queue1 不存在 queue2 存在，queue1 根据 queue2 创建
@@ -55,12 +57,12 @@ export function enqueueUpdate(fiber, update) {
         // queue2 不存在 queue1 存在，queue2 根据 queue1 创建
         queue2 = alternate.updateQueue = cloneUpdateQueue(queue1);
       } else {
-
       }
     }
   }
   if (queue2 === null || queue1 === queue2) {
     // 只存在一个更新队列
+    // 第一次渲染 和 只有渲染没有更新时？
     appendUpdateToQueue(queue1, update);
   } else {
     // 两个队列都需要更新

@@ -77,7 +77,7 @@ function FiberNode(tag, pendingProps, key, mode) {
   this.expirationTime = NoWork; // 更新任务的最晚执行时间
   this.childExpirationTime = NoWork;
 
-  this.alternate = null; // Fiber调度算法采取了双缓冲池算法，FiberRoot底下的所有节点，都会在算法过程中，尝试创建自己的“镜像”
+  this.alternate = null; // fiber的镜像。Fiber调度算法采取了双缓冲池算法，FiberRoot底下的所有节点，都会在算法过程中，尝试创建自己的“镜像”
 }
 ```
 
