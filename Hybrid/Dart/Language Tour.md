@@ -274,6 +274,8 @@ try {
 
 ## 类
 
+Dart 的类与 JavaScript 细节上有很多区别，建议去[Tour](https://dart.dev/guides/language/language-tour#classes)中查看
+
 ```dart
 class Point {
   num x; // 初始值为 null
@@ -305,20 +307,20 @@ var p2 = Point.fromJson({'x': 1, 'y': 2});
 
 每个 Dart 应用都是一个库。以下划线 (\_) 开头的标识符只有在库内部可见。
 
-| Dart                                                                                                                                                       | JavaScript                    | Note                                      |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ----------------------------------------- |
-| import 'dart:html';                                                                                                                                        | import 'es6-promise'          |
-| import 'package:test/test.dart';                                                                                                                           | import './test/test.js'       |
-| import 'package:lib2/lib2.dart' as lib2;                                                                                                                   | import lib as lib2 from 'lib' |
-| import 'package:lib1/lib1.dart' show foo;                                                                                                                  | import { foo } from 'bar'     | import 'package:lib2/lib2.dart' hide foo; |
-| import 'package:greetings/hello.dart' deferred as hello; <br><br> greet() async {<br>&nbsp;await hello.loadLibrary();<br>&nbsp;hello.printGreeting();<br>} |                               | 懒加载库                                  |
+| Dart                                                                                                                                         | JavaScript                    | Note                                      |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ----------------------------------------- |
+| import 'dart:html';                                                                                                                          | import 'es6-promise'          |                                           |
+| import 'package:test/test.dart';                                                                                                             | import './test/test.js'       |                                           |
+| import 'package:lib2/lib2.dart' as lib2;                                                                                                     | import lib as lib2 from 'lib' |                                           |
+| import 'package:lib1/lib1.dart' show foo;                                                                                                    | import { foo } from 'bar'     | import 'package:lib2/lib2.dart' hide foo; |
+| import 'package:greetings/hello.dart' deferred as hello; <br> greet() async {<br> await hello.loadLibrary();<br> hello.printGreeting();<br>} |                               | 懒加载库                                  |
 
 ## 异步支持
 
-| Dart                                                                             | JavaScript                                                                       | Note |
-| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---- |
-| Future checkVersion() async {<br>&nbsp;var version = await lookUpVersion();<br>} | async function checkVersion(){<br>&nbsp;let version = await lookUpVersion()<br>} |      |
-| Future\<String> lookUpVersion() async => '1.0.0';                                | main = async () => '1.0.0'                                                       |      |
+| Dart                                                                         | JavaScript                                                                       | Note |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---- |
+| Future checkVersion() async {<br>&nbsp;var version = await lookUpVersion();} | async function checkVersion(){<br>&nbsp;let version = await lookUpVersion()<br>} |      |
+| Future\<String> lookUpVersion() async => '1.0.0';                            | main = async () => '1.0.0'                                                       |      |
 
 ### Handling Streams
 
