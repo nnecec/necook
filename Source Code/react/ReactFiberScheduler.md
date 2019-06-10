@@ -12,27 +12,6 @@ const CommitPhase = 5;
 
 Fiber 将渲染分为多个阶段
 
-## checkForInterruption
-
-没有任务在执行，且当前的任务比之前执行的任务过期时间要早，即优先级较高。
-
-则之前的任务被打断，转而执行当前任务。
-
-```javascript
-function checkForInterruption(
-  fiberThatReceivedUpdate: Fiber,
-  updateExpirationTime: ExpirationTime
-) {
-  if (
-    enableUserTimingAPI && // __DEV__
-    workInProgressRoot !== null && // 是否有工作中的 Root
-    updateExpirationTime > renderExpirationTime
-  ) {
-    interruptedBy = fiberThatReceivedUpdate; // 将当前 Fiber 缓存到 interruptedBy
-  }
-}
-```
-
 ## prepareFreshStack
 
 ```javascript

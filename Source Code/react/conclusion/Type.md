@@ -11,7 +11,7 @@ function FiberRootNode(containerInfo, tag, hydrate) {
   this.containerInfo = containerInfo; // root节点，render方法接收的第二个参数
   this.pendingChildren = null; // 只有在持久更新中会用到，react-dom不会用到
   this.pingCache = null;
-  this.pendingCommitExpirationTime = NoWork;
+  this.finishedExpirationTime = NoWork;
   this.finishedWork = null; // 已结束状态的 work-in-progress HostRoot 等待被 commit
   this.timeoutHandle = noTimeout; // 如果被一个新的取代，则用来取消 pending timeout
   this.context = null; // renderSubtreeIntoContainer 的 context 对象
@@ -20,9 +20,9 @@ function FiberRootNode(containerInfo, tag, hydrate) {
   this.firstBatch = null;
   this.callbackNode = null;
   this.callbackExpirationTime = NoWork; // 与该 root 相关的回调 expirationTime
-  this.firstPendingTime = NoWork; // 最早的挂起过期时间
-  this.lastPendingTime = NoWork; // 最晚的挂起过期时间
-  this.pingTime = NoWork; // 挂起的组件 再次渲染的时间
+  this.firstPendingTime = NoWork; // 最早的 pending expirationTime
+  this.lastPendingTime = NoWork; // 最晚的 pending expirationTime
+  this.pingTime = NoWork; // 暂停的组件 再次渲染的时间
 }
 ```
 
@@ -77,7 +77,7 @@ function FiberNode(tag, pendingProps, key, mode) {
   this.expirationTime = NoWork; // 更新任务的最晚执行时间
   this.childExpirationTime = NoWork;
 
-  this.alternate = null; // fiber的镜像。Fiber调度算法采取了双缓冲池算法，FiberRoot底下的所有节点，都会在算法过程中，尝试创建自己的“镜像”
+  this.alternate = null; // fiber的镜像。Fiber调度算法采取了双缓冲池算法
 }
 ```
 

@@ -48,3 +48,18 @@ currentTime = 1073741821 - ((17287028.655 / 10) | 0) = 1072013119
 在计算出过期时间后，回到`updateContainer`中，调用`updateContainerAtExpirationTime`。
 
 之后调用`scheduleRootUpdate`。
+
+在`scheduleRootUpdate`中，有按位与(|)和按位或(&)的操作，主要的目的是用来判断变量是否处于对应的状态。
+
+```javascript
+let current = 0b000000;
+// 通过按位或为 current 增加 0b000001 状态
+current = current | 0b000001;
+// 可以继续添加其他状态
+current = current | 0b000010;
+
+// 通过按位与判断 current 是否具有某种状态
+current & 0b000001; // 1
+current & 0b000010; // 2
+current & 0b010000; // 0
+```

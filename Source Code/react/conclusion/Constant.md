@@ -33,4 +33,12 @@ NoWork = 0;
 Never = 1;
 Sync = MAGIC_NUMBER_OFFSET
 
+
+const NoContext = /*                    */ 0b000000;
+const BatchedContext = /*               */ 0b000001;
+const EventContext = /*                 */ 0b000010;
+const DiscreteEventContext = /*         */ 0b000100;
+const LegacyUnbatchedContext = /*       */ 0b001000;
+const RenderContext = /*                */ 0b010000;
+const CommitContext = /*                */ 0b100000;
 ```
