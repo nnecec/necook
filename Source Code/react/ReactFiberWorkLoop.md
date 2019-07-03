@@ -122,6 +122,7 @@ export function computeExpirationForFiber(currentTime, fiber) {
 export function scheduleUpdateOnFiber(fiber, expirationTime) {
   // checkForNestedUpdates(); // 检测队列中的 Update 是否超出限制
 
+  // 找到当前 fiber 的 root
   const root = markUpdateTimeFromFiberToRoot(fiber, expirationTime); // -> markUpdateTimeFromFiberToRoot
 
   root.pingTime = NoWork; // 0
@@ -134,14 +135,13 @@ export function scheduleUpdateOnFiber(fiber, expirationTime) {
   if (expirationTime === Sync) {
     // 如果是同步任务
     if (
-      // Check if we're inside unbatchedUpdates
+      // 在 unbatchedUpdates 阶段，且 不在 rendering 阶段
       (executionContext & LegacyUnbatchedContext) !== NoContext &&
-      // Check if we're not already rendering
       (executionContext & (RenderContext | CommitContext)) === NoContext
     ) {
       // schedulePendingInteraction(root, expirationTime); // debug
 
-      // 在 batchUpdates 的内部，渲染 root 应该是同步的，但布局更新应该推迟到 batchUpdates 结束
+      // 边缘情况。在 batchUpdates 的内部，渲染 root 应该是同步的，但更新应该推迟到 batchUpdates 结束
       let callback = renderRoot(root, Sync, true);
       while (callback !== null) {
         callback = callback(true);
@@ -150,22 +150,21 @@ export function scheduleUpdateOnFiber(fiber, expirationTime) {
       scheduleCallbackForRoot(root, ImmediatePriority, Sync);
       if (executionContext === NoContext) {
         // FIXME:清理当前的同步队列。仅对用户启动的更新执行此操作，以保留同步模式的历史行为。
-        flushImmediateQueue();
+        flushSyncCallbackQueue();
       }
     }
   } else {
     // 如果是异步任务
     scheduleCallbackForRoot(root, priorityLevel, expirationTime);
   }
-  // 98
+
   if (
     (executionContext & DiscreteEventContext) !== NoContext &&
-    // Only updates at user-blocking priority or greater are considered
-    // discrete, even inside a discrete event.
+    // 只有在 UserBlockingPriority 或 ImmediatePriority 才被视为不连续的
     (priorityLevel === UserBlockingPriority ||
       priorityLevel === ImmediatePriority)
   ) {
-    // 这是离散事件的结果。 跟踪每个 root 的最低优先级离散更新，以便在需要时尽早清除它们。
+    // 这是不连续事件的结果。 跟踪每个 root 的最低优先级不连续更新，以便在需要时尽早清除它们。
     if (rootsWithPendingDiscreteUpdates === null) {
       rootsWithPendingDiscreteUpdates = new Map([[root, expirationTime]]);
     } else {
@@ -263,40 +262,36 @@ function scheduleCallbackForRoot(root, priorityLevel, expirationTime) {
       cancelCallback(existingCallbackNode);
     }
     root.callbackExpirationTime = expirationTime;
-    let options = null;
-    if (expirationTime !== Sync && expirationTime !== Never) {
-      let timeout = expirationTimeToMs(expirationTime) - now();
-      if (timeout > 5000) {
-        // Sanity check. Should never take longer than 5 seconds.
-        // TODO: Add internal warning?
-        timeout = 5000;
+
+    if (expirationTime === Sync) {
+      // 同步的 callback 会在特殊的内部队列中
+      root.callbackNode = scheduleSyncCallback(
+        runRootCallback.bind(
+          null,
+          root,
+          renderRoot.bind(null, root, expirationTime)
+        )
+      );
+    } else {
+      let options = null;
+      if (expirationTime !== Never) {
+        let timeout = expirationTimeToMs(expirationTime) - now();
+        options = { timeout };
       }
-      options = { timeout };
-    }
-    root.callbackNode = scheduleCallback(
-      priorityLevel,
-      runRootCallback.bind(
-        null,
-        root,
-        renderRoot.bind(null, root, expirationTime)
-      ),
-      options
-    );
-    if (
-      enableUserTimingAPI &&
-      expirationTime !== Sync &&
-      workPhase !== RenderPhase &&
-      workPhase !== CommitPhase
-    ) {
-      // Scheduled an async callback, and we're not already working. Add an
-      // entry to the flamegraph that shows we're waiting for a callback
-      // to fire.
-      startRequestCallbackTimer();
+
+      root.callbackNode = scheduleCallback(
+        priorityLevel,
+        runRootCallback.bind(
+          null,
+          root,
+          renderRoot.bind(null, root, expirationTime)
+        ),
+        options
+      );
     }
   }
 
-  // Add the current set of interactions to the pending set associated with
-  // this root.
+  // Associate the current interactions with this new root+priority.
   schedulePendingInteraction(root, expirationTime);
 }
 ```
@@ -311,10 +306,9 @@ function renderRoot(root, expirationTime, isSync) {
     return null;
   }
 
-  if (root.pendingCommitExpirationTime === expirationTime) {
+  if (isSync && root.pendingCommitExpirationTime === expirationTime) {
     // 已经有一个等待中的 commit
-    root.pendingCommitExpirationTime = NoWork; // 重置 pendingCommitExpirationTime
-    return commitRoot.bind(null, root, expirationTime);
+    return commitRoot.bind(null, root);
   }
 
   flushPassiveEffects();

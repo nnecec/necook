@@ -31,11 +31,11 @@
 如果是同步任务：
 
 - 如果当前在 unbatchedUpdates 阶段，且还没到 rendering 阶段时，调用 renderRoot
-- 否则，scheduleCallbackForRoot
+- 否则，调用 scheduleCallbackForRoot
 
 如果是异步任务：
 
-- scheduleCallbackForRoot
+- 调用 scheduleCallbackForRoot
 
 ---
 
