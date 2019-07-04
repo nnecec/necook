@@ -135,18 +135,17 @@ export function scheduleUpdateOnFiber(fiber, expirationTime) {
   if (expirationTime === Sync) {
     // 如果是同步任务
     if (
-      // 在 unbatchedUpdates 阶段，且 不在 rendering 阶段
+      // 在 unbatchedUpdates 阶段，且 不在 render 或 commit 阶段，则说明是在初次渲染的阶段?
       (executionContext & LegacyUnbatchedContext) !== NoContext &&
       (executionContext & (RenderContext | CommitContext)) === NoContext
     ) {
-      // schedulePendingInteraction(root, expirationTime); // debug
-
       // 边缘情况。在 batchUpdates 的内部，渲染 root 应该是同步的，但更新应该推迟到 batchUpdates 结束
       let callback = renderRoot(root, Sync, true);
       while (callback !== null) {
         callback = callback(true);
       }
     } else {
+      // 如果不是 则是高优先级的任务被触发
       scheduleCallbackForRoot(root, ImmediatePriority, Sync);
       if (executionContext === NoContext) {
         // FIXME:清理当前的同步队列。仅对用户启动的更新执行此操作，以保留同步模式的历史行为。
@@ -246,9 +245,9 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
 
 ## scheduleCallbackForRoot
 
-避免过多的回调。
+确保每个 root 仅有一个 callback 在进行，避免过多的回调。
 
-工作原理是将回调节点和过期时间存储在根目录上。当一个新的回调进来, 它比较到期时间, 以确定它是否应取消上一个。
+工作原理是将回调节点和过期时间存储在 root 上。当一个新的回调进来, 它比较到期时间, 以确定它是否应取消上一个。
 
 它还依赖于提交根调度回调呈现下一个级别, 因为这意味着我们不需要一个每个到期时间单独回调。
 
@@ -346,10 +345,6 @@ function renderRoot(root, expirationTime, isSync) {
     }
     ReactCurrentDispatcher.current = ContextOnlyDispatcher;
     let prevInteractions: Set<Interaction> | null = null;
-    if (enableSchedulerTracing) {
-      prevInteractions = __interactionsRef.current;
-      __interactionsRef.current = root.memoizedInteractions;
-    }
 
     startWorkLoopTimer(workInProgress);
 
@@ -390,8 +385,8 @@ function renderRoot(root, expirationTime, isSync) {
 
         const sourceFiber = workInProgress;
         if (sourceFiber === null || sourceFiber.return === null) {
-          // 被期望工作在 非root 的 Fiber上
-          // 这是致命的错误，因为没有处理祖先
+          // 工作在 非root 的 fiber 上
+          // 因为没有处理祖先导致致命的错误
           // root 应该捕获所有未被错误边界捕获的错误。
 
           prepareFreshStack(root, expirationTime);
@@ -506,5 +501,31 @@ function commitRoot(root, expirationTime) {
     });
   }
   return null;
+}
+```
+
+## performUnitOfWork
+
+renderRoot 中的
+
+```javascript
+function performUnitOfWork(unitOfWork: Fiber): Fiber | null {
+  // The current, flushed, state of this fiber is the alternate. Ideally
+  // nothing should rely on this, but relying on it here means that we don't
+  // need an additional field on the work in progress.
+  const current = unitOfWork.alternate;
+
+  let next;
+
+  next = beginWork(current, unitOfWork, renderExpirationTime);
+
+  unitOfWork.memoizedProps = unitOfWork.pendingProps;
+  if (next === null) {
+    // If this doesn't spawn new work, complete the current work.
+    next = completeUnitOfWork(unitOfWork);
+  }
+
+  ReactCurrentOwner.current = null;
+  return next;
 }
 ```

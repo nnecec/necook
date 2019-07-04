@@ -46,6 +46,8 @@
 3. 如果 root 或 过期时间 已更改, 丢弃现有堆栈并准备一个新堆栈。否则会从离开的地方继续；
 4. 如果已经有一个工作中的 Fiber，意味着在该 root 中仍有工作；
 
+调用 performUnitOfWork 渲染。beginWork 返回 next。
+
 ---
 
 > [scheduleCallbackForRoot](../ReactFiberWorkLoop.md#scheduleCallbackForRoot)
