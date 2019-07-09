@@ -60,11 +60,6 @@ function FiberNode(tag, pendingProps, key, mode) {
   // 其他的标识也可以在创建的时候被设置
   // 但是在创建之后不应该再被修改，特别是他的子Fiber创建之前
 
-  // export const NoMode = 0b0000;
-  // export const StrictMode = 0b0001;
-  // export const BatchedMode = 0b0010;
-  // export const ConcurrentMode = 0b0100;
-  // export const ProfileMode = 0b1000;
   this.mode = mode;
 
   // 副作用
@@ -118,14 +113,4 @@ type UpdateQueue = {
   firstCapturedEffect: Update<State> | null,
   lastCapturedEffect: Update<State> | null
 };
-```
-
-## RootTag
-
-```javascript
-export type RootTag = 0 | 1 | 2;
-
-export const LegacyRoot = 0;
-export const BatchedRoot = 1;
-export const ConcurrentRoot = 2;
 ```

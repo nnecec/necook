@@ -145,12 +145,8 @@ export function scheduleUpdateOnFiber(fiber, expirationTime) {
         callback = callback(true);
       }
     } else {
-      // 如果不是 则是高优先级的任务被触发
+      // else 则 ImmediatePriority 优先级的任务被触发
       scheduleCallbackForRoot(root, ImmediatePriority, Sync);
-      if (executionContext === NoContext) {
-        // FIXME:清理当前的同步队列。仅对用户启动的更新执行此操作，以保留同步模式的历史行为。
-        flushSyncCallbackQueue();
-      }
     }
   } else {
     // 如果是异步任务
@@ -255,15 +251,16 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
 function scheduleCallbackForRoot(root, priorityLevel, expirationTime) {
   const existingCallbackExpirationTime = root.callbackExpirationTime;
   if (existingCallbackExpirationTime < expirationTime) {
-    // New callback has higher priority than the existing one.
+    // 新的 callback 比当前 fiber 的优先级更高
     const existingCallbackNode = root.callbackNode;
     if (existingCallbackNode !== null) {
       cancelCallback(existingCallbackNode);
     }
-    root.callbackExpirationTime = expirationTime;
+    root.callbackExpirationTime = expirationTime; // 更新
 
     if (expirationTime === Sync) {
-      // 同步的 callback 会在特殊的内部队列中
+      // 同步的情况
+      // callback 会在特殊的内部队列中
       root.callbackNode = scheduleSyncCallback(
         runRootCallback.bind(
           null,
@@ -272,6 +269,7 @@ function scheduleCallbackForRoot(root, priorityLevel, expirationTime) {
         )
       );
     } else {
+      // 异步情况
       let options = null;
       if (expirationTime !== Never) {
         let timeout = expirationTimeToMs(expirationTime) - now();
@@ -289,8 +287,7 @@ function scheduleCallbackForRoot(root, priorityLevel, expirationTime) {
       );
     }
   }
-
-  // Associate the current interactions with this new root+priority.
+  // 将新的 root 优先级 与当前交互关联
   schedulePendingInteraction(root, expirationTime);
 }
 ```
@@ -409,9 +406,6 @@ function renderRoot(root, expirationTime, isSync) {
     executionContext = prevExecutionContext;
     resetContextDependencies();
     ReactCurrentDispatcher.current = prevDispatcher;
-    if (enableSchedulerTracing) {
-      __interactionsRef.current = ((prevInteractions: any): Set<Interaction>);
-    }
 
     if (workInProgress !== null) {
       // There's still work left over. Return a continuation.
@@ -527,5 +521,143 @@ function performUnitOfWork(unitOfWork: Fiber): Fiber | null {
 
   ReactCurrentOwner.current = null;
   return next;
+}
+```
+
+## completeUnitOfWork
+
+```javascript
+function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
+  // Attempt to complete the current unit of work, then move to the next
+  // sibling. If there are no more siblings, return to the parent fiber.
+  workInProgress = unitOfWork;
+  do {
+    // The current, flushed, state of this fiber is the alternate. Ideally
+    // nothing should rely on this, but relying on it here means that we don't
+    // need an additional field on the work in progress.
+    const current = workInProgress.alternate;
+    const returnFiber = workInProgress.return;
+
+    // Check if the work completed or if something threw.
+    if ((workInProgress.effectTag & Incomplete) === NoEffect) {
+      setCurrentDebugFiberInDEV(workInProgress);
+      let next;
+      if (
+        !enableProfilerTimer ||
+        (workInProgress.mode & ProfileMode) === NoMode
+      ) {
+        next = completeWork(current, workInProgress, renderExpirationTime);
+      } else {
+        startProfilerTimer(workInProgress);
+        next = completeWork(current, workInProgress, renderExpirationTime);
+        // Update render duration assuming we didn't error.
+        stopProfilerTimerIfRunningAndRecordDelta(workInProgress, false);
+      }
+      stopWorkTimer(workInProgress);
+      resetCurrentDebugFiberInDEV();
+      resetChildExpirationTime(workInProgress);
+
+      if (next !== null) {
+        // Completing this fiber spawned new work. Work on that next.
+        return next;
+      }
+
+      if (
+        returnFiber !== null &&
+        // Do not append effects to parents if a sibling failed to complete
+        (returnFiber.effectTag & Incomplete) === NoEffect
+      ) {
+        // Append all the effects of the subtree and this fiber onto the effect
+        // list of the parent. The completion order of the children affects the
+        // side-effect order.
+        if (returnFiber.firstEffect === null) {
+          returnFiber.firstEffect = workInProgress.firstEffect;
+        }
+        if (workInProgress.lastEffect !== null) {
+          if (returnFiber.lastEffect !== null) {
+            returnFiber.lastEffect.nextEffect = workInProgress.firstEffect;
+          }
+          returnFiber.lastEffect = workInProgress.lastEffect;
+        }
+
+        // If this fiber had side-effects, we append it AFTER the children's
+        // side-effects. We can perform certain side-effects earlier if needed,
+        // by doing multiple passes over the effect list. We don't want to
+        // schedule our own side-effect on our own list because if end up
+        // reusing children we'll schedule this effect onto itself since we're
+        // at the end.
+        const effectTag = workInProgress.effectTag;
+
+        // Skip both NoWork and PerformedWork tags when creating the effect
+        // list. PerformedWork effect is read by React DevTools but shouldn't be
+        // committed.
+        if (effectTag > PerformedWork) {
+          if (returnFiber.lastEffect !== null) {
+            returnFiber.lastEffect.nextEffect = workInProgress;
+          } else {
+            returnFiber.firstEffect = workInProgress;
+          }
+          returnFiber.lastEffect = workInProgress;
+        }
+      }
+    } else {
+      // This fiber did not complete because something threw. Pop values off
+      // the stack without entering the complete phase. If this is a boundary,
+      // capture values if possible.
+      const next = unwindWork(workInProgress, renderExpirationTime);
+
+      // Because this fiber did not complete, don't reset its expiration time.
+
+      if (
+        enableProfilerTimer &&
+        (workInProgress.mode & ProfileMode) !== NoMode
+      ) {
+        // Record the render duration for the fiber that errored.
+        stopProfilerTimerIfRunningAndRecordDelta(workInProgress, false);
+
+        // Include the time spent working on failed children before continuing.
+        let actualDuration = workInProgress.actualDuration;
+        let child = workInProgress.child;
+        while (child !== null) {
+          actualDuration += child.actualDuration;
+          child = child.sibling;
+        }
+        workInProgress.actualDuration = actualDuration;
+      }
+
+      if (next !== null) {
+        // If completing this work spawned new work, do that next. We'll come
+        // back here again.
+        // Since we're restarting, remove anything that is not a host effect
+        // from the effect tag.
+        // TODO: The name stopFailedWorkTimer is misleading because Suspense
+        // also captures and restarts.
+        stopFailedWorkTimer(workInProgress);
+        next.effectTag &= HostEffectMask;
+        return next;
+      }
+      stopWorkTimer(workInProgress);
+
+      if (returnFiber !== null) {
+        // Mark the parent fiber as incomplete and clear its effect list.
+        returnFiber.firstEffect = returnFiber.lastEffect = null;
+        returnFiber.effectTag |= Incomplete;
+      }
+    }
+
+    const siblingFiber = workInProgress.sibling;
+    if (siblingFiber !== null) {
+      // If there is more work to do in this returnFiber, do that next.
+      return siblingFiber;
+    }
+    // Otherwise, return to the parent
+    workInProgress = returnFiber;
+  } while (workInProgress !== null);
+
+  // We've reached the root.
+  if (workInProgressRootExitStatus === RootIncomplete) {
+    workInProgressRootExitStatus = RootCompleted;
+  }
+  return null;
 }
 ```

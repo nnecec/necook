@@ -6,46 +6,22 @@
 function beginWork(
   current: Fiber | null,
   workInProgress: Fiber,
-  renderExpirationTime: ExpirationTime,
+  renderExpirationTime: ExpirationTime
 ): Fiber | null {
   const updateExpirationTime = workInProgress.expirationTime;
-
-  if (__DEV__) {
-    if (workInProgress._debugNeedsRemount && current !== null) {
-      // This will restart the begin phase with a new fiber.
-      return remountFiber(
-        current,
-        workInProgress,
-        createFiberFromTypeAndProps(
-          workInProgress.type,
-          workInProgress.key,
-          workInProgress.pendingProps,
-          workInProgress._debugOwner || null,
-          workInProgress.mode,
-          workInProgress.expirationTime,
-        ),
-      );
-    }
-  }
 
   if (current !== null) {
     const oldProps = current.memoizedProps;
     const newProps = workInProgress.pendingProps;
 
-    if (
-      oldProps !== newProps ||
-      hasLegacyContextChanged() ||
-      // Force a re-render if the implementation changed due to hot reload:
-      (__DEV__ ? workInProgress.type !== current.type : false)
-    ) {
-      // If props or context changed, mark the fiber as having performed work.
-      // This may be unset if the props are determined to be equal later (memo).
+    // 新旧 props 不相等
+    // hasLegacyContextChanged 判断是否使用老版本 context
+    // 以上两个条件满足则说明 fiber 发生改变，需要更新
+    if (oldProps !== newProps || hasLegacyContextChanged()) {
       didReceiveUpdate = true;
     } else if (updateExpirationTime < renderExpirationTime) {
       didReceiveUpdate = false;
-      // This fiber does not have any pending work. Bailout without entering
-      // the begin phase. There's still some bookkeeping we that needs to be done
-      // in this optimized path, mostly pushing stuff onto the stack.
+      // fiber 没有 pending 中的工作，但仍需处理一部分特殊情况
       switch (workInProgress.tag) {
         case HostRoot:
           pushHostRootContext(workInProgress);
@@ -76,7 +52,7 @@ function beginWork(
         case HostPortal:
           pushHostContainer(
             workInProgress,
-            workInProgress.stateNode.containerInfo,
+            workInProgress.stateNode.containerInfo
           );
           break;
         case ContextProvider: {
@@ -109,19 +85,19 @@ function beginWork(
               return updateSuspenseComponent(
                 current,
                 workInProgress,
-                renderExpirationTime,
+                renderExpirationTime
               );
             } else {
               pushSuspenseContext(
                 workInProgress,
-                setDefaultShallowSuspenseContext(suspenseStackCursor.current),
+                setDefaultShallowSuspenseContext(suspenseStackCursor.current)
               );
               // The primary children do not have pending work with sufficient
               // priority. Bailout.
               const child = bailoutOnAlreadyFinishedWork(
                 current,
                 workInProgress,
-                renderExpirationTime,
+                renderExpirationTime
               );
               if (child !== null) {
                 // The fallback children have pending work. Skip over the
@@ -134,7 +110,7 @@ function beginWork(
           } else {
             pushSuspenseContext(
               workInProgress,
-              setDefaultShallowSuspenseContext(suspenseStackCursor.current),
+              setDefaultShallowSuspenseContext(suspenseStackCursor.current)
             );
           }
           break;
@@ -143,7 +119,7 @@ function beginWork(
           if (enableSuspenseServerRenderer) {
             pushSuspenseContext(
               workInProgress,
-              setDefaultShallowSuspenseContext(suspenseStackCursor.current),
+              setDefaultShallowSuspenseContext(suspenseStackCursor.current)
             );
             // We know that this component will suspend again because if it has
             // been unsuspended it has committed as a regular Suspense component.
@@ -177,7 +153,7 @@ function beginWork(
             return updateSuspenseListComponent(
               current,
               workInProgress,
-              renderExpirationTime,
+              renderExpirationTime
             );
           }
 
@@ -200,10 +176,13 @@ function beginWork(
           }
           break;
       }
+      // bailoutOnAlreadyFinishedWork 根据 childExpirationTime 来判断子树是否需要更新
+      // 如果子树也不需要更新则就直接 return null，代表可以直接 complete 了。
+      // 如果有更新还是需要调和子节点。
       return bailoutOnAlreadyFinishedWork(
         current,
         workInProgress,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
   } else {
@@ -219,7 +198,7 @@ function beginWork(
         current,
         workInProgress,
         workInProgress.type,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
     case LazyComponent: {
@@ -229,7 +208,7 @@ function beginWork(
         workInProgress,
         elementType,
         updateExpirationTime,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
     case FunctionComponent: {
@@ -244,7 +223,7 @@ function beginWork(
         workInProgress,
         Component,
         resolvedProps,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
     case ClassComponent: {
@@ -259,7 +238,7 @@ function beginWork(
         workInProgress,
         Component,
         resolvedProps,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
     case HostRoot:
@@ -272,13 +251,13 @@ function beginWork(
       return updateSuspenseComponent(
         current,
         workInProgress,
-        renderExpirationTime,
+        renderExpirationTime
       );
     case HostPortal:
       return updatePortalComponent(
         current,
         workInProgress,
-        renderExpirationTime,
+        renderExpirationTime
       );
     case ForwardRef: {
       const type = workInProgress.type;
@@ -292,7 +271,7 @@ function beginWork(
         workInProgress,
         type,
         resolvedProps,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
     case Fragment:
@@ -305,13 +284,13 @@ function beginWork(
       return updateContextProvider(
         current,
         workInProgress,
-        renderExpirationTime,
+        renderExpirationTime
       );
     case ContextConsumer:
       return updateContextConsumer(
         current,
         workInProgress,
-        renderExpirationTime,
+        renderExpirationTime
       );
     case MemoComponent: {
       const type = workInProgress.type;
@@ -325,9 +304,9 @@ function beginWork(
             checkPropTypes(
               outerPropTypes,
               resolvedProps, // Resolved for outer only
-              'prop',
+              "prop",
               getComponentName(type),
-              getCurrentFiberStackInDev,
+              getCurrentFiberStackInDev
             );
           }
         }
@@ -339,7 +318,7 @@ function beginWork(
         type,
         resolvedProps,
         updateExpirationTime,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
     case SimpleMemoComponent: {
@@ -349,7 +328,7 @@ function beginWork(
         workInProgress.type,
         workInProgress.pendingProps,
         updateExpirationTime,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
     case IncompleteClassComponent: {
@@ -364,7 +343,7 @@ function beginWork(
         workInProgress,
         Component,
         resolvedProps,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
     case DehydratedSuspenseComponent: {
@@ -372,7 +351,7 @@ function beginWork(
         return updateDehydratedSuspenseComponent(
           current,
           workInProgress,
-          renderExpirationTime,
+          renderExpirationTime
         );
       }
       break;
@@ -381,11 +360,10 @@ function beginWork(
       return updateSuspenseListComponent(
         current,
         workInProgress,
-        renderExpirationTime,
+        renderExpirationTime
       );
     }
     case EventComponent: {
-      
       break;
     }
   }
