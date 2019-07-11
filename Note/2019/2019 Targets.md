@@ -2,7 +2,7 @@
 
  今年想定一些目标
 
- 基本
+编码
 
 - [ ] Golang/python: 能写点小项目
 - [x] Flutter: 能写个小项目 + Dart
@@ -18,6 +18,7 @@
 - [ ] MobX
 - [x] Koa2
 - [ ] Node.js
+- [ ] Webpack
 
 生活
 
@@ -41,4 +42,6 @@ Progress
   - 编译器设计 2nd
   - 月亮与六便士
   - 重构 2nd
+  - 
+
 - 正在变胖
