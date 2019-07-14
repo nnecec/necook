@@ -125,3 +125,5 @@ Function.prototype.uncurrying = function() {
 // 函数节流
 
 // 分时函数
+
+// 惰性加载函数
