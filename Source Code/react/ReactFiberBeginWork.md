@@ -369,3 +369,312 @@ function beginWork(
   }
 }
 ```
+
+## IndeterminateComponent
+
+判断\_current 是否存在然后做的操作主要是因为：IndeterminateComponent 只有在组件被第一次渲染的情况下才会出现，在经过第一次渲染之后，就会更新组件的类型，也就是 Fiber.tag。如果出现了\_current 存在的情况，那么可能是因为渲染时有 Suspend 的情况。FunctionalComponent 在第一次创建 Fiber 的时候就是 IndeterminateComponent 状态。
+根据 value 判断是 ClassComponent 还是 FunctionComponent，调用不同的方法构建实例。
+
+```javascript
+function mountIndeterminateComponent(
+  _current,
+  workInProgress,
+  Component,
+  renderExpirationTime
+) {
+  if (_current !== null) {
+    // An indeterminate component only mounts if it suspended inside a non-
+    // concurrent tree, in an inconsistent state. We want to treat it like
+    // a new mount, even though an empty version of it already committed.
+    // Disconnect the alternate pointers.
+    _current.alternate = null;
+    workInProgress.alternate = null;
+    // Since this is conceptually a new fiber, schedule a Placement effect
+    workInProgress.effectTag |= Placement;
+  }
+
+  const props = workInProgress.pendingProps;
+  const unmaskedContext = getUnmaskedContext(workInProgress, Component, false);
+  const context = getMaskedContext(workInProgress, unmaskedContext);
+
+  prepareToReadContext(workInProgress, renderExpirationTime);
+  prepareToReadEventComponents(workInProgress);
+  let value;
+
+  value = renderWithHooks(
+    null,
+    workInProgress,
+    Component,
+    props,
+    context,
+    renderExpirationTime
+  );
+
+  // React DevTools reads this flag.
+  workInProgress.effectTag |= PerformedWork;
+
+  // 判断是否是 ClassComponent
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    typeof value.render === "function" &&
+    value.$$typeof === undefined
+  ) {
+    workInProgress.tag = ClassComponent;
+
+    // Throw out any hooks that were used.
+    resetHooks();
+
+    // Push context providers early to prevent context stack mismatches.
+    // During mounting we don't know the child context yet as the instance doesn't exist.
+    // We will invalidate the child context in finishClassComponent() right after rendering.
+    let hasContext = false;
+    if (isLegacyContextProvider(Component)) {
+      hasContext = true;
+      pushLegacyContextProvider(workInProgress);
+    } else {
+      hasContext = false;
+    }
+
+    workInProgress.memoizedState =
+      value.state !== null && value.state !== undefined ? value.state : null;
+
+    const getDerivedStateFromProps = Component.getDerivedStateFromProps;
+    if (typeof getDerivedStateFromProps === "function") {
+      applyDerivedStateFromProps(
+        workInProgress,
+        Component,
+        getDerivedStateFromProps,
+        props
+      );
+    }
+
+    adoptClassInstance(workInProgress, value);
+    mountClassInstance(workInProgress, Component, props, renderExpirationTime);
+    return finishClassComponent(
+      null,
+      workInProgress,
+      Component,
+      true,
+      hasContext,
+      renderExpirationTime
+    );
+  } else {
+    // Proceed under the assumption that this is a function component
+    workInProgress.tag = FunctionComponent;
+
+    reconcileChildren(null, workInProgress, value, renderExpirationTime);
+
+    return workInProgress.child;
+  }
+}
+```
+
+## mountLazyComponent
+
+lazy 加载完成后，通过`resolveLazyComponentTag`返回组件类型。
+
+```javascript
+function mountLazyComponent(
+  _current,
+  workInProgress,
+  elementType,
+  updateExpirationTime,
+  renderExpirationTime
+) {
+  if (_current !== null) {
+    // An lazy component only mounts if it suspended inside a non-
+    // concurrent tree, in an inconsistent state. We want to treat it like
+    // a new mount, even though an empty version of it already committed.
+    // Disconnect the alternate pointers.
+    _current.alternate = null;
+    workInProgress.alternate = null;
+    // Since this is conceptually a new fiber, schedule a Placement effect
+    workInProgress.effectTag |= Placement;
+  }
+
+  const props = workInProgress.pendingProps;
+  // We can't start a User Timing measurement with correct label yet.
+  // Cancel and resume right after we know the tag.
+  cancelWorkTimer(workInProgress);
+  let Component = readLazyComponentType(elementType);
+  // Store the unwrapped component in the type.
+  workInProgress.type = Component;
+  const resolvedTag = (workInProgress.tag = resolveLazyComponentTag(Component));
+  startWorkTimer(workInProgress);
+  const resolvedProps = resolveDefaultProps(Component, props);
+  let child;
+  switch (resolvedTag) {
+    case FunctionComponent: {
+      child = updateFunctionComponent(
+        null,
+        workInProgress,
+        Component,
+        resolvedProps,
+        renderExpirationTime
+      );
+      break;
+    }
+    case ClassComponent: {
+      child = updateClassComponent(
+        null,
+        workInProgress,
+        Component,
+        resolvedProps,
+        renderExpirationTime
+      );
+      break;
+    }
+    case ForwardRef: {
+      child = updateForwardRef(
+        null,
+        workInProgress,
+        Component,
+        resolvedProps,
+        renderExpirationTime
+      );
+      break;
+    }
+    case MemoComponent: {
+      child = updateMemoComponent(
+        null,
+        workInProgress,
+        Component,
+        resolveDefaultProps(Component.type, resolvedProps), // The inner type can have defaults too
+        updateExpirationTime,
+        renderExpirationTime
+      );
+      break;
+    }
+    default: {
+      // warning
+    }
+  }
+  return child;
+}
+```
+
+## updateFunctionComponent
+
+```javascript
+function updateFunctionComponent(
+  current,
+  workInProgress,
+  Component,
+  nextProps: any,
+  renderExpirationTime
+) {
+  const unmaskedContext = getUnmaskedContext(workInProgress, Component, true);
+  const context = getMaskedContext(workInProgress, unmaskedContext);
+
+  let nextChildren;
+  prepareToReadContext(workInProgress, renderExpirationTime);
+  prepareToReadEventComponents(workInProgress);
+
+  nextChildren = renderWithHooks(
+    current,
+    workInProgress,
+    Component,
+    nextProps,
+    context,
+    renderExpirationTime
+  );
+
+  if (current !== null && !didReceiveUpdate) {
+    bailoutHooks(current, workInProgress, renderExpirationTime);
+    return bailoutOnAlreadyFinishedWork(
+      current,
+      workInProgress,
+      renderExpirationTime
+    );
+  }
+
+  // React DevTools reads this flag.
+  workInProgress.effectTag |= PerformedWork;
+  reconcileChildren(
+    current,
+    workInProgress,
+    nextChildren,
+    renderExpirationTime
+  );
+  return workInProgress.child;
+}
+```
+
+## updateClassComponent
+
+```javascript
+function updateClassComponent(
+  current: Fiber | null,
+  workInProgress: Fiber,
+  Component: any,
+  nextProps,
+  renderExpirationTime: ExpirationTime
+) {
+  // Push context providers early to prevent context stack mismatches.
+  // During mounting we don't know the child context yet as the instance doesn't exist.
+  // We will invalidate the child context in finishClassComponent() right after rendering.
+  let hasContext;
+  if (isLegacyContextProvider(Component)) {
+    hasContext = true;
+    pushLegacyContextProvider(workInProgress);
+  } else {
+    hasContext = false;
+  }
+  prepareToReadContext(workInProgress, renderExpirationTime);
+
+  const instance = workInProgress.stateNode;
+  let shouldUpdate;
+  if (instance === null) {
+    if (current !== null) {
+      // An class component without an instance only mounts if it suspended
+      // inside a non- concurrent tree, in an inconsistent state. We want to
+      // tree it like a new mount, even though an empty version of it already
+      // committed. Disconnect the alternate pointers.
+      current.alternate = null;
+      workInProgress.alternate = null;
+      // Since this is conceptually a new fiber, schedule a Placement effect
+      workInProgress.effectTag |= Placement;
+    }
+    // In the initial pass we might need to construct the instance.
+    constructClassInstance(
+      workInProgress,
+      Component,
+      nextProps,
+      renderExpirationTime
+    );
+    mountClassInstance(
+      workInProgress,
+      Component,
+      nextProps,
+      renderExpirationTime
+    );
+    shouldUpdate = true;
+  } else if (current === null) {
+    // In a resume, we'll already have an instance we can reuse.
+    shouldUpdate = resumeMountClassInstance(
+      workInProgress,
+      Component,
+      nextProps,
+      renderExpirationTime
+    );
+  } else {
+    shouldUpdate = updateClassInstance(
+      current,
+      workInProgress,
+      Component,
+      nextProps,
+      renderExpirationTime
+    );
+  }
+  const nextUnitOfWork = finishClassComponent(
+    current,
+    workInProgress,
+    Component,
+    shouldUpdate,
+    hasContext,
+    renderExpirationTime
+  );
+  return nextUnitOfWork;
+}
+```
