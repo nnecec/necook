@@ -19,6 +19,7 @@
 - [x] Koa2
 - [ ] Node.js
 - [ ] Webpack
+- [ ] React Redux
 
 生活
 

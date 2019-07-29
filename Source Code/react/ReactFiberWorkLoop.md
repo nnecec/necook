@@ -481,10 +481,7 @@ function renderRoot(root, expirationTime, isSync) {
 
 ```javascript
 function commitRoot(root, expirationTime) {
-  runWithPriority(
-    ImmediatePriority,
-    commitRootImpl.bind(null, root, expirationTime)
-  );
+ runWithPriority(ImmediatePriority, commitRootImpl.bind(null, root));
   // If there are passive effects, schedule a callback to flush them. This goes
   // outside commitRootImpl so that it inherits the priority of the render.
   if (rootWithPendingPassiveEffects !== null) {
