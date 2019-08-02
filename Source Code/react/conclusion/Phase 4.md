@@ -18,7 +18,7 @@
 
  在`appendUpdateToQueue`方法中，会先将 Update 赋值给`lastChild.next`，之后更新`lastChild`为新的 Update。
 
-在这一阶段，将需要更新的 Update，挂载到了 fiber 上。
+在这一阶段，将需要更新的 Update，挂载到了 fiber 上。此时 Update 记录的仅是 expirationTime。
 
 ---
 

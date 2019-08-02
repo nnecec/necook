@@ -31,9 +31,10 @@ let currentEventTime = NoWork;
 export function requestCurrentTime() {
   // 在 RenderPhase / CommitPhase 重新生成 currentTime
   if (workPhase === RenderPhase || workPhase === CommitPhase) {
-    return msToExpirationTime(now()); // `now()`可以理解为`performance.now()`(https://developer.mozilla.org/zh-CN/docs/Web/API/Performance/now)
+    // `now()`可以理解为`performance.now()`(https://developer.mozilla.org/zh-CN/docs/Web/API/Performance/now)
+    return msToExpirationTime(now());
   }
-  // 其余 Phase 所有 Update 都是同一 currentTime，从而可以产生同一过期时间
+  // 其余 Phase 使用缓存的时间 提高性能
   if (currentEventTime !== NoWork) {
     return currentEventTime;
   }
@@ -52,7 +53,7 @@ export const now =
 
 ## computeExpirationForFiber
 
-计算 Fiber 过期时间。
+计算 expirationTime
 
 ```javascript
 export function computeExpirationForFiber(currentTime, fiber) {
@@ -480,13 +481,17 @@ function renderRoot(root, expirationTime, isSync) {
 ## commitRoot
 
 ```javascript
-function commitRoot(root, expirationTime) {
- runWithPriority(ImmediatePriority, commitRootImpl.bind(null, root));
+function commitRoot(root) {
+  const renderPriorityLevel = getCurrentPriorityLevel();
+  // 将 ImmediatePriority 更新到当前 priorityLevel 并返回 第二个参数 callback 的执行结果
+  runWithPriority(
+    ImmediatePriority,
+    commitRootImpl.bind(null, root, renderPriorityLevel)
+  );
   // If there are passive effects, schedule a callback to flush them. This goes
   // outside commitRootImpl so that it inherits the priority of the render.
   if (rootWithPendingPassiveEffects !== null) {
-    const priorityLevel = getCurrentPriorityLevel();
-    scheduleCallback(priorityLevel, () => {
+    scheduleCallback(NormalPriority, () => {
       flushPassiveEffects();
       return null;
     });
@@ -655,6 +660,238 @@ function completeUnitOfWork(unitOfWork: Fiber): Fiber | null {
   if (workInProgressRootExitStatus === RootIncomplete) {
     workInProgressRootExitStatus = RootCompleted;
   }
+  return null;
+}
+```
+
+## commitRootImpl
+
+```javascript
+function commitRootImpl(root, renderPriorityLevel) {
+  flushPassiveEffects();
+  flushRenderPhaseStrictModeWarningsInDEV();
+
+  const finishedWork = root.finishedWork;
+  const expirationTime = root.finishedExpirationTime;
+  if (finishedWork === null) {
+    return null;
+  }
+  root.finishedWork = null;
+  root.finishedExpirationTime = NoWork;
+
+  // commitRoot never returns a continuation; it always finishes synchronously.
+  // So we can clear these now to allow a new callback to be scheduled.
+  root.callbackNode = null;
+  root.callbackExpirationTime = NoWork;
+
+  startCommitTimer();
+
+  // Update the first and last pending times on this root. The new first
+  // pending time is whatever is left on the root fiber.
+  const updateExpirationTimeBeforeCommit = finishedWork.expirationTime;
+  const childExpirationTimeBeforeCommit = finishedWork.childExpirationTime;
+  const firstPendingTimeBeforeCommit =
+    childExpirationTimeBeforeCommit > updateExpirationTimeBeforeCommit
+      ? childExpirationTimeBeforeCommit
+      : updateExpirationTimeBeforeCommit;
+  root.firstPendingTime = firstPendingTimeBeforeCommit;
+  if (firstPendingTimeBeforeCommit < root.lastPendingTime) {
+    // This usually means we've finished all the work, but it can also happen
+    // when something gets downprioritized during render, like a hidden tree.
+    root.lastPendingTime = firstPendingTimeBeforeCommit;
+  }
+
+  if (root === workInProgressRoot) {
+    // We can reset these now that they are finished.
+    workInProgressRoot = null;
+    workInProgress = null;
+    renderExpirationTime = NoWork;
+  } else {
+    // This indicates that the last root we worked on is not the same one that
+    // we're committing now. This most commonly happens when a suspended root
+    // times out.
+  }
+
+  // Get the list of effects.
+  let firstEffect;
+  if (finishedWork.effectTag > PerformedWork) {
+    // A fiber's effect list consists only of its children, not itself. So if
+    // the root has an effect, we need to add it to the end of the list. The
+    // resulting list is the set that would belong to the root's parent, if it
+    // had one; that is, all the effects in the tree including the root.
+    if (finishedWork.lastEffect !== null) {
+      finishedWork.lastEffect.nextEffect = finishedWork;
+      firstEffect = finishedWork.firstEffect;
+    } else {
+      firstEffect = finishedWork;
+    }
+  } else {
+    // There is no effect on the root.
+    firstEffect = finishedWork.firstEffect;
+  }
+
+  if (firstEffect !== null) {
+    const prevExecutionContext = executionContext;
+    executionContext |= CommitContext;
+    let prevInteractions: Set<Interaction> | null = null;
+    if (enableSchedulerTracing) {
+      prevInteractions = __interactionsRef.current;
+      __interactionsRef.current = root.memoizedInteractions;
+    }
+
+    // Reset this to null before calling lifecycles
+    ReactCurrentOwner.current = null;
+
+    // The commit phase is broken into several sub-phases. We do a separate pass
+    // of the effect list for each phase: all mutation effects come before all
+    // layout effects, and so on.
+
+    // The first phase a "before mutation" phase. We use this phase to read the
+    // state of the host tree right before we mutate it. This is where
+    // getSnapshotBeforeUpdate is called.
+    startCommitSnapshotEffectsTimer();
+    prepareForCommit(root.containerInfo);
+    nextEffect = firstEffect;
+    do {
+      try {
+        commitBeforeMutationEffects();
+      } catch (error) {
+        captureCommitPhaseError(nextEffect, error);
+        nextEffect = nextEffect.nextEffect;
+      }
+    } while (nextEffect !== null);
+    stopCommitSnapshotEffectsTimer();
+
+    // The next phase is the mutation phase, where we mutate the host tree.
+    startCommitHostEffectsTimer();
+    nextEffect = firstEffect;
+    do {
+      try {
+        commitMutationEffects();
+      } catch (error) {
+        invariant(nextEffect !== null, "Should be working on an effect.");
+        captureCommitPhaseError(nextEffect, error);
+        nextEffect = nextEffect.nextEffect;
+      }
+    } while (nextEffect !== null);
+    stopCommitHostEffectsTimer();
+    resetAfterCommit(root.containerInfo);
+
+    // The work-in-progress tree is now the current tree. This must come after
+    // the mutation phase, so that the previous tree is still current during
+    // componentWillUnmount, but before the layout phase, so that the finished
+    // work is current during componentDidMount/Update.
+    root.current = finishedWork;
+
+    // The next phase is the layout phase, where we call effects that read
+    // the host tree after it's been mutated. The idiomatic use case for this is
+    // layout, but class component lifecycles also fire here for legacy reasons.
+    startCommitLifeCyclesTimer();
+    nextEffect = firstEffect;
+    do {
+      try {
+        commitLayoutEffects(root, expirationTime);
+      } catch (error) {
+        invariant(nextEffect !== null, "Should be working on an effect.");
+        captureCommitPhaseError(nextEffect, error);
+        nextEffect = nextEffect.nextEffect;
+      }
+    } while (nextEffect !== null);
+    stopCommitLifeCyclesTimer();
+
+    nextEffect = null;
+
+    // Tell Scheduler to yield at the end of the frame, so the browser has an
+    // opportunity to paint.
+    requestPaint();
+
+    executionContext = prevExecutionContext;
+  } else {
+    // No effects.
+    root.current = finishedWork;
+    // Measure these anyway so the flamegraph explicitly shows that there were
+    // no effects.
+    // TODO: Maybe there's a better way to report this.
+    startCommitSnapshotEffectsTimer();
+    stopCommitSnapshotEffectsTimer();
+
+    startCommitHostEffectsTimer();
+    stopCommitHostEffectsTimer();
+    startCommitLifeCyclesTimer();
+    stopCommitLifeCyclesTimer();
+  }
+
+  stopCommitTimer();
+
+  const rootDidHavePassiveEffects = rootDoesHavePassiveEffects;
+
+  if (rootDoesHavePassiveEffects) {
+    // This commit has passive effects. Stash a reference to them. But don't
+    // schedule a callback until after flushing layout work.
+    rootDoesHavePassiveEffects = false;
+    rootWithPendingPassiveEffects = root;
+    pendingPassiveEffectsExpirationTime = expirationTime;
+    pendingPassiveEffectsRenderPriority = renderPriorityLevel;
+  } else {
+    // We are done with the effect chain at this point so let's clear the
+    // nextEffect pointers to assist with GC. If we have passive effects, we'll
+    // clear this in flushPassiveEffects.
+    nextEffect = firstEffect;
+    while (nextEffect !== null) {
+      const nextNextEffect = nextEffect.nextEffect;
+      nextEffect.nextEffect = null;
+      nextEffect = nextNextEffect;
+    }
+  }
+
+  // Check if there's remaining work on this root
+  const remainingExpirationTime = root.firstPendingTime;
+  if (remainingExpirationTime !== NoWork) {
+    const currentTime = requestCurrentTime();
+    const priorityLevel = inferPriorityFromExpirationTime(
+      currentTime,
+      remainingExpirationTime
+    );
+
+    scheduleCallbackForRoot(root, priorityLevel, remainingExpirationTime);
+  } else {
+    // If there's no remaining work, we can clear the set of already failed
+    // error boundaries.
+    legacyErrorBoundariesThatAlreadyFailed = null;
+  }
+
+  onCommitRoot(finishedWork.stateNode, expirationTime);
+
+  if (remainingExpirationTime === Sync) {
+    // Count the number of times the root synchronously re-renders without
+    // finishing. If there are too many, it indicates an infinite update loop.
+    if (root === rootWithNestedUpdates) {
+      nestedUpdateCount++;
+    } else {
+      nestedUpdateCount = 0;
+      rootWithNestedUpdates = root;
+    }
+  } else {
+    nestedUpdateCount = 0;
+  }
+
+  if (hasUncaughtError) {
+    hasUncaughtError = false;
+    const error = firstUncaughtError;
+    firstUncaughtError = null;
+    throw error;
+  }
+
+  if ((executionContext & LegacyUnbatchedContext) !== NoContext) {
+    // This is a legacy edge case. We just committed the initial mount of
+    // a ReactDOM.render-ed root inside of batchedUpdates. The commit fired
+    // synchronously, but layout updates should be deferred until the end
+    // of the batch.
+    return null;
+  }
+
+  // If layout work was scheduled, flush it now.
+  flushSyncCallbackQueue();
   return null;
 }
 ```

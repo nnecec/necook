@@ -49,12 +49,11 @@ export function enqueueUpdate(fiber, update) {
           alternate.memoizedState
         );
       } else {
-        // queue1 不存在 queue2 存在，queue1 根据 queue2 创建
+        // 不存在的从存在的上面拷贝
         queue1 = fiber.updateQueue = cloneUpdateQueue(queue2);
       }
     } else {
       if (queue2 === null) {
-        // queue2 不存在 queue1 存在，queue2 根据 queue1 创建
         queue2 = alternate.updateQueue = cloneUpdateQueue(queue1);
       } else {
       }
@@ -62,7 +61,7 @@ export function enqueueUpdate(fiber, update) {
   }
   if (queue2 === null || queue1 === queue2) {
     // 只存在一个更新队列
-    // 第一次渲染 和 只有渲染没有更新时？
+    // FIXME:第一次渲染 和 只有渲染没有更新时
     appendUpdateToQueue(queue1, update);
   } else {
     // 两个队列都需要更新

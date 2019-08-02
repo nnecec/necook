@@ -111,7 +111,7 @@ function scheduleRootUpdate(current, element, expirationTime, callback) {
   //   flushPassiveEffects();
   // }
   enqueueUpdate(current, update); // 将 update 添加到 Fiber 的 lastUpdate 属性上   enqueueUpdate -> ReactUpdateQueue.js
-  scheduleWork(current, expirationTime); // 调度当前 Fiber  scheduleWork -> ReactFiberWorkLoop.js -> scheduleUpdateOnFiber
+  scheduleWork(current, expirationTime); // 调度 Fiber  scheduleWork -> ReactFiberWorkLoop.js -> scheduleUpdateOnFiber
 
   return expirationTime;
 }

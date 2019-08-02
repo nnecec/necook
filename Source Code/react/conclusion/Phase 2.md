@@ -1,20 +1,20 @@
 # Phase 2
 
-Phase 2 可以理解为，在 Phase 1 中拿到了需要渲染的数据，在这一阶段将`render`的第二个参数`container`生成`ReactRoot`并生成对应的 fiber。
+Phase 2 可以理解为，在 Phase 1 中拿到了需要渲染的`ReactNode`，在这一阶段将`render`的第二个参数`container`生成`ReactRoot`并生成对应的 fiber。
 
-从而可以将数据渲染到这个`ReactRoot`中。
+从而可以将`ReactNode`渲染到`ReactRoot`中。
 
 ---
 
-> [render](../ReactDOM.md)
+> [render](../ReactDOM.md#render)
 
-在 Phase 1 创建出 ReactNode 后，需要调用`ReactDOM.render`进行渲染。
+在 Phase 1 创建出`ReactNode`后，需要调用`ReactDOM.render`进行渲染。
 
 在 ReactDOM 对象中找到`render`属性，可以看到该属性调用了`legacyRenderSubtreeIntoContainer`方法。
 
 ---
 
-> [legacyRenderSubtreeIntoContainer](../ReactDOM.md)
+> [legacyRenderSubtreeIntoContainer](../ReactDOM.md#legacyRenderSubtreeIntoContainer)
 
 首先获取了`container._reactRootContainer`。
 
@@ -40,6 +40,8 @@ Phase 2 可以理解为，在 Phase 1 中拿到了需要渲染的数据，在这
 
 ---
 
-> [legacyRenderSubtreeIntoContainer](../ReactDOM.md)
+> [legacyRenderSubtreeIntoContainer](../ReactDOM.md#legacyRenderSubtreeIntoContainer)
 
-在 Root 构建完成后，因为是首次渲染，需要更快的将页面呈现。所以通过`unbatchedUpdates`调用一次非批量渲染，调用`updateContainer`方法。
+通过`legacyCreateRootFromDOMContainer`构建完成`ReactRoot`后，因为是首次渲染，需要更快的将页面呈现。所以通过`unbatchedUpdates`调用一次非批量渲染，调用`updateContainer`方法。
+
+其实不论是在首次构建还是在更新过程中，都需要在拿到 Root 之后调用`updateContainer`。

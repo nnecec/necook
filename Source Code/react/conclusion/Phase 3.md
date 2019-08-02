@@ -1,14 +1,14 @@
 # Phase 3
 
-经过 Phase 2 初始化 container 之后，调用`updateContainer`方法。在这一阶段计算出过期时间。
+经过 Phase 2 初始化`ReactRoot`之后，调用`updateContainer`方法。
 
-> [updateContainer](../ReactFiberReconciler.md)
+> [updateContainer](../ReactFiberReconciler.md#updateContainer)
 
-在`updateContainer`中，首先获取`container.current`即`fiber`。然后计算出了`currentTime`和`expirationTime`。
+在`updateContainer`中，首先获取`container.current`即 fiber。然后计算`currentTime`和`expirationTime`。
 
 ---
 
-> [requestCurrentTime](../ReactFiberWorkLoop.md)
+> [requestCurrentTime](../ReactFiberWorkLoop.md#requestCurrentTime)
 
 通过`requestCurrentTime`计算并返回`currentTime`。
 
@@ -20,7 +20,7 @@ currentTime = 1073741821 - ((17287028.655 / 10) | 0) = 1072013119
 
 ---
 
-> [computeExpirationForFiber](../ReactFiberWorkLoop.md)
+> [computeExpirationForFiber](../ReactFiberWorkLoop.md#computeExpirationForFiber)
 
 在计算`expirationTime`时，会判断任务优先级。过期时间越大的，优先级越高。会有以下几种情况：
 
@@ -43,7 +43,7 @@ currentTime = 1073741821 - ((17287028.655 / 10) | 0) = 1072013119
 
 ---
 
-> [scheduleRootUpdate](../ReactFiberReconciler.md)
+> [scheduleRootUpdate](../ReactFiberReconciler.md#scheduleRootUpdate)
 
 在计算出过期时间后，回到`updateContainer`中，调用`updateContainerAtExpirationTime`。
 
@@ -63,3 +63,6 @@ current & 0b000001; // 1
 current & 0b000010; // 2
 current & 0b010000; // 0
 ```
+
+这个方法里，将初始化一个 Update 对象，并将它添加到 current fiber 上。
+
