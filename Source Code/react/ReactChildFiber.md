@@ -1,7 +1,0 @@
-# ReactChildFiber
-
-## reconcileChildFibers
-
-```javascript
-
-```
