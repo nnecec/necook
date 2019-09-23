@@ -10,9 +10,8 @@ func.call(context, p1, p2) // 先不讲 apply
 
 从看到这篇文章起，你一定要记住，第三种调用形式，才是正常调用形式：
 
-```
+```javascript
 func.call(context, p1, p2)
-
 ```
 
 其他两种都是语法糖，可以等价地变为 call 形式：
@@ -32,10 +31,6 @@ obj.child.method.call(obj.child, p1, p2)
 ```javascript
 func.call(context, p1, p2)
 ```
-
-
-
-
 
 this 是你 call 一个函数时传的 context，由于你从来不用 call 形式的函数调用。
 

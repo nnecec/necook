@@ -1,19 +1,23 @@
+# defer, async, module
 
 ```javascript
-<script src="lodash.min.js" async></script>
-<script src="lodash.min.js" defer></script>
-<script src="lodash.min.js" type="module"></script>
+<script src="lodash.js" async></script>
+<script src="lodash.js" defer></script>
+<script src="lodash.js" type="module"></script>
 ```
 
 ## defer
 
 这个布尔属性被设定用来通知浏览器该脚本将在文档完成解析后，触发 DOMContentLoaded 事件前执行。如果缺少 src 属性（即内嵌脚本），该属性不应被使用，因为这种情况下它不起作用。对动态嵌入的脚本使用 `async=false` 来达到类似的效果。
 
-会根据 script 标签顺序先后执行
+会根据 script 标签顺序先后执行。
+
+> 当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完成加载。
+> 而 load 事件则是在所有资源加载完成后被触发。
 
 ## async
 
-HTML5属性。该布尔属性指示浏览器是否在允许的情况下异步执行该脚本。该属性对于内联脚本无作用 (即没有src属性的脚本）。
+HTML5属性。该布尔属性指示浏览器是否在允许的情况下异步执行该脚本，不影响 DOMContentLoaded 的触发。该属性对于内联脚本无作用 (即没有src属性的脚本）。
 
 每个都会在下载完成后立即执行，无关 script 标签出现的顺序。
 
