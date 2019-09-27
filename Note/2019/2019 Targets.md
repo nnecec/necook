@@ -17,9 +17,10 @@
 - [x] React - reading
 - [ ] MobX
 - [x] Koa2
+- [ ] Express
 - [ ] Node.js
 - [ ] Webpack
-- [ ] React Redux
+- [x] React Redux
 
 生活
 
@@ -50,5 +51,6 @@ Progress
   - JavaScript 设计模式与开发实践
   - 二手时间
   - 冬泳
+  - 深入浅出 Node.js
 
 - 正在变胖
