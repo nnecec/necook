@@ -1,8 +1,8 @@
 之前从来不做计划，不做规划，不定目标。
 
-今年想定一些目标
+ 今年想定一些目标
 
-编码
+ 编码
 
 - [ ] Golang/python: 能写点小项目
 - [x] Flutter: 能写个小项目 + Dart
@@ -14,13 +14,13 @@
 源码
 
 - [x] Redux
+- [x] React Redux
 - [x] React - reading
 - [ ] MobX
 - [x] Koa2
 - [ ] Express
 - [ ] Node.js
 - [ ] Webpack
-- [x] React Redux
 
 生活
 
@@ -34,6 +34,7 @@
 Progress
 
 - 电影
+
   - 四个春天（慢节奏的家庭记录）
   - 网络迷踪（挺紧张）
   - 海市蜃楼（科幻反转片）
@@ -45,6 +46,7 @@ Progress
   - 流浪猫鲍勃（鲍勃太甜了）
 
 - 书
+
   - HTTP 权威指南
   - 月亮与六便士
   - 重构 2nd
