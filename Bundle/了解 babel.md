@@ -37,3 +37,4 @@ env 根据配置的 targets 自动寻找匹配的配置项。
 ## Reference
 
 1. [一口（很长的）气了解 babel](https://zhuanlan.zhihu.com/p/43249121)
+2. [关于 Babel 那些事](https://juejin.im/post/5e5b488af265da574112089f)
