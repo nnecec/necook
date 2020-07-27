@@ -1,6 +1,6 @@
 .DS_Store
-**/node_modules
-*.javascript
+node_modules
+*/**/node_modules
 package-lock.json
 yarn.lock
 _book
