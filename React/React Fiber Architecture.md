@@ -32,7 +32,7 @@ Fiber 的开发仍在进行中，[进度传送门](http://isfiberreadyyet.com/)�
 
 - [React Design Principles](https://facebook.github.io/react/contributing/design-principles.html) - 请特别关注 `Scheduling` 部分。它很好地解释了*为什么*使用 React Fiber。
 
-## 回顾一些概念
+·## 回顾一些概念
 
 如果你还没有准备好，请查看上一章节。
 

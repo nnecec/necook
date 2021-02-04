@@ -12,19 +12,19 @@
 
 // 2、模块对外暴露的 js 函数
 function SomewebpackPlugin(pluginOpions) {
-    this.options = pluginOptions;
+  this.options = pluginOptions;
 }
 
 // 3、原型定义一个 apply 函数，并注入了 compiler 对象
 SomewebpackPlugin.prototype.apply = function (compiler) {
-    // 4、挂载 webpack 事件钩子（这里挂载的是 emit 事件）
-    compiler.plugin('emit', function (compilation, callback) {
-        // ... 内部进行自定义的编译操作
-        // 5、操作 compilation 对象的内部数据
-        console.log(compilation);
-        // 6、执行 callback 回调
-        callback();
-    });
+  // 4、挂载 webpack 事件钩子（这里挂载的是 emit 事件）
+  compiler.plugin('emit', function (compilation, callback) {
+    // ... 内部进行自定义的编译操作
+    // 5、操作 compilation 对象的内部数据
+    console.log(compilation);
+    // 6、执行 callback 回调
+    callback();
+  });
 };
 
 // 暴露 js 函数
@@ -49,5 +49,5 @@ compilation 实例继承于 compiler，compilation 对象代表了一次单一�
 
 ## Reference
 
-1. [看清楚真正的Webpack插件](https://zoumiaojiang.com/article/what-is-real-webpack-plugin/#compiler)
+1. [看清楚真正的 Webpack 插件](https://zoumiaojiang.com/article/what-is-real-webpack-plugin/#compiler)
 2. [Webpack API](https://webpack.js.org/api/plugins/)
