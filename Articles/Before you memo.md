@@ -17,6 +17,7 @@ function beginWork(
     if (
       oldProps !== newProps ||
       hasLegacyContextChanged() ||
+      (__DEV__ ? workInProgress.type !== current.type : false)
     ) {
       didReceiveUpdate = true;
     } else if (!includesSomeLane(renderLanes, updateLanes)) {
@@ -38,7 +39,7 @@ function beginWork(
 `bailoutOnAlreadyFinishedWork`是复用逻辑，可以看到进入该方法的判断条件：
 
 1. oldProps === newProps
-2. legacy context 没被修改
+<!-- 2. legacy context 没被修改 -->
 3. 不包含与本次 fiber 一致优先级的更新
 
 - `Origin`

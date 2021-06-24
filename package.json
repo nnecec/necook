@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/nnecec/necook#readme",
   "devDependencies": {
-    "honkit": "^3.4.0"
+    "honkit": "^3.6.20"
   }
 }

@@ -117,21 +117,64 @@
 
   如果你的应用会渲染大量的列表数据，我们建议使用一种称为‘windowing’的技术，这种技术下在任何给定的时间内只会渲染一小部分数据列表，并可以减少列表项的重复渲染（即再次渲染已经渲染过的数据）。
 
-- 举例说明 React 的插槽有哪些运用场景？
-- 你有用过 React 的插槽(Portals)吗？怎么用？
+- 举例说明 React 的 Portals 有哪些运用场景？
+
+  在以前， react 中所有的组件都会位于 #app 下，而使用 Portals 提供了一种脱离 #app 的组件。因此 Portals 适合脱离文档流(out of flow) 的组件，特别是 position: absolute 与 position: fixed 的组件。比如模态框，通知，警告，goTop 等。
+
 - React 的严格模式有什么用处？
+
+  StrictMode 目前有助于：
+
+  - 识别不安全的生命周期
+  - 关于使用过时字符串 ref API 的警告
+  - 关于使用废弃的 findDOMNode 方法的警告
+  - 检测意外的副作用
+  - 检测过时的 context API
+
 - React 如何进行代码拆分？拆分的原则是什么？
-- React 组件的构造函数有什么作用？
-- React 组件的构造函数是必须的吗？
+
+- React 组件的构造函数有什么作用？React 组件的构造函数是必须的吗？
+
+  初始化数据。不是必须的。
+
 - React 中在哪捕获错误？
-- React 怎样引入 svg 的文件？
-- 在 React 中你有经常使用常量吗？
+
+  声明一个 `ErrorBoundary` 类，将其添加到应用最外层，并添加如下声明周期及方法
+
+  ```js
+  // ...
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // You can also log the error to an error reporting service
+    logErrorToMyService(error, errorInfo);
+  }
+
+   render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children;
+  }
+  ```
+
 - 为什么说 React 中的 props 是只读的？
-- 你有用过哪些 React 的表单库吗？说说它们的优缺点
+
 - 如果组件的属性没有传值，那么它的默认值是什么？
-- 可以使用 TypeScript 写 React 应用吗？怎么操作？
+
+  undefined
+
 - super()和 super(props)有什么区别？
-- 你有使用过 loadable 组件吗？它帮我们解决了什么问题？
 - 你有使用过 suspense 组件吗？它帮我们解决了什么问题？
 - 怎样动态导入组件？
 - 如何给非控组件设置默认的值？
@@ -141,8 +184,6 @@
 - 使用 Hooks 要遵守哪些原则？
 - render 方法的原理你有了解吗？它返回的数据类型是什么？
 - useEffect 和 useLayoutEffect 有什么区别？
-- 在 React 项目中你用过哪些动画的包？
-- React 必须使用 JSX 吗？
 - 自定义组件时 render 是可选的吗？为什么？
 - 需要把 keys 设置为全局唯一吗？
 - 怎么定时更新一个组件？
